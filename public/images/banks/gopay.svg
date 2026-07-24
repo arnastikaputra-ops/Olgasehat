@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="120" height="40">
+  <rect width="300" height="100" rx="12" fill="#00a5cf"/>
+  <circle cx="60" cy="50" r="22" fill="#ffffff"/>
+  <circle cx="60" cy="50" r="10" fill="#00a5cf"/>
+  <text x="100" y="66" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="1">gopay</text>
+</svg>

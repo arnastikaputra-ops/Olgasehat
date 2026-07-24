@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="120" height="40">
+  <rect width="300" height="100" rx="12" fill="#0f4c81"/>
+  <circle cx="50" cy="50" r="28" fill="#d97706" />
+  <path d="M42 32 h16 c8 0 13 4 13 10 c0 5-3 8-7 9 c5 1 9 5 9 11 c0 7-6 12-15 12 H42 V32 z M50 42 v6 h6 c3 0 5-1.5 5-3 s-2-3-5-3 H50 z M50 56 v8 h7 c3 0 5-1.5 5-4 s-2-4-5-4 H50 z" fill="#ffffff"/>
+  <text x="95" y="68" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#ffffff" letter-spacing="2">BPD</text>
+</svg>

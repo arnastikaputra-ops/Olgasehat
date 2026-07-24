@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="120" height="40">
+  <rect width="300" height="100" rx="12" fill="#006677"/>
+  <text x="35" y="68" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#f15a24" letter-spacing="2">BNI</text>
+  <path d="M170 30 L220 30 L260 70 L210 70 Z" fill="#f15a24"/>
+  <circle cx="240" cy="40" r="10" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="120" height="40">
+  <rect width="300" height="100" rx="12" fill="#003d79"/>
+  <text x="25" y="68" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="1">mandiri</text>
+  <path d="M210 25 C230 15, 260 25, 270 40 C250 40, 230 35, 210 25 Z" fill="#ffb400"/>
+  <path d="M220 42 C245 35, 270 45, 275 60 C255 58, 235 52, 220 42 Z" fill="#ffb400"/>
+</svg>
