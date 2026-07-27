@@ -51,8 +51,16 @@ Route::get('/', function() {
 
 Route::get('/tentang', [AboutUsController::class, 'showPublic'])->name('tentang');
 Route::get('/blog-news', [BeritaController::class, 'index'])->name('frontend.blog-news');
-Route::get('/blog-news-detail/{id}', [BeritaController::class, 'show'])->name('frontend.blog-news-detail');
-Route::get('/membership-detail', fn() => view('FRONTEND.membership_detail'));
+Route::get('/blog-news/{id}', [BeritaController::class, 'show'])->name('frontend.blog-news-detail');
+Route::get('/membership-detail/{id?}', function($id = null) {
+    if ($id) {
+        $activity = \App\Models\Activity::where('status', 'approved')->find($id);
+        if ($activity) {
+            return redirect()->route('community.detail', $id);
+        }
+    }
+    return redirect()->route('community', ['type' => 'klub']);
+});
 Route::get('/community', [App\Http\Controllers\ActivityController::class, 'index'])->name('community');
 Route::get('/community-detail/{id}', [App\Http\Controllers\ActivityController::class, 'showDetail'])->name('community.detail');
 Route::get('/confirm', fn() => view('FRONTEND.confirm'));
@@ -115,6 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/book-slots', [App\Http\Controllers\VenueFrontendController::class, 'bookSlots'])->name('user.book-slots');
     Route::post('/health-booking/store', [App\Http\Controllers\Frontend\HealthFrontendController::class, 'storeBooking'])->name('health.booking.store');
     Route::post('/riwayatkontrol/{id}/reschedule', [LoginController::class, 'rescheduleBooking'])->name('user.riwayatkontrol.reschedule');
+    Route::post('/user/review', [ReviewController::class, 'storeFromUser'])->name('user.review.store');
 });
 Route::get('/api/contact-us', function() {
     return response()->json(\App\Models\ContactUs::all());
@@ -216,7 +225,27 @@ Route::middleware(['auth', 'role:pemiliklapangan'])->group(function () {
             ));
         })->name('keuangan.fasilitas');
         Route::get('/komunitas', fn() => view('pemiliklapangan.Keuangan.komunitas'))->name('keuangan.komunitas');
-        Route::get('/membership', fn() => view('pemiliklapangan.Keuangan.membership'))->name('keuangan.membership');
+        Route::get('/membership', function() {
+            $user = Auth::user();
+            $membershipActivities = \App\Models\Activity::where('pemilik_id', $user->id)
+                ->where(function($q) {
+                    $q->where('jenis', 'membership')
+                      ->orWhereHas('activityType', fn($at) => $at->where('name', 'klub'));
+                })
+                ->get();
+            
+            $activityIds = $membershipActivities->pluck('id');
+            $participants = \App\Models\ActivityParticipant::whereIn('activity_id', $activityIds)
+                ->with(['activity', 'user'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $totalPendapatan = $participants->where('status', 'approved')->sum(function($p) {
+                return $p->activity->harga ?? 0;
+            });
+
+            return view('pemiliklapangan.Keuangan.membership', compact('membershipActivities', 'participants', 'totalPendapatan'));
+        })->name('keuangan.membership');
         Route::get('/event', fn() => view('pemiliklapangan.Keuangan.event'))->name('keuangan.event');
     });
 
@@ -358,7 +387,8 @@ Route::middleware(['auth'])->group(function () {
 
         // VERIFIKASI MITRA
         Route::get('/verifikasi-mitra', [App\Http\Controllers\MitraController::class, 'index'])->name('mitra.index');
-        Route::put('/verifikasi-mitra/{id}', [App\Http\Controllers\MitraController::class, 'verify'])->name('mitra.verify');
+        Route::match(['GET', 'POST', 'PUT'], '/verifikasi-mitra/{id}/verify', [App\Http\Controllers\MitraController::class, 'verify'])->name('mitra.verify');
+        Route::match(['GET', 'POST', 'PUT'], '/verifikasi-mitra/{id}', [App\Http\Controllers\MitraController::class, 'verify'])->name('mitra.verify.legacy');
         Route::get('/datapemiliklapangan', [App\Http\Controllers\MitraController::class, 'index'])->name('mitra.datapemiliklapangan');
         Route::get('/verifikasi-mitra/{id}', [App\Http\Controllers\MitraController::class, 'show'])->name('mitra.show');
         Route::delete('/verifikasi-mitra/{id}', [App\Http\Controllers\MitraController::class, 'destroy'])->name('mitra.destroy');
@@ -389,7 +419,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('clinics/{id}', [App\Http\Controllers\Health\ClinicController::class, 'show'])->name('clinics.show');
             Route::get('clinics/{id}/edit', [App\Http\Controllers\Health\ClinicController::class, 'edit'])->name('clinics.edit');
             Route::put('clinics/{id}', [App\Http\Controllers\Health\ClinicController::class, 'update'])->name('clinics.update');
-            Route::post('clinics/{id}/approve', [App\Http\Controllers\Health\ClinicController::class, 'approve'])->name('clinics.approve');
+            Route::match(['GET', 'POST', 'PUT'], 'clinics/{id}/approve', [App\Http\Controllers\Health\ClinicController::class, 'approve'])->name('clinics.approve');
             Route::post('clinics/{id}/reject', [App\Http\Controllers\Health\ClinicController::class, 'reject'])->name('clinics.reject');
             Route::delete('clinics/{id}', [App\Http\Controllers\Health\ClinicController::class, 'destroy'])->name('clinics.destroy');
             
@@ -428,7 +458,7 @@ Route::middleware(['auth'])->group(function () {
         // TEMPAT SEHAT (Pengelola Kesehatan)
         Route::get('/tempat-sehat', [App\Http\Controllers\TempatSehatController::class, 'index'])->name('tempat-sehat.index');
         Route::get('/tempat-sehat/{id}', [App\Http\Controllers\TempatSehatController::class, 'show'])->name('tempat-sehat.show');
-        Route::put('/tempat-sehat/{id}/verify', [App\Http\Controllers\TempatSehatController::class, 'verify'])->name('tempat-sehat.verify');
+        Route::match(['GET', 'POST', 'PUT'], '/tempat-sehat/{id}/verify', [App\Http\Controllers\TempatSehatController::class, 'verify'])->name('tempat-sehat.verify');
         Route::delete('/tempat-sehat/{id}', [App\Http\Controllers\TempatSehatController::class, 'destroy'])->name('tempat-sehat.destroy');
 
 

@@ -171,10 +171,27 @@
 
           <!-- Data Layanan Kesehatan -->
           <li class="nav-item">
-            <a href="{{ route('health.clinics.index') }}" class="nav-link">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-heartbeat"></i>
-              <p>Data Layanan Kesehatan</p>
+              <p>
+                Layanan Kesehatan
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('health.clinics.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Verifikasi Klinik</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('health.bookings.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Janji Temu Klinik</p>
+                </a>
+              </li>
+            </ul>
           </li>
 
           <!-- Manajemen Venue -->
@@ -249,6 +266,65 @@
                 </a>
               </li>
             </ul>
+          </li>
+
+          <!-- Galeri & Banner -->
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-images"></i>
+              <p>
+                Galeri & Banner
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('galeri.home-banner') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Home Banner</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('galeri.lapangan-banner') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Lapangan Banner</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('galeri.kesehatan-banner') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Kesehatan Banner</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('galeri.venue-banner') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Venue Banner</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('galeri') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Semua Galeri</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Data Program -->
+          <li class="nav-item">
+            <a href="{{ route('programs') }}" class="nav-link">
+              <i class="nav-icon fas fa-tasks"></i>
+              <p>Data Program</p>
+            </a>
+          </li>
+
+          <!-- Ulasan & Testimoni -->
+          <li class="nav-item">
+            <a href="{{ route('review.index') }}" class="nav-link">
+              <i class="nav-icon fas fa-star"></i>
+              <p>Ulasan & Testimoni</p>
+            </a>
           </li>
 
           <!-- Extra -->

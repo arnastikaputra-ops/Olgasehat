@@ -150,7 +150,10 @@ class LoginController extends Controller
             
         $membershipCount = ActivityParticipant::where('user_id', $user->id)
             ->whereHas('activity', function($q) {
-                $q->where('jenis', 'membership');
+                $q->where('jenis', 'membership')
+                  ->orWhereHas('activityType', function($at) {
+                      $at->where('name', 'klub');
+                  });
             })
             ->where('status', 'approved')
             ->count();
@@ -217,9 +220,12 @@ class LoginController extends Controller
         $user = Auth::user();
         $memberships = ActivityParticipant::where('user_id', $user->id)
             ->whereHas('activity', function($q) {
-                $q->where('jenis', 'membership');
+                $q->where('jenis', 'membership')
+                  ->orWhereHas('activityType', function($at) {
+                      $at->where('name', 'klub');
+                  });
             })
-            ->with('activity')
+            ->with(['activity.user', 'activity.pemilik'])
             ->orderBy('created_at', 'desc')
             ->get();
 

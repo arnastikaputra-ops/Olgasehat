@@ -93,7 +93,12 @@
                     @else
                         <span class="badge-custom bg-gray-500 text-white mb-3">{{ ucfirst($activity->jenis) }}</span>
                     @endif
-                    <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">{{ $activity->nama }}</h1>
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">{{ $activity->nama }}</h1>
+                        <button type="button" onclick="openReviewModal('{{ $activity->jenis == 'event' ? 'event' : 'komunitas' }}', {{ $activity->id }}, '{{ addslashes($activity->nama) }}')" class="inline-flex items-center bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-full shadow-lg transition">
+                            <i class="fas fa-star mr-1.5"></i> Beri Rating {{ $activity->jenis == 'event' ? 'Event' : 'Komunitas' }}
+                        </button>
+                    </div>
                 </div>
             </div>
             

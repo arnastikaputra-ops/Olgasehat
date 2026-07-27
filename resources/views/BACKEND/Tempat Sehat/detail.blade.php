@@ -118,6 +118,33 @@
 
                     <div class="row mt-4">
                         <div class="col-12">
+                            <div class="p-3 bg-light rounded border mb-3">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fas fa-percentage mr-1"></i> Pengaturan Bagi Hasil / Komisi Platform (OlgaSehat)
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label font-weight-bold">Tipe Bagi Hasil / Komisi:</label>
+                                        <select name="komisi_tipe" id="komisi_tipe" class="form-control" form="verifyForm">
+                                            <option value="none" {{ ($mitra->komisi_tipe ?? 'none') == 'none' ? 'selected' : '' }}>Tanpa Bagi Hasil (0%)</option>
+                                            <option value="percentage" {{ ($mitra->komisi_tipe ?? '') == 'percentage' ? 'selected' : '' }}>Bagi Hasil Persentase (%)</option>
+                                            <option value="fixed" {{ ($mitra->komisi_tipe ?? '') == 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rp)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label font-weight-bold">Nilai Komisi Platform:</label>
+                                        <input type="number" step="0.01" min="0" name="komisi_nilai" id="komisi_nilai" value="{{ (float)($mitra->komisi_nilai ?? 0) }}" class="form-control" placeholder="Contoh: 5 untuk 5% atau 5000 untuk Rp 5.000" form="verifyForm">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    * Atur apakah transaksi booking layanan kesehatan dari pengelola ini akan dipotong persentase/nominal untuk pemilik platform OlgaSehat.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-12">
                             <h6 class="text-muted">Informasi Tambahan</h6>
                             <table class="table table-borderless">
                                 <tr>
@@ -138,13 +165,17 @@
                         <i class="fas fa-arrow-left"></i> Kembali
                     </a>
                     @if($mitra->status === 'pending')
-                    <form action="{{ route('tempat-sehat.verify', $mitra->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin verifikasi pengelola kesehatan ini?');">
+                    <form action="{{ route('tempat-sehat.verify', $mitra->id) }}" method="POST" id="verifyForm" class="d-inline" onsubmit="return confirm('Yakin ingin verifikasi pengelola kesehatan ini?');">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check"></i> Verifikasi
+                        <button type="submit" class="btn btn-success font-weight-bold">
+                            <i class="fas fa-check"></i> Verifikasi Pengelola
                         </button>
                     </form>
+                    @elseif($mitra->status === 'approved')
+                    <span class="badge bg-success py-2 px-3 align-middle me-2">
+                        <i class="fas fa-check-circle mr-1"></i> Sudah Disetujui
+                    </span>
                     @endif
                     <form action="{{ route('tempat-sehat.destroy', $mitra->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pengelola kesehatan ini?');">
                         @csrf

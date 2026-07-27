@@ -200,6 +200,9 @@
                                 <a href="/venue" class="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition text-sm">
                                     <i class="fas fa-eye mr-2"></i>Lihat Venue
                                 </a>
+                                <button type="button" onclick="openReviewModal('venue', {{ $booking->pendaftaran_id }}, '{{ addslashes($booking->venue->namavenue ?? 'Venue') }}')" class="flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition text-sm">
+                                    <i class="fas fa-star mr-2"></i>Beri Rating Venue
+                                </button>
                                 @if($booking->bukti_pembayaran)
                                     <a href="{{ asset('bukti_pembayaran/' . $booking->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
                                         <i class="fas fa-file-image mr-2"></i>Bukti Transfer
@@ -289,6 +292,9 @@
                             </div>
 
                             <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+                                <button type="button" onclick="openReviewModal('klinik', {{ $hb->clinic_id ?? 0 }}, '{{ addslashes($hb->clinic->nama_klinik ?? ($hb->nama_layanan ?? 'Klinik')) }}')" class="flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition text-sm">
+                                    <i class="fas fa-star mr-2"></i>Beri Rating Klinik
+                                </button>
                                 @if($hb->bukti_pembayaran)
                                     <a href="{{ asset('bukti_pembayaran/' . $hb->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
                                         <i class="fas fa-file-image mr-2"></i>Bukti Transfer

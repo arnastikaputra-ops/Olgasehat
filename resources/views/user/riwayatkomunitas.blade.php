@@ -225,16 +225,21 @@
                     @endif
 
                     {{-- Tombol Aksi --}}
-                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 flex-wrap gap-2">
                         <a href="{{ route('community.detail', $activity->id) }}" 
                            class="text-sm font-semibold text-orange-500 hover:text-orange-700 transition duration-150 ease-in-out">
                             Lihat Detail 
                             <i class="fas fa-arrow-right ml-1"></i>
                         </a>
-                        <a href="{{ route('user.aktivitas.edit', $activity->id) }}" 
-                           class="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-150">
-                            <i class="fas fa-edit mr-1"></i> Edit
-                        </a>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="openReviewModal('{{ $activity->jenis == 'event' ? 'event' : 'komunitas' }}', {{ $activity->id }}, '{{ addslashes($activity->nama) }}')" class="bg-amber-500 text-white text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-amber-600 transition duration-150">
+                                <i class="fas fa-star mr-1"></i> Beri Rating
+                            </button>
+                            <a href="{{ route('user.aktivitas.edit', $activity->id) }}" 
+                               class="bg-blue-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition duration-150">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </a>
+                        </div>
                     </div>
                 </div>
                 @endforeach

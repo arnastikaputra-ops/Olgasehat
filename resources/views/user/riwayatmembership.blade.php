@@ -44,7 +44,7 @@
                     <p class="text-gray-500 mt-1">Kelola dan cek manfaat keanggotaanmu di berbagai venue.</p>
                 </div>
                 {{-- Tombol CTA --}}
-                <a href="/beli-membership" class="bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 transition duration-150 flex items-center text-sm md:text-base whitespace-nowrap">
+                <a href="/community?type=klub" class="bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 transition duration-150 flex items-center text-sm md:text-base whitespace-nowrap">
                     <i class="fas fa-shopping-cart mr-2"></i> Beli Baru
                 </a>
             </div>
@@ -135,7 +135,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10">
                             <div>
                                 <span class="text-xs text-gray-400 block">Biaya Membership</span>
-                                <span class="text-xl font-bold text-amber-400">Rp {{ number_format($membership->activity->harga, 0, ',', '.') }}</span>
+                                <span class="text-xl font-bold text-amber-400">Rp {{ number_format($membership->activity->harga ?? 0, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex flex-wrap gap-3">
                                 <a href="/venue" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 shadow-lg hover:shadow-amber-500/25 transition">
@@ -155,7 +155,7 @@
                     <p class="text-gray-500 max-w-lg mx-auto mb-6">
                         Anda belum mendaftar membership di club/venue manapun. Temukan membership favorit Anda dan nikmati diskon member eksklusif!
                     </p>
-                    <a href="/community" class="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition">
+                    <a href="/community?type=klub" class="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition">
                         <i class="fas fa-search mr-2"></i> Cari Membership Sekarang
                     </a>
                 </div>

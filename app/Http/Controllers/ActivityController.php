@@ -63,33 +63,34 @@ class ActivityController extends Controller
     public function storeFromPemilik(Request $request)
     {
         $request->validate([
-    'nama' => 'required|string|max:255',
-    'kategori' => 'required|string|max:255',
-    'lokasi' => 'nullable|string|max:255',
-    'biaya_bergabung' => 'required|in:gratis,berbayar',
-    'harga' => 'nullable|integer|min:0|required_if:biaya_bergabung,berbayar',
-    'deskripsi' => 'required|string',
-    'link_kontak' => 'nullable|string|max:500',
-    'link_kontak_2' => 'nullable|string|max:500',
-    'tipe_aktivitas' => 'nullable|in:komunitas,event',
-]);
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'lokasi' => 'nullable|string|max:255',
+            'biaya_bergabung' => 'required|in:gratis,berbayar',
+            'harga' => 'nullable|integer|min:0|required_if:biaya_bergabung,berbayar',
+            'deskripsi' => 'required|string',
+            'link_kontak' => 'nullable|string|max:500',
+            'link_kontak_2' => 'nullable|string|max:500',
+            'tipe_aktivitas' => 'nullable|in:komunitas,event,membership',
+            'jenis' => 'nullable|in:komunitas,event,membership',
+        ]);
 
-     $jenis = $request->tipe_aktivitas ?? 'komunitas';
+        $jenis = $request->tipe_aktivitas ?? $request->jenis ?? 'komunitas';
 
-$activityTypeName = $jenis === 'event'
-    ? 'event'
-    : 'open-class';
+        $activityTypeName = $jenis === 'event'
+            ? 'event'
+            : ($jenis === 'membership' ? 'klub' : 'open-class');
 
-$activityType = ActivityType::where('name', $activityTypeName)->first();
+        $activityType = ActivityType::where('name', $activityTypeName)->first();
 
-if (!$activityType) {
-    $activityType = ActivityType::firstOrCreate([
-        'name' => $activityTypeName,
-    ], [
-        'title' => $activityTypeName === 'event' ? 'Event' : 'Komunitas',
-        'icon' => $activityTypeName === 'event' ? 'fas fa-calendar' : 'fas fa-users',
-    ]);
-}
+        if (!$activityType) {
+            $activityType = ActivityType::firstOrCreate([
+                'name' => $activityTypeName,
+            ], [
+                'title' => $jenis === 'membership' ? 'Membership' : ($jenis === 'event' ? 'Event Olahraga' : 'Komunitas'),
+                'icon' => $jenis === 'membership' ? 'fas fa-users' : ($jenis === 'event' ? 'fas fa-calendar-alt' : 'fas fa-chalkboard-teacher'),
+            ]);
+        }
         $data = new Activity();
         $data->nama = $request->nama;
         $data->kategori = $request->kategori;
@@ -116,9 +117,120 @@ if (!$activityType) {
 
         $message = $jenis === 'event' 
             ? 'Event berhasil dibuat dan sedang menunggu verifikasi admin.'
-            : 'Komunitas berhasil dibuat dan sedang menunggu verifikasi admin.';
+            : ($jenis === 'membership' ? 'Paket Membership berhasil dibuat dan sedang menunggu verifikasi admin.' : 'Komunitas berhasil dibuat dan sedang menunggu verifikasi admin.');
 
         return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Store aktivitas dari Super Admin
+     */
+    public function storeFromAdmin(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'lokasi' => 'nullable|string|max:255',
+            'biaya' => 'required|in:gratis,berbayar',
+            'harga' => 'nullable|integer|min:0|required_if:biaya,berbayar',
+            'deskripsi' => 'required|string',
+            'link' => 'nullable|string|max:500',
+            'link_kontak_2' => 'nullable|string|max:500',
+            'jenis' => 'required|in:komunitas,membership,event',
+        ]);
+
+        $activityTypeName = $request->jenis === 'komunitas' ? 'open-class' : ($request->jenis === 'membership' ? 'klub' : 'event');
+        $activityType = ActivityType::where('name', $activityTypeName)->first();
+
+        if (!$activityType) {
+            $activityType = ActivityType::create([
+                'name' => $activityTypeName,
+                'title' => $request->jenis === 'membership' ? 'Membership' : ($request->jenis === 'event' ? 'Event Olahraga' : 'Komunitas'),
+                'icon' => $request->jenis === 'membership' ? 'fas fa-users' : ($request->jenis === 'event' ? 'fas fa-calendar-alt' : 'fas fa-chalkboard-teacher'),
+            ]);
+        }
+
+        $data = new Activity();
+        $data->nama = $request->nama;
+        $data->kategori = $request->kategori;
+        $data->lokasi = $request->lokasi;
+        $data->biaya_bergabung = $request->biaya;
+        $data->harga = $request->biaya === 'berbayar' ? $request->harga : null;
+        $data->deskripsi = $request->deskripsi;
+        $data->link_kontak = $request->link;
+        $data->link_kontak_2 = $request->link_kontak_2;
+        $data->jenis = $request->jenis;
+        $data->status = 'approved'; // Super Admin auto-approved
+        $data->verified_at = now();
+        $data->user_id = Auth::id();
+        $data->activity_type_id = $activityType ? $activityType->id : null;
+
+        if ($request->hasFile('banner')) {
+            $image = $request->file('banner');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('fotoaktivitas'), $imageName);
+            $data->banner = $imageName;
+        }
+
+        $data->save();
+
+        $jenisTitle = ucfirst($request->jenis);
+        return redirect()->back()->with('success', "{$jenisTitle} berhasil dibuat dan langsung terpublikasi.");
+    }
+
+    /**
+     * Store aktivitas dari Pengelola Kesehatan
+     */
+    public function storeFromPengelola(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'lokasi' => 'nullable|string|max:255',
+            'biaya' => 'required|in:gratis,berbayar',
+            'harga' => 'nullable|integer|min:0|required_if:biaya,berbayar',
+            'deskripsi' => 'required|string',
+            'link' => 'nullable|string|max:500',
+            'link_kontak_2' => 'nullable|string|max:500',
+            'jenis' => 'required|in:komunitas,membership,event',
+        ]);
+
+        $activityTypeName = $request->jenis === 'komunitas' ? 'open-class' : ($request->jenis === 'membership' ? 'klub' : 'event');
+        $activityType = ActivityType::where('name', $activityTypeName)->first();
+
+        if (!$activityType) {
+            $activityType = ActivityType::create([
+                'name' => $activityTypeName,
+                'title' => $request->jenis === 'membership' ? 'Membership' : ($request->jenis === 'event' ? 'Event Olahraga' : 'Komunitas'),
+                'icon' => $request->jenis === 'membership' ? 'fas fa-users' : ($request->jenis === 'event' ? 'fas fa-calendar-alt' : 'fas fa-chalkboard-teacher'),
+            ]);
+        }
+
+        $data = new Activity();
+        $data->nama = $request->nama;
+        $data->kategori = $request->kategori;
+        $data->lokasi = $request->lokasi;
+        $data->biaya_bergabung = $request->biaya;
+        $data->harga = $request->biaya === 'berbayar' ? $request->harga : null;
+        $data->deskripsi = $request->deskripsi;
+        $data->link_kontak = $request->link;
+        $data->link_kontak_2 = $request->link_kontak_2;
+        $data->jenis = $request->jenis;
+        $data->status = 'pending'; // Pending verification by super admin
+        $data->pemilik_id = Auth::id();
+        $data->activity_type_id = $activityType ? $activityType->id : null;
+
+        if ($request->hasFile('banner')) {
+            $image = $request->file('banner');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('fotoaktivitas'), $imageName);
+            $data->banner = $imageName;
+        }
+
+        $data->save();
+
+        $jenisTitle = ucfirst($request->jenis);
+        return redirect()->back()->with('success', "{$jenisTitle} berhasil dibuat dan sedang menunggu verifikasi admin.");
     }
 
     /**

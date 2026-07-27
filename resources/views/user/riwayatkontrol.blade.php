@@ -149,7 +149,10 @@
                             </div>
                             <h3 class="text-base font-bold text-gray-900">{{ $booking->clinic->nama ?? 'Klinik Kesehatan' }}</h3>
                         </div>
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2 flex-wrap gap-1">
+                            <button type="button" onclick="openReviewModal('klinik', {{ $booking->clinic_id ?? 0 }}, '{{ addslashes($booking->clinic->nama ?? 'Klinik') }}')" class="px-3 py-1.5 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium">
+                                <i class="fas fa-star mr-1"></i> Beri Rating
+                            </button>
                             @if($booking->status === 'pending' || $booking->status === 'confirmed')
                             <button onclick="openRescheduleModal({{ $booking->id }}, '{{ $booking->tanggal->format('Y-m-d') }}', '{{ substr($booking->jam, 0, 5) }}')" class="px-3 py-1.5 text-sm border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium">
                                 Jadwalkan Ulang

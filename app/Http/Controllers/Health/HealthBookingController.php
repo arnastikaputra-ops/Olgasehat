@@ -16,30 +16,43 @@ class HealthBookingController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
         $query = HealthBooking::with(['user', 'clinic', 'doctor', 'service']);
 
-        // Filter berdasarkan status
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
+        // Stats counts
+        $countPending = HealthBooking::whereIn('status', ['pending', 'pending_acc'])->orWhere('status_pembayaran', 'pending_acc')->count();
+        $countConfirmed = HealthBooking::whereIn('status', ['confirmed', 'approved'])->count();
+        $countCompleted = HealthBooking::where('status', 'completed')->count();
+        $countTotal = HealthBooking::count();
+
+        // Filter status
+        if ($request->filled('status')) {
+            if ($request->status === 'pending') {
+                $query->where(function($q) {
+                    $q->whereIn('status', ['pending', 'pending_acc'])->orWhere('status_pembayaran', 'pending_acc');
+                });
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
-        // Filter berdasarkan klinik
-        if ($request->has('clinic_id') && $request->clinic_id) {
+        // Filter klinik
+        if ($request->filled('clinic_id')) {
             $query->where('clinic_id', $request->clinic_id);
         }
 
-        // Filter berdasarkan dokter
-        if ($request->has('doctor_id') && $request->doctor_id) {
+        // Filter dokter
+        if ($request->filled('doctor_id')) {
             $query->where('doctor_id', $request->doctor_id);
         }
 
-        // Filter berdasarkan tanggal
-        if ($request->has('tanggal') && $request->tanggal) {
+        // Filter tanggal
+        if ($request->filled('tanggal')) {
             $query->where('tanggal', $request->tanggal);
         }
 
         // Search
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('kode_booking', 'LIKE', '%' . $search . '%')
@@ -48,11 +61,20 @@ class HealthBookingController extends Controller
             });
         }
 
-        $bookings = $query->orderBy('tanggal', 'desc')->orderBy('jam', 'desc')->paginate(20);
-        $clinics = Clinic::where('user_id', Auth::id())->get();
-        $doctors = Doctor::whereIn('clinic_id', $clinics->pluck('id'))->where('aktif', true)->get();
+        $bookings = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        return view('BACKEND.Health.HealthBooking.index', compact('bookings', 'clinics', 'doctors'));
+        if ($user && $user->role === 'admin') {
+            $clinics = Clinic::all();
+            $doctors = Doctor::where('aktif', true)->get();
+        } else {
+            $clinics = Clinic::where('user_id', Auth::id())->get();
+            $doctors = Doctor::whereIn('clinic_id', $clinics->pluck('id'))->where('aktif', true)->get();
+        }
+
+        return view('BACKEND.Health.HealthBooking.index', compact(
+            'bookings', 'clinics', 'doctors', 
+            'countPending', 'countConfirmed', 'countCompleted', 'countTotal'
+        ));
     }
 
     /**
@@ -65,23 +87,42 @@ class HealthBookingController extends Controller
     }
 
     /**
-     * Update booking status
+     * Update booking status (Verifikasi ACC / Tolak / Selesai oleh Admin)
      */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,completed,cancelled,no_show',
+            'status' => 'required|string',
+            'alasan_reject' => 'nullable|string',
             'catatan_dokter' => 'nullable|string',
         ]);
 
         $booking = HealthBooking::findOrFail($id);
-        $booking->status = $request->status;
-        if ($request->catatan_dokter) {
+        $status = $request->status;
+
+        if (in_array($status, ['confirmed', 'approved'])) {
+            $booking->status = 'confirmed';
+            $booking->status_pembayaran = 'paid';
+        } elseif (in_array($status, ['rejected', 'cancelled', 'ditolak'])) {
+            $booking->status = 'cancelled';
+            $booking->status_pembayaran = 'rejected';
+            if ($request->filled('alasan_reject')) {
+                $booking->alasan_reject = $request->alasan_reject;
+            }
+        } elseif ($status === 'completed') {
+            $booking->status = 'completed';
+            $booking->status_pembayaran = 'paid';
+        } else {
+            $booking->status = $status;
+        }
+
+        if ($request->filled('catatan_dokter')) {
             $booking->catatan_dokter = $request->catatan_dokter;
         }
+
         $booking->save();
 
-        return redirect()->back()->with('success', 'Status booking berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status booking janji klinik berhasil diperbarui!');
     }
 
     /**

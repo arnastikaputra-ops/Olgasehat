@@ -177,6 +177,9 @@ public function updatedata(Request $request, $id){
     public function show($id) {
         $berita = Berita::with('category')->findOrFail($id);
 
+        // Increment hit count
+        $berita->increment('hit');
+
         // Get latest articles (top 5 newest, excluding current article)
         $latestBeritas = Berita::with('category')
                               ->where('id', '!=', $id)

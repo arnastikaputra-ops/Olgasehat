@@ -46,10 +46,13 @@
                             <i class="fas fa-money-bill-wave mr-2"></i>{{ $priceLabel }}
                         </span>
                         @if($clinic->nomor_telepon)
-                        <span class="inline-flex items-center bg-white/10 border border-white/20 px-4 py-2 rounded-full text-sm font-semibold">
+                        <span class="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-sm font-medium">
                             <i class="fas fa-phone mr-2"></i>{{ $clinic->nomor_telepon }}
                         </span>
                         @endif
+                        <button type="button" onclick="openReviewModal('klinik', {{ $clinic->id }}, '{{ addslashes($clinic->nama) }}')" class="inline-flex items-center bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md transition">
+                            <i class="fas fa-star mr-2"></i> Beri Rating Klinik
+                        </button>
                     </div>
                 </div>
                 <div class="hidden lg:block relative">
@@ -333,22 +336,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            const data = {};
-            formData.forEach((value, key) => data[key] = value);
-
             fetch('{{ route("health.booking.store") }}', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify(data)
+                body: formData
             })
-            .then(response => {
+            .then(async response => {
                 if (response.status === 401) {
                     throw new Error('Unauthorized');
                 }
-                return response.json();
+                const resData = await response.json();
+                if (!response.ok) {
+                    let errMsg = resData.message || 'Terjadi kesalahan saat memproses data.';
+                    if (resData.errors) {
+                        errMsg = Object.values(resData.errors).flat().join('<br>');
+                    }
+                    throw new Error(errMsg);
+                }
+                return resData;
             })
             .then(data => {
                 if (data.success) {
@@ -366,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Booking Gagal',
-                        text: data.message || 'Terjadi kesalahan saat memproses data.'
+                        html: data.message || 'Terjadi kesalahan saat memproses data.'
                     });
                 }
             })
@@ -383,8 +390,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan koneksi sistem.'
+                        title: 'Booking Gagal',
+                        html: error.message || 'Terjadi kesalahan koneksi sistem.'
                     });
                 }
             });

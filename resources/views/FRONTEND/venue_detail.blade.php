@@ -73,11 +73,14 @@
                       $kategoriList = is_array($venue->kategori) ? $venue->kategori : ($venue->kategori ? [$venue->kategori] : []);
                       $kategoriDisplay = !empty($kategoriList) ? implode(', ', $kategoriList) : 'Olahraga';
                     @endphp
-                    <span
-                        class="inline-block bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full shadow-sm"
-                    >
-                        <i class="fas fa-futbol mr-2"></i> {{ $kategoriDisplay }}
-                    </span>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="inline-block bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full shadow-sm">
+                            <i class="fas fa-futbol mr-2"></i> {{ $kategoriDisplay }}
+                        </span>
+                        <button type="button" onclick="openReviewModal('venue', {{ $venue->id }}, '{{ addslashes($venue->namavenue) }}')" class="inline-flex items-center bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-sm transition">
+                            <i class="fas fa-star mr-1.5"></i> Beri Rating Venue
+                        </button>
+                    </div>
                 </div>
 
                 <hr class="border-gray-200" />

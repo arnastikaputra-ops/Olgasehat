@@ -9,10 +9,33 @@ class Review extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
+        'tipe_target',
+        'target_id',
         'nama',
         'ulasan',
         'rate',
         'company',
         'foto'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function pendaftaran()
+    {
+        return $this->belongsTo(Pendaftaran::class, 'target_id');
+    }
+
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class, 'target_id');
+    }
+
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class, 'target_id');
+    }
 }

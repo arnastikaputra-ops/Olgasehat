@@ -185,13 +185,13 @@
             @endif
         @else
             {{-- Fallback jika tidak ada data --}}
-            <img src="{{ asset('assets/gambar-penyewa-1.jpg') }}" alt="Penyewa Lapangan 1"
+            <img src="{{ asset('assets/futsal.jpg') }}" alt="Penyewa Lapangan Futsal"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-penyewa-2.jpg') }}" alt="Penyewa Lapangan 2"
+            <img src="{{ asset('assets/minsok.jpg') }}" alt="Penyewa Lapangan Mini Soccer"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-penyewa-3.jpg') }}" alt="Penyewa Lapangan 3"
+            <img src="{{ asset('assets/tenis.jpg') }}" alt="Penyewa Lapangan Tenis"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-penyewa-4.jpg') }}" alt="Penyewa Lapangan 4"
+            <img src="{{ asset('assets/padel.webp') }}" alt="Penyewa Lapangan Padel"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
         @endif
     </div>
@@ -214,13 +214,13 @@
             @endif
         @else
             {{-- Fallback jika tidak ada data --}}
-            <img src="{{ asset('assets/MU Sport Center.jpeg') }}" alt="Klinik 1"
+            <img src="{{ asset('assets/ksht.png') }}" alt="Layanan Kesehatan 1"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/Imbo Sport Center.webp') }}" alt="Fisio 2"
+            <img src="{{ asset('assets/klnk.png') }}" alt="Klinik Kesehatan 2"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/DC Arena Bali.jpeg') }}" alt="Gym 3"
+            <img src="{{ asset('assets/lks.png') }}" alt="Fasilitas Medis 3"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/Arena Sport.jpg') }}" alt="Checkup 4"
+            <img src="{{ asset('assets/sports-tools.jpg') }}" alt="Checkup 4"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
         @endif
     </div>
@@ -276,13 +276,13 @@
             @endif
         @else
             {{-- Fallback jika tidak ada data --}}
-            <img src="{{ asset('assets/gambar-kesehatan-penyewa-1.jpg') }}" alt="Penyewa Kesehatan 1"
+            <img src="{{ asset('assets/ksht.png') }}" alt="Penyewa Kesehatan 1"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-kesehatan-penyewa-2.jpg') }}" alt="Penyewa Kesehatan 2"
+            <img src="{{ asset('assets/klnk.png') }}" alt="Penyewa Kesehatan 2"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-kesehatan-penyewa-3.jpg') }}" alt="Penyewa Kesehatan 3"
+            <img src="{{ asset('assets/lks.png') }}" alt="Penyewa Kesehatan 3"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
-            <img src="{{ asset('assets/gambar-kesehatan-penyewa-4.jpg') }}" alt="Penyewa Kesehatan 4"
+            <img src="{{ asset('assets/sports-tools.jpg') }}" alt="Penyewa Kesehatan 4"
                  class="rounded-xl shadow-xl object-cover h-36 md:h-48 w-full transform transition duration-500 hover:scale-[1.03] hover:shadow-2xl" />
         @endif
     </div>

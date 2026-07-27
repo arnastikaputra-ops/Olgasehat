@@ -191,23 +191,26 @@
                   <a href="{{ route('mitra.show', $mitra->id) }}" class="btn btn-sm btn-info" title="Detail">
                     <i class="fas fa-eye"></i>
                   </a>
+                  <a href="{{ $mitra->user_id ? route('tampilkanacc', $mitra->user_id) : route('mitra.show', $mitra->id) }}" class="btn btn-sm btn-warning" title="Edit Akun/Mitra">
+                    <i class="fas fa-edit"></i>
+                  </a>
                   @if($mitra->status == 'pending')
-                    <form action="{{ route('mitra.verify', $mitra->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menyetujui mitra ini?');">
-                      @csrf
-                      @method('PUT')
-                      <button type="submit" class="btn btn-sm btn-success" title="Setujui">
-                        <i class="fas fa-check"></i>
-                      </button>
-                    </form>
+                    <a href="{{ route('mitra.verify', $mitra->id) }}" class="btn btn-sm btn-success font-weight-bold" title="Setujui Mitra">
+                      <i class="fas fa-check"></i> Setujui
+                    </a>
                   @elseif($mitra->status == 'approved')
-                    <span class="badge badge-success">
-                      <i class="fas fa-check-circle"></i> Sudah Disetujui
+                    <span class="badge badge-success px-2 py-1">
+                      <i class="fas fa-check-circle"></i> Disetujui
+                    </span>
+                  @else
+                    <span class="badge badge-secondary px-2 py-1">
+                      {{ ucfirst($mitra->status) }}
                     </span>
                   @endif
-                  <form action="{{ route('mitra.destroy', $mitra->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mitra ini?');">
+                  <form action="{{ route('mitra.destroy', $mitra->id) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                    <button type="submit" class="btn btn-sm btn-danger ml-1" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus data mitra ini?');">
                       <i class="fas fa-trash"></i>
                     </button>
                   </form>

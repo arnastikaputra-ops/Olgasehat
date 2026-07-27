@@ -168,10 +168,14 @@
                     <form action="{{ route('mitra.verify', $mitra->id) }}" method="POST" id="verifyForm" class="d-inline" onsubmit="return confirm('Yakin ingin verifikasi mitra ini dengan skema bagi hasil yang dipilih?');">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn btn-success font-weight-bold">
                             <i class="fas fa-check"></i> Verifikasi Mitra
                         </button>
                     </form>
+                    @elseif($mitra->status === 'approved')
+                    <span class="badge bg-success py-2 px-3 align-middle me-2">
+                        <i class="fas fa-check-circle mr-1"></i> Sudah Disetujui
+                    </span>
                     @endif
                     <form action="{{ route('mitra.destroy', $mitra->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus mitra ini?');">
                         @csrf

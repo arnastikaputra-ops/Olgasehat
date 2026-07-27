@@ -48,14 +48,50 @@ class TempatSehatController extends Controller
         return view('BACKEND.Tempat Sehat.index', compact('mitras', 'status', 'countPending', 'countApproved', 'countRejected', 'countAll'));
     }
 
-    public function verify($id)
+    public function verify(Request $request, $id)
     {
         \Log::info('TempatSehatController::verify called for ID: ' . $id);
         $mitra = Mitra::findOrFail($id);
-        $mitra->update(['status' => 'approved']);
-        $mitra->user->update(['status' => 'approved']);
+        
+        $data = ['status' => 'approved'];
+        if ($request->has('komisi_tipe')) {
+            $data['komisi_tipe'] = $request->input('komisi_tipe', 'none');
+            $data['komisi_nilai'] = $request->input('komisi_nilai', 0);
+        }
+        $mitra->update($data);
 
-        return redirect()->back()->with('success', 'Pengelola kesehatan berhasil diverifikasi.');
+        if ($mitra->user) {
+            $mitra->user->update(['status' => 'approved']);
+        } else {
+            // Fallback search user by email_bisnis if user_id is null
+            $user = \App\Models\User::where('email', $mitra->email_bisnis)->first();
+            if ($user) {
+                $user->update(['status' => 'approved']);
+                $mitra->update(['user_id' => $user->id]);
+            }
+        }
+
+        $userId = $mitra->user_id ?? optional(\App\Models\User::where('email', $mitra->email_bisnis)->first())->id;
+
+        if ($userId) {
+            // Sync status ke klinik yang didaftarkan oleh user ini jika ada
+            \App\Models\Clinic::where('user_id', $userId)->update([
+                'status' => 'approved',
+                'verified_at' => now(),
+                'komisi_tipe' => $data['komisi_tipe'] ?? 'none',
+                'komisi_nilai' => $data['komisi_nilai'] ?? 0,
+            ]);
+        }
+
+        // Sync status ke klinik yang mencocokkan email_bisnis jika ada
+        \App\Models\Clinic::where('email', $mitra->email_bisnis)->update([
+            'status' => 'approved',
+            'verified_at' => now(),
+            'komisi_tipe' => $data['komisi_tipe'] ?? 'none',
+            'komisi_nilai' => $data['komisi_nilai'] ?? 0,
+        ]);
+
+        return redirect()->route('tempat-sehat.index', ['status' => 'approved'])->with('success', 'Pengelola kesehatan "' . $mitra->nama_bisnis . '" berhasil disetujui.');
     }
 
     public function show($id)

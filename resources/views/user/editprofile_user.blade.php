@@ -359,16 +359,15 @@
                     </a>
                 </div>
 
-                {{-- Blue Banner Card: Nikmati Akses User --}}
-                <a href="#" class="quick-action-item rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md block relative overflow-hidden">
-                    <div class="absolute inset-0 blue-banner-card opacity-20"></div>
+                {{-- Banner Card: Beri Ulasan & Rating --}}
+                <a href="javascript:void(0)" onclick="openReviewModal()" class="quick-action-item rounded-xl p-4 border border-amber-300 bg-amber-50/70 shadow-sm hover:shadow-md block relative overflow-hidden transition-all duration-200">
                     <div class="relative z-10 flex items-start space-x-3">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                        <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
                             <i class="fas fa-star text-white text-lg"></i>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 mb-1">Nikmati Akses User</h3>
-                            <p class="text-xs text-gray-500">Akses penuh ke semua fitur premium dan layanan eksklusif untuk pengalaman terbaik Anda</p>
+                            <h3 class="font-semibold text-gray-900 mb-1">Beri Ulasan & Rating</h3>
+                            <p class="text-xs text-gray-600">Bagikan kepuasan & pengalaman Anda bersama Olga Sehat!</p>
                         </div>
                     </div>
                 </a>
