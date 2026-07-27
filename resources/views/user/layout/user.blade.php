@@ -290,7 +290,7 @@
             <span data-translate>Membership</span>
             <i class="fas fa-crown"></i>
           </a>
-          <a href="/settings" class="dropdown-item" style="font-size: 0.875rem;">
+          <a href="/edit-profile-user" class="dropdown-item" style="font-size: 0.875rem;">
             <span data-translate>Pengaturan</span>
             <i class="fas fa-cog"></i>
           </a>
