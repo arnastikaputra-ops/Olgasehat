@@ -56,20 +56,71 @@ class MitraController extends Controller
 
     public function updatePengaturan(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
-        $mitra = Mitra::where('user_id', $user->id)->firstOrFail();
+        $mitra = Mitra::where('user_id', $user->id)->first();
 
         $request->validate([
-            'kontak_bisnis' => 'required|string|max:20',
-            'nama_bisnis' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'kontak_bisnis' => 'nullable|string|max:20',
+            'nama_bisnis' => 'nullable|string|max:255',
+            'password_lama' => 'nullable|string',
+            'password_baru' => 'nullable|string|min:8',
         ]);
 
-        $mitra->update([
-            'kontak_bisnis' => $request->kontak_bisnis,
-            'nama_bisnis' => $request->nama_bisnis,
-        ]);
+        // Update profile image if uploaded
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $destinationPath = public_path('uploads/profile_images');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $filename);
+            $user->image = 'uploads/profile_images/' . $filename;
+        }
 
-        return redirect()->back()->with('success', 'Data bisnis berhasil diperbarui.');
+        // Update user fields
+        if ($request->filled('name')) {
+            $user->name = $request->name;
+        }
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+
+        // Update password if filled
+        if ($request->filled('password_lama') && $request->filled('password_baru')) {
+            if (!\Illuminate\Support\Facades\Hash::check($request->password_lama, $user->password)) {
+                return redirect()->back()->withErrors(['password_lama' => 'Password lama yang Anda masukkan tidak sesuai.']);
+            }
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password_baru);
+        }
+
+        $user->save();
+
+        // Update mitra fields
+        if ($mitra) {
+            $mitraData = [];
+            if ($request->filled('nama_bisnis')) {
+                $mitraData['nama_bisnis'] = $request->nama_bisnis;
+            }
+            if ($request->filled('kontak_bisnis')) {
+                $mitraData['kontak_bisnis'] = $request->kontak_bisnis;
+            }
+            if ($request->filled('name')) {
+                $mitraData['nama_anda'] = $request->name;
+            }
+            if ($request->filled('email')) {
+                $mitraData['email_bisnis'] = $request->email;
+            }
+            if (!empty($mitraData)) {
+                $mitra->update($mitraData);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Pengaturan dan foto profil berhasil diperbarui.');
     }
 
     public function index(Request $request)

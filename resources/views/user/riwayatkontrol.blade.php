@@ -91,57 +91,82 @@
             </div>
 
             {{-- Filter Section --}}
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <form method="GET" action="{{ route('user.riwayatkontrol') }}" id="filterKontrolForm" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 space-y-4">
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-filter mr-2 text-gray-500"></i>Cari Riwayat
+                            <i class="fas fa-search mr-2 text-gray-500"></i>Cari Riwayat
                         </label>
                         <input 
                             type="text" 
-                            placeholder="Cari berdasarkan layanan, dokter, atau klinik..."
+                            name="q"
+                            id="filterSearchInput"
+                            value="{{ request('q') }}"
+                            placeholder="Cari layanan, dokter, atau klinik..."
                             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                         >
                     </div>
-                    <div class="md:w-48">
+                    <div class="md:w-44">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Tanggal
                         </label>
                         <input 
                             type="date" 
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                            name="tanggal"
+                            id="filterDateInput"
+                            value="{{ request('tanggal') }}"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                         >
                     </div>
-                    <div class="md:w-48">
+                    <div class="md:w-44">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-tags mr-2 text-gray-500"></i>Kategori
                         </label>
-                        <select class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                        <select name="kategori" id="filterCategorySelect" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                             <option value="">Semua Kategori</option>
-                            <option value="medical-checkup">Medical Check-Up</option>
-                            <option value="fisioterapi">Fisioterapi & Cedera</option>
-                            <option value="dokter-spesialis">Dokter Spesialis</option>
-                            <option value="nutrisi">Nutrisi & Gizi</option>
+                            <option value="medical-checkup" {{ request('kategori') == 'medical-checkup' ? 'selected' : '' }}>Medical Check-Up</option>
+                            <option value="fisioterapi" {{ request('kategori') == 'fisioterapi' ? 'selected' : '' }}>Fisioterapi & Cedera</option>
+                            <option value="dokter-spesialis" {{ request('kategori') == 'dokter-spesialis' ? 'selected' : '' }}>Dokter Spesialis</option>
+                            <option value="nutrisi" {{ request('kategori') == 'nutrisi' ? 'selected' : '' }}>Nutrisi & Gizi</option>
                         </select>
                     </div>
-                    <div class="md:w-48">
+                    <div class="md:w-44">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-info-circle mr-2 text-gray-500"></i>Status
                         </label>
-                        <select class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                        <select name="status" id="filterStatusSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                             <option value="">Semua Status</option>
-                            <option value="completed">Selesai</option>
-                            <option value="pending">Pending</option>
-                            <option value="cancelled">Dibatalkan</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Dikonfirmasi</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                         </select>
                     </div>
                 </div>
-            </div>
+                <div class="flex items-center justify-end space-x-2 pt-2 border-t border-gray-100">
+                    <button type="button" id="resetFilterBtn" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition flex items-center">
+                        <i class="fas fa-undo mr-1.5"></i> Reset Filter
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition shadow-sm flex items-center">
+                        <i class="fas fa-search mr-1.5"></i> Terapkan Filter
+                    </button>
+                </div>
+            </form>
 
-            {{-- Riwayat Kontrol Cards --}}
-            <div class="space-y-4">
+            {{-- Riwayat Kontrol Cards Container --}}
+            <div class="space-y-4" id="bookingCardsListContainer">
+                <div id="noFilteredResultsMsg" class="bg-white rounded-xl shadow-md p-10 text-center border-2 border-dashed border-gray-300 hidden">
+                    <i class="fas fa-search text-gray-400 text-4xl mb-3"></i>
+                    <h4 class="font-bold text-gray-800 text-lg">Tidak Ada Riwayat Kontrol Cocok</h4>
+                    <p class="text-sm text-gray-500 mt-1">Coba ubah tanggal, status, atau pencarian Anda.</p>
+                </div>
+
                 @forelse ($healthBookings as $booking)
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 relative overflow-hidden">
+                <div class="booking-card bg-white rounded-lg shadow-sm border border-gray-200 p-5 relative overflow-hidden"
+                     data-search="{{ strtolower(($booking->clinic->nama ?? '') . ' ' . ($booking->doctor->nama_lengkap ?? $booking->doctor->nama ?? '') . ' ' . ($booking->service->nama ?? '') . ' ' . $booking->kode_booking . ' ' . $booking->nama_pasien) }}"
+                     data-date="{{ $booking->tanggal ? $booking->tanggal->format('Y-m-d') : '' }}"
+                     data-category="{{ strtolower($booking->service->kategori ?? '') }}"
+                     data-status="{{ strtolower($booking->status) }}">
                     <div class="flex items-start justify-between mb-4 pb-3 border-b border-gray-200">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0 relative">
@@ -269,19 +294,51 @@
                     </a>
                 </div>
 
-                {{-- Blue Banner Card: Nikmati Akses User --}}
-                <a href="#" class="quick-action-item rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md block relative overflow-hidden">
-                    <div class="absolute inset-0 blue-banner-card opacity-20"></div>
-                    <div class="relative z-10 flex items-start space-x-3">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                            <i class="fas fa-star text-white text-lg"></i>
+                {{-- Blue Banner Card: Nikmati Akses User / VIP Status --}}
+                @php
+                    $isUserMember = false;
+                    if (Auth::check()) {
+                        $isUserMember = \App\Models\ActivityParticipant::where('user_id', Auth::id())
+                            ->where('status', 'approved')
+                            ->whereHas('activity', function($q) {
+                                $q->where('jenis', 'membership')
+                                  ->orWhereHas('activityType', function($at) {
+                                      $at->whereIn('name', ['klub', 'membership']);
+                                  });
+                            })->exists();
+                    }
+                @endphp
+                @if($isUserMember)
+                    <a href="{{ route('user.riwayatmembership') }}" class="quick-action-item rounded-xl p-4 border border-amber-300 bg-gradient-to-r from-amber-500 to-orange-600 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all transform hover:-translate-y-0.5">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">VIP Member Aktif</h3>
+                                    <span class="bg-white text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">AKTIF</span>
+                                </div>
+                                <p class="text-xs text-amber-100 leading-relaxed">Selamat! Anda menikmati diskon 10% untuk venue & kesehatan. Kelola membership Anda di sini.</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 mb-1">Nikmati Akses User</h3>
-                            <p class="text-xs text-gray-500">Akses penuh ke semua fitur premium dan layanan eksklusif untuk pengalaman terbaik Anda</p>
+                    </a>
+                @else
+                    <a href="{{ route('community', ['type' => 'klub']) }}" class="quick-action-item rounded-xl p-4 border border-blue-200 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all transform hover:-translate-y-0.5">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-yellow-300 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">Nikmati Akses User / Premium</h3>
+                                    <span class="bg-yellow-400 text-yellow-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">UPGRADE</span>
+                                </div>
+                                <p class="text-xs text-blue-100 leading-relaxed">Akses penuh ke semua fitur premium, keanggotaan klub & diskon 10% di setiap pemesanan!</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                @endif
 
                 {{-- Quick Actions Section --}}
                 <div>
@@ -417,6 +474,74 @@ function openRescheduleModal(bookingId, currentTanggal, currentJam) {
         }
     });
 }
+
+// Real-time Instant Filter Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('filterSearchInput');
+    const dateInput = document.getElementById('filterDateInput');
+    const categorySelect = document.getElementById('filterCategorySelect');
+    const statusSelect = document.getElementById('filterStatusSelect');
+    const resetBtn = document.getElementById('resetFilterBtn');
+    const cards = document.querySelectorAll('.booking-card');
+    const noResultsMsg = document.getElementById('noFilteredResultsMsg');
+
+    function applyFilters() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const selectedDate = dateInput ? dateInput.value.trim() : '';
+        const selectedCategory = categorySelect ? categorySelect.value.toLowerCase().trim() : '';
+        const selectedStatus = statusSelect ? statusSelect.value.toLowerCase().trim() : '';
+
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const cardSearch = (card.getAttribute('data-search') || '').toLowerCase();
+            const cardDate = (card.getAttribute('data-date') || '').trim();
+            const cardCategory = (card.getAttribute('data-category') || '').toLowerCase();
+            const cardStatus = (card.getAttribute('data-status') || '').toLowerCase();
+
+            let matchQuery = !query || cardSearch.includes(query);
+            let matchDate = !selectedDate || cardDate === selectedDate;
+            let matchCategory = !selectedCategory || cardCategory.includes(selectedCategory);
+            let matchStatus = !selectedStatus || cardStatus === selectedStatus;
+
+            if (matchQuery && matchDate && matchCategory && matchStatus) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (noResultsMsg) {
+            if (visibleCount === 0 && cards.length > 0) {
+                noResultsMsg.classList.remove('hidden');
+            } else {
+                noResultsMsg.classList.add('hidden');
+            }
+        }
+    }
+
+    [searchInput, dateInput, categorySelect, statusSelect].forEach(el => {
+        if (el) {
+            el.addEventListener('input', applyFilters);
+            el.addEventListener('change', applyFilters);
+        }
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+            if (e) e.preventDefault();
+            if (searchInput) searchInput.value = '';
+            if (dateInput) dateInput.value = '';
+            if (categorySelect) categorySelect.value = '';
+            if (statusSelect) statusSelect.value = '';
+            applyFilters();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        });
+    }
+
+    applyFilters();
+});
 </script>
 
 @endsection

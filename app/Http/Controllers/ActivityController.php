@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\ActivityType;
 use App\Models\ActivityParticipant;
+use App\Models\PaymentSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -268,6 +269,10 @@ class ActivityController extends Controller
             $participant->bukti_pembayaran = $imageName;
         }
 
+        if ($request->has('bank_code') && $request->bank_code) {
+            $participant->catatan = 'Metode Pembayaran: ' . strtoupper($request->bank_code);
+        }
+
         $participant->save();
 
         $message = $activity->biaya_bergabung === 'berbayar'
@@ -386,8 +391,24 @@ class ActivityController extends Controller
 
         // Filter by type if provided
         if ($request->has('type') && $request->type) {
-            $query->whereHas('activityType', function($q) use ($request) {
-                $q->where('name', $request->type);
+            $type = $request->type;
+            $query->where(function($q) use ($type) {
+                if ($type === 'klub' || $type === 'membership') {
+                    $q->where('jenis', 'membership')
+                      ->orWhereHas('activityType', function($aq) {
+                          $aq->whereIn('name', ['klub', 'membership']);
+                      });
+                } elseif ($type === 'open-class' || $type === 'komunitas') {
+                    $q->where('jenis', 'komunitas')
+                      ->orWhereHas('activityType', function($aq) {
+                          $aq->whereIn('name', ['open-class', 'komunitas']);
+                      });
+                } else {
+                    $q->where('jenis', $type)
+                      ->orWhereHas('activityType', function($aq) use ($type) {
+                          $aq->where('name', $type);
+                      });
+                }
             });
         }
 
@@ -445,8 +466,10 @@ class ActivityController extends Controller
             ->limit(4)
             ->get();
 
+        $paymentSettings = PaymentSetting::where('is_active', true)->get();
+
         // Gunakan view yang sama untuk guest dan user
-        return view('FRONTEND.community_detail', compact('activity', 'relatedActivities', 'isJoined', 'participant'));
+        return view('FRONTEND.community_detail', compact('activity', 'relatedActivities', 'isJoined', 'participant', 'paymentSettings'));
     }
 
     /**

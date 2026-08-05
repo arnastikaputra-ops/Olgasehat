@@ -92,17 +92,38 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Deskripsi</label>
-                                <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi') }}</textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="font-weight-bold" style="color: #1b2b5a;">
+                                        <i class="fas fa-user-md text-primary mr-1"></i> Deskripsi / Biografi Dokter
+                                    </label>
+                                    <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-2 py-1" id="btnIsiContohDeskripsiDokter" style="font-size: 0.8rem;">
+                                        <i class="fas fa-magic mr-1"></i> Gunakan Contoh Deskripsi
+                                    </button>
+                                </div>
+                                <div class="p-2.5 mb-2 rounded bg-light border-left border-info" style="border-left: 4px solid #17a2b8 !important; background-color: #f4faff !important;">
+                                    <small class="text-secondary d-block">
+                                        <i class="fas fa-info-circle text-info mr-1"></i> <strong>Apa fungsi Deskripsi Dokter?</strong>
+                                        Deskripsi ini akan ditampilkan pada profil Dokter untuk menjelaskan latar belakang medis, keahlian utama, fokus pelayanan, dan pendekatan konsultasi Dokter kepada pasien.
+                                    </small>
+                                </div>
+                                <textarea name="deskripsi" id="inputDeskripsiDokter" class="form-control" rows="4" 
+                                    placeholder="Contoh: dr. Budi Santoso, Sp.PD adalah dokter spesialis penyakit dalam dengan pengalaman lebih dari 8 tahun dalam menangani masalah kesehatan degeneratif, metabolisme, serta konsultasi kesehatan umum. Beliau berdedikasi memberikan konsultasi medis yang ramah, informatif, dan solutif bagi setiap pasien.">{{ old('deskripsi') }}</textarea>
+                                <small class="form-text text-muted">
+                                    💡 <strong>Tips:</strong> Jelaskan keahlian spesifik, filosofi pelayanan medis, atau sikap profesional Dokter.
+                                </small>
                             </div>
 
                             <div class="form-group">
-                                <label>Pengalaman</label>
-                                <textarea name="pengalaman" class="form-control" rows="3" placeholder="Riwayat pengalaman kerja">{{ old('pengalaman') }}</textarea>
+                                <label class="font-weight-bold" style="color: #1b2b5a;">
+                                    <i class="fas fa-briefcase text-primary mr-1"></i> Pengalaman Kerja & Karir
+                                </label>
+                                <textarea name="pengalaman" class="form-control" rows="3" 
+                                    placeholder="Contoh: Dokter Spesialis Penyakit Dalam di RS Medika Sehat (2020 - Sekarang), Residen Penyakit Dalam RSUP Sanglah (2015 - 2020), Anggota Ikatan Dokter Indonesia (IDI).">{{ old('pengalaman') }}</textarea>
+                                <small class="form-text text-muted">Tuliskan riwayat tempat praktik sebelumnya, pelatihan khusus, atau organisasi profesi.</small>
                             </div>
 
                             <div class="form-group">
-                                <label>Foto Dokter</label>
+                                <label class="font-weight-bold" style="color: #1b2b5a;">Foto Dokter</label>
                                 <input type="file" name="foto" class="form-control-file" accept="image/*">
                                 <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB</small>
                             </div>
@@ -113,7 +134,7 @@
                                     <i class="fas fa-times"></i> Batal
                                 </a>
                                 <button type="submit" class="btn btn-primary" style="background: #28a745; border-color: #28a745; border-radius: 10px;">
-                                    <i class="fas fa-save"></i> Simpan
+                                    <i class="fas fa-save"></i> Simpan Dokter
                                 </button>
                             </div>
                         </div>
@@ -123,5 +144,17 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('btnIsiContohDeskripsiDokter')?.addEventListener('click', function() {
+        const textarea = document.getElementById('inputDeskripsiDokter');
+        if (textarea) {
+            textarea.value = "dr. Budi Santoso, Sp.PD adalah dokter spesialis penyakit dalam dengan pengalaman lebih dari 8 tahun dalam menangani masalah kesehatan degeneratif, metabolisme, serta konsultasi kesehatan umum. Beliau berdedikasi memberikan konsultasi medis yang ramah, informatif, dan solutif bagi setiap pasien.";
+            textarea.focus();
+        }
+    });
+});
+</script>
 @endsection
 

@@ -270,7 +270,9 @@ Route::middleware(['auth', 'role:pengelolakesehatan'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Health\HealthManagerController::class, 'dashboard'])->name('dashboard.alt');
         
         // Analytics
-        Route::get('/analytics', fn() => view('pemilikkesehatan.Analytics.index'))->name('analytics');
+        Route::get('/analytics', [App\Http\Controllers\Health\HealthAnalyticsController::class, 'index'])->name('analytics');
+        Route::post('/analytics/send-email', [App\Http\Controllers\Health\HealthAnalyticsController::class, 'sendEmail'])->name('analytics.send_email');
+        Route::get('/analytics/export-csv', [App\Http\Controllers\Health\HealthAnalyticsController::class, 'exportCsv'])->name('analytics.export_csv');
         
         // Pengaturan
         Route::get('/pengaturan', [App\Http\Controllers\PengelolaKesehatanController::class, 'pengaturan'])->name('pengaturan');
@@ -330,6 +332,13 @@ Route::middleware(['auth'])->group(function () {
         // Dashboard Admin & Keuangan
         Route::get('/admin', [AdminController::class, 'admin'])->name('admin');
         Route::get('/admin/keuangan', [AdminController::class, 'keuangan'])->name('admin.keuangan');
+
+        // PENGATURAN REKENING & PAYMENT SETTINGS (SUPERADMIN)
+        Route::get('/admin/payment-settings', [App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('admin.payment-settings.index');
+        Route::post('/admin/payment-settings', [App\Http\Controllers\Admin\PaymentSettingController::class, 'store'])->name('admin.payment-settings.store');
+        Route::put('/admin/payment-settings/{id}', [App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('admin.payment-settings.update');
+        Route::patch('/admin/payment-settings/{id}/toggle', [App\Http\Controllers\Admin\PaymentSettingController::class, 'toggleStatus'])->name('admin.payment-settings.toggle');
+        Route::delete('/admin/payment-settings/{id}', [App\Http\Controllers\Admin\PaymentSettingController::class, 'destroy'])->name('admin.payment-settings.destroy');
 
         // GALERI
         Route::get('/galeri', [GaleriController::class, 'galeri'])->name('galeri');

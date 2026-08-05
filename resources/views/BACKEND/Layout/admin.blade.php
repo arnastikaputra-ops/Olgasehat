@@ -91,58 +91,6 @@
             </a>
           </li>
 
-          <!-- Gallery -->
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-image"></i>
-              <p>
-                Galeri
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="/galeri/home-banner" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Home Banner</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="/galeri/lapangan-banner" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Lapangan Banner</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="/galeri/kesehatan-banner" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Kesehatan Banner</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="/galeri/venue-banner" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Venue Banner</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-
-          <!-- Program -->
-          <li class="nav-item">
-            <a href="/programs" class="nav-link">
-              <i class="nav-icon fas fa-heartbeat"></i>
-              <p>Program</p>
-            </a>
-          </li>
-
-          <!-- Review -->
-          <li class="nav-item">
-            <a href="/review" class="nav-link">
-              <i class="nav-icon fas fa-star"></i>
-              <p>Review</p>
-            </a>
-          </li>
 
           <!-- Pemilik Fasilitas -->
           <li class="nav-item">
@@ -235,11 +183,17 @@
             </ul>
           </li>
 
-          <!-- Keuangan -->
+          <!-- Keuangan & Rekening -->
           <li class="nav-item">
             <a href="{{ route('admin.keuangan') }}" class="nav-link">
               <i class="nav-icon fas fa-wallet"></i>
               <p>Keuangan & Komisi</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ route('admin.payment-settings.index') }}" class="nav-link">
+              <i class="nav-icon fas fa-university"></i>
+              <p>Pengaturan Rekening</p>
             </a>
           </li>
 

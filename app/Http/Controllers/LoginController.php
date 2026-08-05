@@ -177,12 +177,37 @@ class LoginController extends Controller
         return view('user.riwayatpayment', compact('user', 'venueBookings', 'healthBookings'));
     }
 
-    public function riwayatKontrol()
+    public function riwayatKontrol(Request $request)
     {
         $user = Auth::user();
-        $healthBookings = HealthBooking::where('user_id', $user->id)
-            ->with(['clinic', 'doctor', 'service'])
-            ->orderBy('tanggal', 'desc')
+        $query = HealthBooking::where('user_id', $user->id)
+            ->with(['clinic', 'doctor', 'service']);
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('kode_booking', 'like', "%{$q}%")
+                    ->orWhere('nama_pasien', 'like', "%{$q}%")
+                    ->orWhereHas('clinic', fn($c) => $c->where('nama', 'like', "%{$q}%"))
+                    ->orWhereHas('doctor', fn($d) => $d->where('nama', 'like', "%{$q}%")->orWhere('nama_lengkap', 'like', "%{$q}%"))
+                    ->orWhereHas('service', fn($s) => $s->where('nama', 'like', "%{$q}%"));
+            });
+        }
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->tanggal);
+        }
+
+        if ($request->filled('kategori')) {
+            $kat = $request->kategori;
+            $query->whereHas('service', fn($s) => $s->where('kategori', 'like', "%{$kat}%"));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $healthBookings = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam', 'desc')
             ->get();
 

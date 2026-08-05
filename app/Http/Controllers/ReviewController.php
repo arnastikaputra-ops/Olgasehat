@@ -46,13 +46,17 @@ class ReviewController extends Controller
 
     public function storeFromUser(Request $request)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('warning', 'Silakan login terlebih dahulu untuk memberikan ulasan & rating.');
+        }
+
         $request->validate([
             'ulasan'      => 'required|string|min:3|max:1000',
             'rate'        => 'required|integer|min:1|max:5',
-            'tipe_target' => 'nullable|string|in:platform,venue,klinik,komunitas,event',
+            'tipe_target' => 'nullable|string|in:platform,venue,klinik,clinic,komunitas,event',
             'target_id'   => 'nullable|integer',
             'company'     => 'nullable|string|max:255',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $user = auth()->user();
@@ -65,6 +69,10 @@ class ReviewController extends Controller
         }
 
         $tipeTarget = $request->input('tipe_target', 'platform');
+        if ($tipeTarget === 'clinic') {
+            $tipeTarget = 'klinik';
+        }
+
         $companyLabel = $request->input('company');
         if (!$companyLabel) {
             if ($tipeTarget == 'venue') {
@@ -81,10 +89,10 @@ class ReviewController extends Controller
         }
 
         Review::create([
-            'user_id'     => $user ? $user->id : null,
+            'user_id'     => $user->id,
             'tipe_target' => $tipeTarget,
             'target_id'   => $request->input('target_id'),
-            'nama'        => $user ? $user->name : ($request->input('nama') ?? 'Pengguna Olga Sehat'),
+            'nama'        => $user->name,
             'ulasan'      => $request->ulasan,
             'rate'        => $request->rate,
             'company'     => $companyLabel,

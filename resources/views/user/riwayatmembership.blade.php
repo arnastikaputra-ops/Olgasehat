@@ -202,19 +202,51 @@
                     </a>
                 </div>
 
-                {{-- Blue Banner Card: Nikmati Akses User --}}
-                <a href="#" class="rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md block relative overflow-hidden transition-all duration-300 hover:translate-x-1">
-                    <div class="absolute inset-0 opacity-20" style="background-image: url('{{ asset('assets/blue-banner.png') }}'); background-size: cover; background-position: center;"></div>
-                    <div class="relative z-10 flex items-start space-x-3">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                            <i class="fas fa-star text-white text-lg"></i>
+                {{-- Blue Banner Card: Nikmati Akses User / VIP Status --}}
+                @php
+                    $isUserMember = false;
+                    if (Auth::check()) {
+                        $isUserMember = \App\Models\ActivityParticipant::where('user_id', Auth::id())
+                            ->where('status', 'approved')
+                            ->whereHas('activity', function($q) {
+                                $q->where('jenis', 'membership')
+                                  ->orWhereHas('activityType', function($at) {
+                                      $at->whereIn('name', ['klub', 'membership']);
+                                  });
+                            })->exists();
+                    }
+                @endphp
+                @if($isUserMember)
+                    <a href="{{ route('user.riwayatmembership') }}" class="rounded-xl p-4 border border-amber-300 bg-gradient-to-r from-amber-500 to-orange-600 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all duration-300 hover:translate-x-1">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">VIP Member Aktif</h3>
+                                    <span class="bg-white text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">AKTIF</span>
+                                </div>
+                                <p class="text-xs text-amber-100 leading-relaxed">Selamat! Anda menikmati diskon 10% untuk venue & kesehatan. Kelola membership Anda di sini.</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 mb-1">Nikmati Akses User</h3>
-                            <p class="text-xs text-gray-500">Akses penuh ke semua fitur premium dan layanan eksklusif untuk pengalaman terbaik Anda</p>
+                    </a>
+                @else
+                    <a href="{{ route('community', ['type' => 'klub']) }}" class="rounded-xl p-4 border border-blue-200 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all duration-300 hover:translate-x-1">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-yellow-300 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">Nikmati Akses User / Premium</h3>
+                                    <span class="bg-yellow-400 text-yellow-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">UPGRADE</span>
+                                </div>
+                                <p class="text-xs text-blue-100 leading-relaxed">Akses penuh ke semua fitur premium, keanggotaan klub & diskon 10% di setiap pemesanan!</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                @endif
 
                 {{-- Quick Actions Section --}}
                 <div>

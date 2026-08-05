@@ -1174,6 +1174,164 @@
       });
     }
   </script>
+  <!-- MODAL BERI ULASAN & RATING GLOBAL -->
+  <div id="reviewModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
+          <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none">
+              &times;
+          </button>
+
+          <div class="text-center mb-6">
+              <div class="w-14 h-14 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-md">
+                  <i class="fas fa-star"></i>
+              </div>
+              <h3 class="text-2xl font-bold text-gray-900" id="reviewModalTitle">Beri Ulasan & Rating</h3>
+              <p class="text-sm text-gray-600 mt-1" id="reviewModalSubtitle">Bagikan pengalaman Anda bersama Olga Sehat!</p>
+          </div>
+
+          <form action="{{ route('user.review.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+              @csrf
+
+              <!-- Hidden Inputs -->
+              <input type="hidden" name="target_id" id="reviewTargetId" value="">
+
+              <!-- Category Selector (Tipe Target) -->
+              <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Layanan Yang Dinilai</label>
+                  <select name="tipe_target" id="reviewTipeTarget" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm font-medium">
+                      <option value="platform">⭐ Platform Olga Sehat</option>
+                      <option value="venue">⚽ Venue Olahraga / Lapangan</option>
+                      <option value="klinik">🏥 Klinik / Layanan Kesehatan</option>
+                      <option value="komunitas">👥 Komunitas Olahraga</option>
+                      <option value="event">🏆 Event Olahraga</option>
+                  </select>
+              </div>
+
+              <!-- Interactive Star Rating -->
+              <div>
+                  <label class="block text-sm font-semibold text-gray-700 text-center mb-2">Pilih Rating Bintang</label>
+                  <div class="flex justify-center items-center space-x-2" id="starContainer">
+                      <i class="fas fa-star text-3xl cursor-pointer text-amber-400 hover:text-amber-500 transition-colors user-star-icon" data-value="1" onclick="setRating(1)"></i>
+                      <i class="fas fa-star text-3xl cursor-pointer text-amber-400 hover:text-amber-500 transition-colors user-star-icon" data-value="2" onclick="setRating(2)"></i>
+                      <i class="fas fa-star text-3xl cursor-pointer text-amber-400 hover:text-amber-500 transition-colors user-star-icon" data-value="3" onclick="setRating(3)"></i>
+                      <i class="fas fa-star text-3xl cursor-pointer text-amber-400 hover:text-amber-500 transition-colors user-star-icon" data-value="4" onclick="setRating(4)"></i>
+                      <i class="fas fa-star text-3xl cursor-pointer text-amber-400 hover:text-amber-500 transition-colors user-star-icon" data-value="5" onclick="setRating(5)"></i>
+                  </div>
+                  <input type="hidden" name="rate" id="selectedRate" value="5" required>
+              </div>
+
+              <!-- Company / Profesi / Subtitle -->
+              <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">Pekerjaan / Catatan Tambahan (Opsional)</label>
+                  <input type="text" name="company" id="reviewCompanyInput" placeholder="Contoh: Pasien Klinik / Member Futsal" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm">
+              </div>
+
+              <!-- Ulasan Textarea -->
+              <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">Tulis Ulasan Anda <span class="text-red-500">*</span></label>
+                  <textarea name="ulasan" rows="3" required placeholder="Tuliskan pengalaman Anda..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"></textarea>
+              </div>
+
+              <!-- Foto (Opsional) -->
+              <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">Unggah Foto (Opsional)</label>
+                  <input type="file" name="foto" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+              </div>
+
+              <div class="flex space-x-3 pt-2">
+                  <button type="button" onclick="closeReviewModal()" class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg text-sm transition">Batal</button>
+                  <button type="submit" class="flex-1 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg text-sm shadow-md hover:shadow-lg transition">Kirim Ulasan</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <script>
+  @if(session('success'))
+      Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: '{{ session('success') }}',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#1d4ed8'
+      });
+  @endif
+
+  @if(session('warning'))
+      Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: '{{ session('warning') }}',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#1d4ed8'
+      });
+  @endif
+
+  function openReviewModal(targetType = 'platform', targetId = null, targetName = null) {
+      @if(!Auth::check())
+          Swal.fire({
+              icon: 'warning',
+              title: 'Login Diperlukan',
+              text: 'Silakan login terlebih dahulu untuk memberikan ulasan & rating.',
+              confirmButtonText: 'Login Sekarang',
+              showCancelButton: true,
+              cancelButtonText: 'Batal',
+              confirmButtonColor: '#1d4ed8'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  window.location.href = '{{ route("login") }}';
+              }
+          });
+          return;
+      @endif
+
+      const modal = document.getElementById('reviewModal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      document.getElementById('reviewTipeTarget').value = targetType;
+      document.getElementById('reviewTargetId').value = targetId || '';
+      
+      const titleEl = document.getElementById('reviewModalTitle');
+      const subTitleEl = document.getElementById('reviewModalSubtitle');
+      const companyInput = document.getElementById('reviewCompanyInput');
+
+      if (targetName) {
+          titleEl.textContent = `Beri Rating & Ulasan: ${targetName}`;
+          subTitleEl.textContent = `Bagikan pengalaman Anda di ${targetName}`;
+          if (targetType === 'venue') companyInput.value = `Pengunjung Venue ${targetName}`;
+          else if (targetType === 'klinik' || targetType === 'clinic') companyInput.value = `Pasien Klinik ${targetName}`;
+          else if (targetType === 'komunitas') companyInput.value = `Anggota Komunitas ${targetName}`;
+          else if (targetType === 'event') companyInput.value = `Peserta Event ${targetName}`;
+      } else {
+          titleEl.textContent = 'Beri Ulasan & Rating';
+          subTitleEl.textContent = 'Bagikan pengalaman Anda mengolah tubuh & hidup sehat bersama Olga Sehat!';
+          companyInput.value = '';
+      }
+
+      setRating(5);
+  }
+
+  function closeReviewModal() {
+      const modal = document.getElementById('reviewModal');
+      if (modal) modal.classList.add('hidden');
+  }
+
+  function setRating(val) {
+      const selectedRate = document.getElementById('selectedRate');
+      if (selectedRate) selectedRate.value = val;
+      const stars = document.querySelectorAll('.user-star-icon');
+      stars.forEach((star, index) => {
+          if (index < val) {
+              star.classList.remove('text-gray-300');
+              star.classList.add('text-amber-400');
+          } else {
+              star.classList.remove('text-amber-400');
+              star.classList.add('text-gray-300');
+          }
+      });
+  }
+  </script>
+
   @stack('scripts')
 </body>
 </html>

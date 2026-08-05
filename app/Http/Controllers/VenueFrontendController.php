@@ -514,7 +514,10 @@ class VenueFrontendController extends Controller
         $isMember = \App\Models\ActivityParticipant::where('user_id', $user->id)
             ->where('status', 'approved')
             ->whereHas('activity', function($q) {
-                $q->where('jenis', 'membership');
+                $q->where('jenis', 'membership')
+                  ->orWhereHas('activityType', function($at) {
+                      $at->whereIn('name', ['klub', 'membership']);
+                  });
             })
             ->exists();
 
@@ -537,15 +540,8 @@ class VenueFrontendController extends Controller
 
         // Generate Virtual Account Number based on bank code
         $bankCode = strtoupper($request->input('bank_code', 'BCA'));
-        $prefixMap = [
-            'BCA' => '88008',
-            'BRI' => '88002',
-            'BPD' => '88014',
-            'DANA' => '8528',
-            'GOPAY' => '70001',
-        ];
-        $prefix = $prefixMap[$bankCode] ?? '88008';
-        $virtualAccount = $prefix . mt_rand(10000000, 99999999);
+        $paymentSetting = \App\Models\PaymentSetting::where('bank_code', strtoupper($bankCode))->where('is_active', true)->first();
+        $virtualAccount = $paymentSetting ? $paymentSetting->account_number : ('88008' . mt_rand(10000000, 99999999));
 
         // Handle upload bukti pembayaran
         $buktiPembayaranName = null;

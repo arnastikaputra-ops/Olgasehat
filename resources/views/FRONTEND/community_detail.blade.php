@@ -262,9 +262,18 @@
                             </div>
                         @endif
                     @else
-                        <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-6">
-                            <i class="fas fa-user-plus mr-2"></i> BERGABUNG SEKARANG
-                        </button>
+                        @php
+                            $isMembershipAct = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
+                        @endphp
+                        @if($isMembershipAct)
+                            <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition transform hover:scale-105 mb-6">
+                                <i class="fas fa-crown text-slate-900 mr-2"></i> BELI MEMBERSHIP SEKARANG
+                            </button>
+                        @else
+                            <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-6">
+                                <i class="fas fa-user-plus mr-2"></i> BERGABUNG SEKARANG
+                            </button>
+                        @endif
                     @endif
                 @else
                     <a href="/loginuser" class="w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-6 block text-center">
@@ -382,7 +391,17 @@
             <i class="fas fa-times text-xl"></i>
         </button>
 
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Bergabung dengan {{ $activity->nama }}</h3>
+        @php
+            $isMembershipActModal = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
+        @endphp
+        <h3 class="text-2xl font-bold text-gray-900 mb-1">
+            @if($isMembershipActModal)
+                <i class="fas fa-crown text-amber-500 mr-2"></i>Beli Membership
+            @else
+                Bergabung Aktivitas
+            @endif
+        </h3>
+        <p class="text-sm text-gray-500 mb-4 font-medium">{{ $activity->nama }}</p>
 
         @if(session('success'))
             <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
@@ -411,41 +430,91 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Peserta <span class="text-red-500">*</span></label>
-                <input type="text" name="nama_peserta" class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nama lengkap" required value="{{ old('nama_peserta') }}">
+                <input type="text" name="nama_peserta" class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nama lengkap" required value="{{ old('nama_peserta', Auth::user()->name ?? '') }}">
             </div>
 
             @if($activity->biaya_bergabung === 'berbayar')
+            <!-- Total Pembayaran -->
+            @if($activity->harga)
+            <div class="mb-4 p-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl text-slate-950 flex items-center justify-between shadow-md">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider opacity-80">Total Pembayaran</p>
+                    <p class="text-xl font-black">Rp {{ number_format($activity->harga, 0, ',', '.') }}</p>
+                </div>
+                <i class="fas fa-crown text-3xl opacity-30"></i>
+            </div>
+            @endif
+
+            <!-- Pilih Metode Pembayaran (Bank / E-Wallet) -->
+            @php
+                $activeSettings = isset($paymentSettings) && $paymentSettings->count() > 0 
+                    ? $paymentSettings 
+                    : \App\Models\PaymentSetting::where('is_active', true)->get();
+                $firstSetting = $activeSettings->first();
+            @endphp
+            <div class="mb-4 space-y-2.5">
+                <label class="block text-sm font-semibold text-gray-700">
+                    Pilih Bank / E-Wallet Transfer <span class="text-red-500">*</span>
+                </label>
+                
+                <div class="grid grid-cols-3 gap-2" id="memberBankOptions">
+                    @foreach($activeSettings as $idx => $ps)
+                    <label class="member-bank-card border-2 {{ $idx == 0 ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200' }} rounded-xl p-2 text-center cursor-pointer flex flex-col items-center justify-center transition hover:border-blue-600">
+                        <input type="radio" name="bank_code" value="{{ $ps->bank_code }}" class="hidden" {{ $idx == 0 ? 'checked' : '' }} onchange="updateMemberVA('{{ addslashes($ps->bank_name) }}', '{{ addslashes($ps->account_number) }}', '{{ addslashes($ps->account_holder) }}')" />
+                        <i class="{{ $ps->category == 'bank' ? 'fas fa-university text-blue-600' : 'fas fa-wallet text-green-500' }} text-lg mb-1"></i>
+                        <span class="text-xs font-bold text-gray-800">{{ $ps->bank_code }}</span>
+                    </label>
+                    @endforeach
+                </div>
+
+                <!-- Info No. Virtual Account Transfer -->
+                <div class="bg-slate-900 text-white rounded-xl p-3 border border-slate-700 space-y-1">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span>No. Virtual Account / Rekening:</span>
+                        <span id="memberBankLabel" class="font-bold text-amber-400">{{ $firstSetting ? $firstSetting->bank_name : 'BCA' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span id="memberVaDisplay" class="font-mono font-bold text-base text-amber-300 tracking-wider">{{ $firstSetting ? $firstSetting->account_number : '88008819203847' }}</span>
+                        <button type="button" onclick="copyMemberVA()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded border border-slate-600 transition">
+                            <i class="fas fa-copy mr-1"></i>Salin
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">a.n. <strong id="memberHolderDisplay">{{ $firstSetting ? $firstSetting->account_holder : 'PT OlgaSehat Indonesia' }}</strong></p>
+                </div>
+            </div>
+
+            <!-- Upload Bukti Pembayaran -->
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Upload Bukti Pembayaran <span class="text-red-500">*</span>
+                    Upload Bukti Transfer <span class="text-red-500">*</span>
                 </label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:bg-gray-50 transition">
                     <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="hidden" accept="image/*" required>
-                    <label for="bukti_pembayaran" class="cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                        <p class="text-sm text-gray-600">Klik untuk upload bukti pembayaran</p>
-                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Maksimal 2MB</p>
+                    <label for="bukti_pembayaran" class="cursor-pointer block">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-blue-500 mb-1"></i>
+                        <p class="text-xs font-semibold text-gray-700">Klik untuk upload bukti transfer (Foto/Resi)</p>
+                        <p class="text-[11px] text-gray-500">Format: JPG, PNG, GIF. Maksimal 2MB</p>
                     </label>
                 </div>
-                <div id="preview-container" class="mt-3 hidden">
-                    <img id="preview-image" src="" alt="Preview" class="max-w-full h-32 object-cover rounded-lg">
+                <div id="preview-container" class="mt-2 hidden text-center">
+                    <img id="preview-image" src="" alt="Preview" class="max-w-full h-28 object-contain rounded-lg border mx-auto">
                 </div>
-                @if($activity->harga)
-                <p class="text-sm text-gray-600 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Total Pembayaran: <strong>Rp {{ number_format($activity->harga, 0, ',', '.') }}</strong>
-                </p>
-                @endif
             </div>
             @endif
 
             <div class="flex gap-3">
-                <button type="button" onclick="document.getElementById('joinModal').classList.add('hidden')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition">
+                <button type="button" onclick="document.getElementById('joinModal').classList.add('hidden')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition text-sm">
                     Batal
                 </button>
-                <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-                    <i class="fas fa-check mr-2"></i> Daftar
-                </button>
+                @if($isMembershipActModal)
+                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl shadow-md transition text-sm">
+                        <i class="fas fa-crown mr-1.5"></i> Beli Membership
+                    </button>
+                @else
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition text-sm">
+                        <i class="fas fa-check mr-1.5"></i> Daftar
+                    </button>
+                @endif
             </div>
         </form>
     </div>
@@ -464,6 +533,42 @@
             reader.readAsDataURL(file);
         }
     });
+
+    function updateMemberVA(bankName, accountNumber, accountHolder) {
+        const cards = document.querySelectorAll('.member-bank-card');
+        cards.forEach(card => {
+            card.classList.remove('border-blue-600', 'bg-blue-50/50');
+            card.classList.add('border-gray-200');
+        });
+
+        const targetRadio = document.querySelector(`input[name="bank_code"][value="${bankName}"]`) || (event ? event.target : null);
+        if (targetRadio) {
+            targetRadio.checked = true;
+            const parentCard = targetRadio.closest('.member-bank-card');
+            if (parentCard) {
+                parentCard.classList.remove('border-gray-200');
+                parentCard.classList.add('border-blue-600', 'bg-blue-50/50');
+            }
+        }
+
+        const label = document.getElementById('memberBankLabel');
+        if (label) label.textContent = bankName;
+        
+        const vaDisplay = document.getElementById('memberVaDisplay');
+        if (vaDisplay) vaDisplay.textContent = accountNumber;
+
+        const holderDisplay = document.getElementById('memberHolderDisplay');
+        if (holderDisplay) holderDisplay.textContent = accountHolder;
+    }
+
+    function copyMemberVA() {
+        const vaText = document.getElementById('memberVaDisplay')?.textContent;
+        if (vaText) {
+            navigator.clipboard.writeText(vaText).then(() => {
+                alert('Nomor Virtual Account/Rekening berhasil disalin: ' + vaText);
+            });
+        }
+    }
 </script>
 @endif
 @endauth

@@ -69,11 +69,15 @@
             @if(isset($activities) && $activities->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach($activities as $activity)
-                <div class="community-card bg-white p-6 rounded-lg shadow-md">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center flex-1">
+                @php
+                    $rawLokasi = $activity->lokasi ?? '';
+                    $isMapsUrl = filter_var($rawLokasi, FILTER_VALIDATE_URL) || Str::contains($rawLokasi, ['http://', 'https://', 'maps.app.goo.gl', 'google.com/maps']);
+                @endphp
+                <div class="community-card bg-white p-6 rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                    <div class="flex items-start justify-between mb-4 gap-3">
+                        <div class="flex items-center flex-1 min-w-0">
                             {{-- Ikon berdasarkan jenis --}}
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-3 flex-shrink-0
                                 @if($activity->jenis == 'komunitas') bg-blue-100 text-blue-600
                                 @elseif($activity->jenis == 'membership') bg-amber-100 text-amber-600
                                 @else bg-red-100 text-red-600
@@ -81,30 +85,42 @@
                                 @if($activity->jenis == 'komunitas')
                                     <i class="fas fa-users text-xl"></i>
                                 @elseif($activity->jenis == 'membership')
-                                    <i class="fas fa-credit-card text-xl"></i>
+                                    <i class="fas fa-crown text-xl"></i>
                                 @else
                                     <i class="fas fa-calendar-alt text-xl"></i>
                                 @endif
                             </div>
                             {{-- Info Dasar --}}
-                            <div class="flex-1">
-                                <p class="text-xl font-bold text-gray-900">{{ $activity->nama }}</p>
-                                <p class="text-sm text-gray-500">{{ $activity->kategori }} | {{ $activity->lokasi ?? '-' }}</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-lg font-bold text-gray-900 truncate" title="{{ $activity->nama }}">{{ $activity->nama }}</p>
+                                <p class="text-xs text-gray-500 truncate font-medium flex items-center flex-wrap gap-1">
+                                    <span>{{ $activity->kategori }}</span>
+                                    @if($rawLokasi)
+                                        <span>|</span>
+                                        @if($isMapsUrl)
+                                            <a href="{{ $rawLokasi }}" target="_blank" class="text-blue-600 hover:underline inline-flex items-center font-semibold">
+                                                <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>Peta Lokasi
+                                            </a>
+                                        @else
+                                            <span class="truncate">{{ $rawLokasi }}</span>
+                                        @endif
+                                    @endif
+                                </p>
                             </div>
                         </div>
                         {{-- Status Badge --}}
-                        <div class="ml-2">
+                        <div class="flex-shrink-0">
                             @if($activity->status == 'approved')
-                                <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                    <i class="fas fa-check-circle"></i> Approved
+                                <span class="bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                    <i class="fas fa-check-circle mr-1"></i> Approved
                                 </span>
                             @elseif($activity->status == 'pending')
-                                <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                    <i class="fas fa-clock"></i> Pending
+                                <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                    <i class="fas fa-clock mr-1"></i> Pending
                                 </span>
                             @else
-                                <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                    <i class="fas fa-times-circle"></i> Rejected
+                                <span class="bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                    <i class="fas fa-times-circle mr-1"></i> Rejected
                                 </span>
                             @endif
                         </div>
@@ -277,30 +293,46 @@
                         $activity = $participant->activity;
                     @endphp
                     @if($activity)
-                    <div class="community-card bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center flex-1">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0 bg-red-100 text-red-600">
+                    @php
+                        $rawLokasiJoined = $activity->lokasi ?? '';
+                        $isMapsUrlJoined = filter_var($rawLokasiJoined, FILTER_VALIDATE_URL) || Str::contains($rawLokasiJoined, ['http://', 'https://', 'maps.app.goo.gl', 'google.com/maps']);
+                    @endphp
+                    <div class="community-card bg-white p-6 rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                        <div class="flex items-start justify-between mb-4 gap-3">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center mr-3 flex-shrink-0 bg-red-100 text-red-600">
                                     <i class="fas fa-calendar-alt text-xl"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-xl font-bold text-gray-900">{{ $activity->nama }}</p>
-                                    <p class="text-sm text-gray-500">{{ $activity->kategori }} | {{ $activity->lokasi ?? '-' }}</p>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-lg font-bold text-gray-900 truncate" title="{{ $activity->nama }}">{{ $activity->nama }}</p>
+                                    <p class="text-xs text-gray-500 truncate font-medium flex items-center flex-wrap gap-1">
+                                        <span>{{ $activity->kategori }}</span>
+                                        @if($rawLokasiJoined)
+                                            <span>|</span>
+                                            @if($isMapsUrlJoined)
+                                                <a href="{{ $rawLokasiJoined }}" target="_blank" class="text-blue-600 hover:underline inline-flex items-center font-semibold">
+                                                    <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>Peta Lokasi
+                                                </a>
+                                            @else
+                                                <span class="truncate">{{ $rawLokasiJoined }}</span>
+                                            @endif
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             {{-- Status Badge --}}
-                            <div class="ml-2">
+                            <div class="flex-shrink-0">
                                 @if($participant->status === 'approved')
-                                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                        <i class="fas fa-check-circle"></i> Disetujui
+                                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                        <i class="fas fa-check-circle mr-1"></i> Disetujui
                                     </span>
                                 @elseif($participant->status === 'pending')
-                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                        <i class="fas fa-clock"></i> Menunggu Verifikasi
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                        <i class="fas fa-clock mr-1"></i> Menunggu Verifikasi
                                     </span>
                                 @else
-                                    <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full">
-                                        <i class="fas fa-times-circle"></i> Ditolak
+                                    <span class="bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center">
+                                        <i class="fas fa-times-circle mr-1"></i> Ditolak
                                     </span>
                                 @endif
                             </div>
@@ -400,19 +432,51 @@
                     </a>
                 </div>
 
-                {{-- Blue Banner Card: Nikmati Akses User --}}
-                <a href="#" class="rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md block relative overflow-hidden transition-all duration-300 hover:translate-x-1">
-                    <div class="absolute inset-0 opacity-20" style="background-image: url('{{ asset('assets/blue-banner.png') }}'); background-size: cover; background-position: center;"></div>
-                    <div class="relative z-10 flex items-start space-x-3">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                            <i class="fas fa-star text-white text-lg"></i>
+                {{-- Blue Banner Card: Nikmati Akses User / VIP Status --}}
+                @php
+                    $isUserMember = false;
+                    if (Auth::check()) {
+                        $isUserMember = \App\Models\ActivityParticipant::where('user_id', Auth::id())
+                            ->where('status', 'approved')
+                            ->whereHas('activity', function($q) {
+                                $q->where('jenis', 'membership')
+                                  ->orWhereHas('activityType', function($at) {
+                                      $at->whereIn('name', ['klub', 'membership']);
+                                  });
+                            })->exists();
+                    }
+                @endphp
+                @if($isUserMember)
+                    <a href="{{ route('user.riwayatmembership') }}" class="rounded-xl p-4 border border-amber-300 bg-gradient-to-r from-amber-500 to-orange-600 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all duration-300 hover:translate-x-1">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">VIP Member Aktif</h3>
+                                    <span class="bg-white text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">AKTIF</span>
+                                </div>
+                                <p class="text-xs text-amber-100 leading-relaxed">Selamat! Anda menikmati diskon 10% untuk venue & kesehatan. Kelola membership Anda di sini.</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 mb-1">Nikmati Akses User</h3>
-                            <p class="text-xs text-gray-500">Akses penuh ke semua fitur premium dan layanan eksklusif untuk pengalaman terbaik Anda</p>
+                    </a>
+                @else
+                    <a href="{{ route('community', ['type' => 'klub']) }}" class="rounded-xl p-4 border border-blue-200 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-md hover:shadow-lg block relative overflow-hidden text-white transition-all duration-300 hover:translate-x-1">
+                        <div class="relative z-10 flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <i class="fas fa-crown text-yellow-300 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-white text-base mb-1">Nikmati Akses User / Premium</h3>
+                                    <span class="bg-yellow-400 text-yellow-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">UPGRADE</span>
+                                </div>
+                                <p class="text-xs text-blue-100 leading-relaxed">Akses penuh ke semua fitur premium, keanggotaan klub & diskon 10% di setiap pemesanan!</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                @endif
 
                 {{-- Quick Actions Section --}}
                 <div>

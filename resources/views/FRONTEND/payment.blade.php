@@ -9,7 +9,10 @@
         $isMember = \App\Models\ActivityParticipant::where('user_id', $user->id)
             ->where('status', 'approved')
             ->whereHas('activity', function($q) {
-                $q->where('jenis', 'membership');
+                $q->where('jenis', 'membership')
+                  ->orWhereHas('activityType', function($at) {
+                      $at->whereIn('name', ['klub', 'membership']);
+                  });
             })
             ->exists();
     }
@@ -139,27 +142,28 @@
 
                 <form class="space-y-6" id="paymentMethodForm">
                     
+                    @php
+                        $dbPaymentSettings = isset($paymentSettings) && $paymentSettings->count() > 0 
+                            ? $paymentSettings 
+                            : \App\Models\PaymentSetting::where('is_active', true)->get();
+                        $banks = $dbPaymentSettings->where('category', 'bank');
+                        $ewallets = $dbPaymentSettings->where('category', 'ewallet');
+                    @endphp
+
                     <div class="border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 transition duration-200">
                         <label class="flex items-center p-4 cursor-pointer bg-blue-50 hover:bg-blue-100 transition duration-200">
                             <input type="radio" name="paymentMethod" value="virtualAccount" class="form-radio text-blue-700 h-5 w-5 mr-3" checked />
-                            <span class="font-semibold text-gray-800">Transfer Virtual Account (VA)</span>
+                            <span class="font-semibold text-gray-800">Transfer Virtual Account (VA) / Bank</span>
                         </label>
                         <div class="p-4 pt-3 bg-white grid grid-cols-3 gap-3 border-t border-gray-100" id="vaBankContainer">
+                            @foreach($banks as $bIdx => $bank)
                             <label class="border border-gray-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center transition">
-                                <input type="radio" name="selectedBank" value="BCA" class="mb-1" checked />
-                                <img src="{{ asset('images/banks/bca.svg') }}" alt="BCA" class="h-8 object-contain my-1" onerror="this.outerHTML='<i class=\\'fas fa-university text-2xl text-blue-600 my-1\\'></i>'" />
-                                <span class="text-xs font-semibold text-gray-700">BCA</span>
+                                <input type="radio" name="selectedBank" value="{{ $bank->bank_code }}" class="mb-1" {{ $bIdx == 0 ? 'checked' : '' }} />
+                                <i class="fas fa-university text-2xl text-blue-600 my-1"></i>
+                                <span class="text-xs font-semibold text-gray-700">{{ $bank->bank_code }}</span>
+                                <span class="text-[10px] text-gray-500 truncate max-w-full font-mono">{{ $bank->account_number }}</span>
                             </label>
-                            <label class="border border-gray-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center transition">
-                                <input type="radio" name="selectedBank" value="BRI" class="mb-1" />
-                                <img src="{{ asset('images/banks/bri.svg') }}" alt="BRI" class="h-8 object-contain my-1" onerror="this.outerHTML='<i class=\\'fas fa-university text-2xl text-blue-600 my-1\\'></i>'" />
-                                <span class="text-xs font-semibold text-gray-700">BRI</span>
-                            </label>
-                            <label class="border border-gray-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center transition">
-                                <input type="radio" name="selectedBank" value="BPD" class="mb-1" />
-                                <img src="{{ asset('images/banks/bpd.png') }}" alt="BPD" class="h-10 object-contain my-1" onerror="this.src='{{ asset('images/banks/bpd.svg') }}'" />
-                                <span class="text-xs font-semibold text-gray-700">BPD Bali</span>
-                            </label>
+                            @endforeach
                         </div>
                     </div>
 
@@ -169,16 +173,14 @@
                             <span class="font-semibold text-gray-800">E-Wallet</span>
                         </label>
                         <div class="p-4 pt-3 bg-white grid grid-cols-2 gap-3 border-t border-gray-100 hidden" id="ewalletsLogoContainer">
+                            @foreach($ewallets as $ewallet)
                             <label class="border border-gray-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center transition">
-                                <input type="radio" name="selectedBank" value="DANA" class="mb-1" />
-                                <img src="{{ asset('images/banks/dana.svg') }}" alt="DANA" class="h-8 object-contain my-1" onerror="this.outerHTML='<i class=\\'fas fa-wallet text-2xl text-blue-600 my-1\\'></i>'" />
-                                <span class="text-xs font-semibold text-gray-700">DANA</span>
+                                <input type="radio" name="selectedBank" value="{{ $ewallet->bank_code }}" class="mb-1" />
+                                <i class="fas fa-wallet text-2xl text-green-600 my-1"></i>
+                                <span class="text-xs font-semibold text-gray-700">{{ $ewallet->bank_code }}</span>
+                                <span class="text-[10px] text-gray-500 truncate max-w-full font-mono">{{ $ewallet->account_number }}</span>
                             </label>
-                            <label class="border border-gray-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center transition">
-                                <input type="radio" name="selectedBank" value="GOPAY" class="mb-1" />
-                                <img src="{{ asset('images/banks/gopay.svg') }}" alt="GoPay" class="h-8 object-contain my-1" onerror="this.outerHTML='<i class=\\'fas fa-wallet text-2xl text-blue-600 my-1\\'></i>'" />
-                                <span class="text-xs font-semibold text-gray-700">GoPay</span>
-                            </label>
+                            @endforeach
                         </div>
                     </div>
 

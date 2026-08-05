@@ -191,13 +191,17 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{ asset('aset/user.jpg') }}" class="img-circle elevation-2" alt="User Image">
+      <!-- Sidebar user panel -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+        <div class="image mr-2" style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #0096ff;">
+          @if(Auth::user()->image ?? false)
+            <img src="{{ asset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+          @else
+            <span style="color: white; font-weight: 700; font-size: 0.9rem;">{{ strtoupper(substr(Auth::user()->name ?? 'P', 0, 1)) }}</span>
+          @endif
         </div>
         <div class="info">
-           <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+           <a href="{{ route('pemilik.pengaturan') }}" class="d-block font-weight-bold">{{ Auth::user()->name }}</a>
         </div>
       </div>
 

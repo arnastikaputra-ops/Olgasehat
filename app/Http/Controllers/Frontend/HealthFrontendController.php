@@ -138,6 +138,14 @@ class HealthFrontendController extends Controller
         });
 
         $servingDoctors = $clinic->doctors->where('aktif', true)->take(6);
+        $paymentSettings = \App\Models\PaymentSetting::where('is_active', true)->orderBy('category')->orderBy('bank_name')->get();
+
+        $clinicReviews = \App\Models\Review::where(function($q) use ($clinic) {
+            $q->where('tipe_target', 'klinik')->orWhere('tipe_target', 'clinic');
+        })->where('target_id', $clinic->id)->latest()->get();
+
+        $avgRating = $clinicReviews->count() > 0 ? round($clinicReviews->avg('rate'), 1) : 5.0;
+        $totalReviews = $clinicReviews->count();
 
         return view('FRONTEND.service_detail', [
             'service' => $service,
@@ -145,6 +153,10 @@ class HealthFrontendController extends Controller
             'schedules' => $schedules,
             'timeSlots' => $timeSlots,
             'servingDoctors' => $servingDoctors,
+            'paymentSettings' => $paymentSettings,
+            'clinicReviews' => $clinicReviews,
+            'avgRating' => $avgRating,
+            'totalReviews' => $totalReviews,
         ]);
     }
 
@@ -157,94 +169,103 @@ class HealthFrontendController extends Controller
             ], 401);
         }
 
-        $request->validate([
-            'clinic_id' => 'required|exists:clinics,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'service_id' => 'required|exists:health_services,id',
-            'tanggal' => 'required|date|after_or_equal:today',
-            'jam' => 'required',
-            'metode_pembayaran' => 'nullable|string',
-            'bank_code' => 'nullable|string|in:BCA,BRI,BPD,DANA,GOPAY',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
-        ], [
-            'bukti_pembayaran.required' => 'Wajib mengunggah foto bukti pembayaran untuk menyelesaikan janji layanan.',
-            'bukti_pembayaran.image' => 'Bukti pembayaran harus berupa berkas foto/gambar.',
-        ]);
+        try {
+            $request->validate([
+                'clinic_id' => 'required|exists:clinics,id',
+                'doctor_id' => 'required|exists:doctors,id',
+                'service_id' => 'required|exists:health_services,id',
+                'tanggal' => 'required|date|after_or_equal:today',
+                'jam' => 'required',
+                'metode_pembayaran' => 'nullable|string',
+                'bank_code' => 'nullable|string',
+                'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
+            ], [
+                'bukti_pembayaran.required' => 'Wajib mengunggah foto bukti pembayaran untuk menyelesaikan janji layanan.',
+                'bukti_pembayaran.image' => 'Bukti pembayaran harus berupa berkas foto/gambar.',
+            ]);
 
-        $user = auth()->user();
-        $service = HealthService::findOrFail($request->service_id);
-        $clinic = Clinic::find($request->clinic_id);
+            $user = auth()->user();
+            $service = HealthService::findOrFail($request->service_id);
+            $clinic = Clinic::find($request->clinic_id);
+            $bankCode = $request->input('bank_code', 'BCA');
 
-        // Check if user has an active approved membership
-        $isMember = \App\Models\ActivityParticipant::where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->whereHas('activity', function($q) {
-                $q->where('jenis', 'membership');
-            })
-            ->exists();
+            // Check if user has an active approved membership
+            $isMember = \App\Models\ActivityParticipant::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->whereHas('activity', function($q) {
+                    $q->where('jenis', 'membership')
+                      ->orWhereHas('activityType', function($at) {
+                          $at->whereIn('name', ['klub', 'membership']);
+                      });
+                })
+                ->exists();
 
-        $subtotal = (float) ($service->harga ?? 0);
-        $diskonMember = $isMember ? round($subtotal * 0.10) : 0;
-        $totalHarga = max(0, $subtotal - $diskonMember);
+            $subtotal = (float) ($service->harga ?? 0);
+            $diskonMember = $isMember ? round($subtotal * 0.10) : 0;
+            $totalHarga = max(0, $subtotal - $diskonMember);
 
-        $komisiTipe = $clinic->komisi_tipe ?? 'none';
-        $komisiNilai = (float) ($clinic->komisi_nilai ?? 0);
-        $komisiPlatform = 0;
+            $komisiTipe = $clinic->komisi_tipe ?? 'none';
+            $komisiNilai = (float) ($clinic->komisi_nilai ?? 0);
+            $komisiPlatform = 0;
 
-        if ($komisiTipe === 'percentage' && $komisiNilai > 0) {
-            $komisiPlatform = ($totalHarga * $komisiNilai) / 100;
-        } elseif ($komisiTipe === 'fixed' && $komisiNilai > 0) {
-            $komisiPlatform = min($komisiNilai, $totalHarga);
+            if ($komisiTipe === 'percentage' && $komisiNilai > 0) {
+                $komisiPlatform = ($totalHarga * $komisiNilai) / 100;
+            } elseif ($komisiTipe === 'fixed' && $komisiNilai > 0) {
+                $komisiPlatform = min($komisiNilai, $totalHarga);
+            }
+
+            $pendapatanMitra = max(0, $totalHarga - $komisiPlatform);
+
+            $paymentSetting = \App\Models\PaymentSetting::where('bank_code', strtoupper($bankCode))->where('is_active', true)->first();
+            $virtualAccount = $paymentSetting ? $paymentSetting->account_number : ('88008' . mt_rand(10000000, 99999999));
+
+            // Handle upload bukti pembayaran
+            $buktiPembayaranName = null;
+            if ($request->hasFile('bukti_pembayaran')) {
+                $file = $request->file('bukti_pembayaran');
+                $buktiPembayaranName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('bukti_pembayaran'), $buktiPembayaranName);
+            }
+
+            $booking = HealthBooking::create([
+                'user_id' => $user->id,
+                'clinic_id' => $request->clinic_id,
+                'doctor_id' => $request->doctor_id,
+                'service_id' => $request->service_id,
+                'tanggal' => $request->tanggal,
+                'jam' => $request->jam,
+                'nama_pasien' => $request->input('nama_pasien', $user->name),
+                'nomor_telepon' => $request->input('nomor_telepon', $user->phone ?? '08123456789'),
+                'total_harga' => $totalHarga,
+                'komisi_tipe' => $komisiTipe,
+                'komisi_nilai' => $komisiNilai,
+                'komisi_platform' => $komisiPlatform,
+                'pendapatan_mitra' => $pendapatanMitra,
+                'metode_pembayaran' => $request->input('metode_pembayaran', 'virtualAccount'),
+                'bank_code' => $bankCode,
+                'virtual_account' => $virtualAccount,
+                'status' => 'pending',
+                'status_pembayaran' => 'pending_acc',
+                'bukti_pembayaran' => $buktiPembayaranName,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemesanan jadwal pemeriksaan berhasil diproses & dikonfirmasi!',
+                'booking' => $booking
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $ve) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $ve->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
         }
-
-        $pendapatanMitra = max(0, $totalHarga - $komisiPlatform);
-
-        $bankCode = strtoupper($request->input('bank_code', 'BCA'));
-        $prefixMap = [
-            'BCA' => '88008',
-            'BRI' => '88002',
-            'BPD' => '88014',
-            'DANA' => '8528',
-            'GOPAY' => '70001',
-        ];
-        $prefix = $prefixMap[$bankCode] ?? '88008';
-        $virtualAccount = $prefix . mt_rand(10000000, 99999999);
-
-        // Handle upload bukti pembayaran
-        $buktiPembayaranName = null;
-        if ($request->hasFile('bukti_pembayaran')) {
-            $file = $request->file('bukti_pembayaran');
-            $buktiPembayaranName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('bukti_pembayaran'), $buktiPembayaranName);
-        }
-
-        $booking = HealthBooking::create([
-            'user_id' => $user->id,
-            'clinic_id' => $request->clinic_id,
-            'doctor_id' => $request->doctor_id,
-            'service_id' => $request->service_id,
-            'tanggal' => $request->tanggal,
-            'jam' => $request->jam,
-            'nama_pasien' => $request->input('nama_pasien', $user->name),
-            'nomor_telepon' => $request->input('nomor_telepon', $user->phone ?? '08123456789'),
-            'total_harga' => $totalHarga,
-            'komisi_tipe' => $komisiTipe,
-            'komisi_nilai' => $komisiNilai,
-            'komisi_platform' => $komisiPlatform,
-            'pendapatan_mitra' => $pendapatanMitra,
-            'metode_pembayaran' => $request->input('metode_pembayaran', 'virtualAccount'),
-            'bank_code' => $bankCode,
-            'virtual_account' => $virtualAccount,
-            'status' => 'pending',
-            'status_pembayaran' => 'pending_acc',
-            'bukti_pembayaran' => $buktiPembayaranName,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Pemesanan jadwal pemeriksaan berhasil diproses & dikonfirmasi!',
-            'booking' => $booking
-        ]);
     }
 }
 

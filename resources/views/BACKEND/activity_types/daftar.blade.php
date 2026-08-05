@@ -185,7 +185,17 @@
                   @endif
                 </td>
                 <td>{{ $activity->kategori }}</td>
-                <td>{{ $activity->lokasi ?? '-' }}</td>
+                <td>
+                  @if($activity->lokasi)
+                    @if(filter_var($activity->lokasi, FILTER_VALIDATE_URL) || Str::contains($activity->lokasi, ['http://', 'https://', 'maps.app.goo.gl', 'google.com/maps']))
+                      <a href="{{ $activity->lokasi }}" target="_blank" class="btn btn-xs btn-outline-primary"><i class="fas fa-map-marker-alt text-danger mr-1"></i>Peta Lokasi</a>
+                    @else
+                      {{ Str::limit($activity->lokasi, 35) }}
+                    @endif
+                  @else
+                    -
+                  @endif
+                </td>
                 <td>
                   @if($activity->user)
                     User: {{ $activity->user->name }}

@@ -158,49 +158,96 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <!-- CARD UPDATE STATUS -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
                     <div class="card-header" style="background: white; border-radius: 20px 20px 0 0;">
-                        <h3 class="card-title mb-0" style="font-weight: 700; color: #1b2b5a;">Update Status</h3>
+                        <h3 class="card-title mb-0" style="font-weight: 700; color: #1b2b5a;">Update Status Booking</h3>
                     </div>
                     <form action="{{ route('pengelola.bookings.update-status', $booking->id) }}" method="POST">
                         @csrf
                         <div class="card-body">
                             <div class="form-group">
-                                <label>Status <span class="text-danger">*</span></label>
+                                <label class="font-weight-bold">Status Booking <span class="text-danger">*</span></label>
                                 <select name="status" class="form-control" required>
-                                    <option value="pending" {{ $booking->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="confirmed" {{ $booking->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                    <option value="completed" {{ $booking->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                    <option value="cancelled" {{ $booking->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                    <option value="no_show" {{ $booking->status == 'no_show' ? 'selected' : '' }}>No Show</option>
+                                    <option value="pending" {{ $booking->status == 'pending' ? 'selected' : '' }}>Pending (Menunggu Konfirmasi)</option>
+                                    <option value="confirmed" {{ $booking->status == 'confirmed' ? 'selected' : '' }}>Confirmed (Disetujui)</option>
+                                    <option value="completed" {{ $booking->status == 'completed' ? 'selected' : '' }}>Completed (Selesai)</option>
+                                    <option value="cancelled" {{ $booking->status == 'cancelled' ? 'selected' : '' }}>Cancelled (Dibatalkan)</option>
+                                    <option value="no_show" {{ $booking->status == 'no_show' ? 'selected' : '' }}>No Show (Tidak Datang)</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label>Catatan Dokter</label>
-                                <textarea name="catatan_dokter" class="form-control" rows="4" placeholder="Catatan dari dokter...">{{ old('catatan_dokter', $booking->catatan_dokter) }}</textarea>
+                                <label class="font-weight-bold">Catatan Dokter / Keterangan</label>
+                                <textarea name="catatan_dokter" class="form-control" rows="3" placeholder="Tuliskan resep, diagnosa, atau catatan medis pasien...">{{ old('catatan_dokter', $booking->catatan_dokter) }}</textarea>
                             </div>
 
-                            @if($booking->total_harga)
-                            <div class="form-group">
-                                <strong>Total Harga:</strong>
-                                <p class="mb-0">Rp {{ number_format($booking->total_harga, 0, ',', '.') }}</p>
-                            </div>
-                            @endif
+                            <hr>
 
-                            @if($booking->metode_pembayaran)
-                            <div class="form-group">
-                                <strong>Metode Pembayaran:</strong>
-                                <p class="mb-0">{{ ucfirst($booking->metode_pembayaran) }}</p>
+                            <div class="mb-2">
+                                <strong class="text-muted d-block text-xs uppercase tracking-wider">Total Pembayaran:</strong>
+                                <h4 class="mb-0 font-weight-bold text-success">Rp {{ number_format($booking->total_harga ?? 0, 0, ',', '.') }}</h4>
+                            </div>
+
+                            <div class="mb-2">
+                                <strong class="text-muted d-block text-xs uppercase tracking-wider">Metode Pembayaran:</strong>
+                                <span class="badge badge-info px-2 py-1 font-weight-bold">{{ $booking->bank_code ?? 'BANK' }}</span>
+                                <small class="text-muted">({{ ucfirst($booking->metode_pembayaran ?? 'virtualAccount') }})</small>
+                            </div>
+
+                            @if($booking->virtual_account)
+                            <div class="mb-2">
+                                <strong class="text-muted d-block text-xs uppercase tracking-wider">Nomor Virtual Account:</strong>
+                                <code class="font-weight-bold text-primary p-1 bg-light rounded" style="font-size: 0.95rem;">{{ $booking->virtual_account }}</code>
                             </div>
                             @endif
                         </div>
                         <div class="card-footer" style="background: white; border-radius: 0 0 20px 20px;">
-                            <button type="submit" class="btn btn-primary btn-block" style="background: #28a745; border-color: #28a745; border-radius: 10px;">
-                                <i class="fas fa-save"></i> Update Status
+                            <button type="submit" class="btn btn-success btn-block py-2 font-weight-bold shadow-sm" style="background: #28a745; border-color: #28a745; border-radius: 10px;">
+                                <i class="fas fa-save mr-1"></i> Update Status & Catatan
                             </button>
                         </div>
                     </form>
+                </div>
+
+                <!-- CARD BUKTI TRANSFER PEMBAYARAN PASIEN -->
+                <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background: white; border-radius: 20px 20px 0 0;">
+                        <h3 class="card-title mb-0" style="font-weight: 700; color: #1b2b5a;">
+                            <i class="fas fa-file-invoice-dollar text-primary mr-1"></i> Bukti Transfer Pasien
+                        </h3>
+                    </div>
+                    <div class="card-body text-center p-3">
+                        @if($booking->bukti_pembayaran)
+                            @php
+                                $buktiUrl = asset('bukti_pembayaran/' . $booking->bukti_pembayaran);
+                            @endphp
+                            <div class="position-relative overflow-hidden rounded-lg border mb-3 shadow-sm bg-light" style="max-height: 380px;">
+                                <a href="{{ $buktiUrl }}" target="_blank" title="Klik untuk membuka ukuran penuh">
+                                    <img src="{{ $buktiUrl }}" alt="Bukti Transfer Pasien" class="img-fluid rounded" style="max-height: 360px; width: 100%; object-fit: contain; background: #f8fafc;">
+                                </a>
+                            </div>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ $buktiUrl }}" target="_blank" class="btn btn-outline-primary btn-sm font-weight-bold rounded-pill px-3 mr-1">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Buka Foto Full
+                                </a>
+                                <a href="{{ $buktiUrl }}" download class="btn btn-primary btn-sm font-weight-bold rounded-pill px-3 shadow-sm">
+                                    <i class="fas fa-download mr-1"></i> Unduh Foto
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-2 font-italic">
+                                <i class="fas fa-search-plus mr-1"></i> Klik gambar di atas untuk melihat dalam tab baru.
+                            </small>
+                        @else
+                            <div class="py-5 text-center text-muted">
+                                <div class="mb-3">
+                                    <i class="fas fa-receipt fa-4x text-secondary opacity-50"></i>
+                                </div>
+                                <h6 class="font-weight-bold text-dark mb-1">Bukti Transfer Belum Ada</h6>
+                                <p class="small mb-0">Pasien belum mengunggah foto resi / bukti pembayaran.</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

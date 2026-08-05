@@ -75,8 +75,25 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Deskripsi</label>
-                                <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi', $service->deskripsi) }}</textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="font-weight-bold" style="color: #1b2b5a;">
+                                        <i class="fas fa-heartbeat text-primary mr-1"></i> Deskripsi Layanan
+                                    </label>
+                                    <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-2 py-1" id="btnIsiContohDeskripsiLayanan" style="font-size: 0.8rem;">
+                                        <i class="fas fa-magic mr-1"></i> Gunakan Contoh Deskripsi
+                                    </button>
+                                </div>
+                                <div class="p-2 mb-2 rounded bg-light border-left border-info" style="border-left: 4px solid #17a2b8 !important; background-color: #f4faff !important;">
+                                    <small class="text-secondary d-block">
+                                        <i class="fas fa-info-circle text-info mr-1"></i> <strong>Apa yang diisi pada Deskripsi Layanan?</strong>
+                                        Penjelasan singkat mengenai cakupan tindakan medis atau tindakan pemeriksaan yang didapatkan pasien.
+                                    </small>
+                                </div>
+                                <textarea name="deskripsi" id="inputDeskripsiLayanan" class="form-control" rows="3" 
+                                    placeholder="Contoh: Layanan pemeriksaan fisik umum meliputi cek tekanan darah, konsultasi medis, serta saran pola hidup sehat.">{{ old('deskripsi', $service->deskripsi) }}</textarea>
+                                <small class="form-text text-muted">
+                                    💡 <strong>Contoh singkat:</strong> <em>"Konsultasi medis dan pemeriksaan kesehatan dasar mencakup cek tensi serta resep obat."</em>
+                                </small>
                             </div>
 
                             <div class="row">
@@ -154,6 +171,16 @@ document.getElementById('clinic_id').addEventListener('change', function() {
             }
         }
     });
+});
+
+// Contoh deskripsi layanan
+document.getElementById('btnIsiContohDeskripsiLayanan')?.addEventListener('click', function(e) {
+    if (e) e.preventDefault();
+    const textarea = document.getElementById('inputDeskripsiLayanan');
+    if (textarea) {
+        textarea.value = "Layanan pemeriksaan fisik umum meliputi cek tekanan darah, konsultasi medis, serta saran pola hidup sehat.";
+        textarea.focus();
+    }
 });
 </script>
 @endsection

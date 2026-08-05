@@ -93,15 +93,24 @@
 
                         @if($clinic->hari_operasional)
                         <div class="mb-3">
-                            <strong><i class="fas fa-calendar-alt mr-2"></i>Hari Operasional:</strong>
-                            <p class="mb-0">
-                                @foreach($clinic->hari_operasional as $hari)
-                                    <span class="badge badge-secondary">{{ ucfirst($hari) }}</span>
-                                @endforeach
+                            <strong><i class="fas fa-calendar-alt mr-2 text-primary"></i>Hari Operasional:</strong>
+                            <p class="mb-1 mt-1">
+                                @if(count($clinic->hari_operasional) == 7)
+                                    <span class="badge badge-primary px-2 py-1"><i class="fas fa-check-double mr-1"></i> Setiap Hari (Senin - Minggu)</span>
+                                @else
+                                    @foreach($clinic->hari_operasional as $hari)
+                                        <span class="badge badge-info px-2 py-1">{{ ucfirst($hari) }}</span>
+                                    @endforeach
+                                @endif
                             </p>
                             @if($clinic->jam_buka && $clinic->jam_tutup)
                             <p class="mb-0 mt-2">
-                                <strong>Jam:</strong> {{ $clinic->jam_buka }} - {{ $clinic->jam_tutup }}
+                                <strong><i class="far fa-clock mr-1 text-primary"></i>Jam Operasional:</strong> 
+                                @if(($clinic->jam_buka == '00:00:00' || $clinic->jam_buka == '00:00') && ($clinic->jam_tutup == '23:59:00' || $clinic->jam_tutup == '23:59'))
+                                    <span class="badge badge-success px-2 py-1 ml-1"><i class="fas fa-bolt text-warning mr-1"></i> Buka 24 Jam Nonstop</span>
+                                @else
+                                    <span class="badge badge-light border px-2 py-1 ml-1 font-weight-bold">{{ date('H:i', strtotime($clinic->jam_buka)) }} - {{ date('H:i', strtotime($clinic->jam_tutup)) }}</span>
+                                @endif
                             </p>
                             @endif
                         </div>
