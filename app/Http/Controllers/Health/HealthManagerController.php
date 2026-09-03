@@ -23,8 +23,12 @@ class HealthManagerController extends Controller
         $user = Auth::user();
         
         // Ambil klinik yang dimiliki user
-        $clinics = Clinic::where('user_id', $user->id)->get();
+        $clinics = Clinic::where('user_id', $user->id)->with('doctors')->get();
         $clinicIds = $clinics->pluck('id');
+
+        $clinicMemberships = \App\Models\Activity::where('pemilik_id', $user->id)
+            ->where('jenis', 'membership')
+            ->get();
         
         // Statistik
         $totalClinics = $clinics->count();
@@ -60,7 +64,8 @@ class HealthManagerController extends Controller
             'todayBookings',
             'bookingsToday',
             'bookingsPending',
-            'clinics'
+            'clinics',
+            'clinicMemberships'
         ));
     }
 
@@ -231,9 +236,11 @@ class HealthManagerController extends Controller
             
             $image = $request->file('banner');
             $imageName = time() . '_banner_' . $image->getClientOriginalName();
-            $image->move(public_path('fotoklinik'), $imageName);
             $data['logo'] = $imageName; // Simpan banner di field logo
         }
+
+        $data['is_membership_discount'] = $request->has('is_membership_discount');
+        $data['membership_discount_percent'] = (float) $request->input('membership_discount_percent', 10);
 
         $clinic->update($data);
 

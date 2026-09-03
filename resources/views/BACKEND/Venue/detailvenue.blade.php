@@ -101,6 +101,29 @@
                 </div>
               </div>
 
+              <!-- Kartu Informasi Rekening Bank Pencairan Mitra -->
+              <div class="card border-primary mb-3 mt-3">
+                <div class="card-header bg-light text-primary font-weight-bold">
+                  <i class="fas fa-university mr-2"></i>Rekening Bank Pencairan Mitra (Transfer Penghasilan Venue)
+                </div>
+                <div class="card-body py-2">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <small class="text-muted d-block">Nama Bank:</small>
+                      <strong class="text-dark">{{ $venue->nama_bank ?? 'Belum Diisi' }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                      <small class="text-muted d-block">Nomor Rekening:</small>
+                      <strong class="font-mono text-primary">{{ $venue->nomor_rekening ?? 'Belum Diisi' }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                      <small class="text-muted d-block">Atas Nama Pemilik Rekening:</small>
+                      <strong class="text-dark">{{ $venue->nama_pemilik_rekening ?? ($venue->user->name ?? '-') }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               @if($venue->detail || $venue->aturan || $venue->video_review || $venue->lokasi)
               <hr>
               <h6 class="text-muted mb-3">Informasi Tambahan</h6>

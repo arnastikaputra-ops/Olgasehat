@@ -879,8 +879,8 @@
       <h3 class="font-semibold text-lg mb-4 text-gray-800" data-translate>Perusahaan</h3>
       <ul class="space-y-3 text-base">
         <li><a href="{{ route('tentang') }}" class="hover:text-blue-700" data-translate>Tentang</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Kebijakan &amp; Privasi</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Syarat &amp; Ketentuan</a></li>
+        <li><a href="javascript:void(0)" onclick="openPrivacyModal()" class="hover:text-blue-700" data-translate>Kebijakan &amp; Privasi</a></li>
+        <li><a href="javascript:void(0)" onclick="openTermsModal()" class="hover:text-blue-700" data-translate>Syarat &amp; Ketentuan</a></li>
       </ul>
     </div>
     <div>
@@ -895,9 +895,9 @@
     <div>
       <h3 class="font-semibold text-lg mb-4 text-gray-800" data-translate>Support</h3>
       <ul class="space-y-3 text-base">
-        <li><a href="#" class="hover:text-blue-700" data-translate>FAQs</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Support Center</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Contact Us</a></li>
+        <li><a href="javascript:void(0)" onclick="openFaqModal()" class="hover:text-blue-700" data-translate>FAQs</a></li>
+        <li><a href="javascript:void(0)" onclick="openSupportModal()" class="hover:text-blue-700" data-translate>Support Center</a></li>
+        <li><a href="javascript:void(0)" onclick="openContactUsModal()" class="hover:text-blue-700 font-semibold text-blue-700" data-translate>Contact Us</a></li>
       </ul>
       <div class="flex space-x-4 mt-6">
         @php

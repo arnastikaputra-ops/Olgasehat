@@ -29,6 +29,36 @@
 
     <section class="content">
         <div class="container-fluid">
+            <!-- Card Penjelasan Master Tipe Aktivitas -->
+            <div class="card card-outline card-primary shadow-sm mb-3">
+              <div class="card-header font-weight-bold text-primary py-2">
+                <i class="fas fa-info-circle mr-2"></i>Penjelasan Master Tipe Aktivitas Platform OlgaSehat
+              </div>
+              <div class="card-body py-2">
+                <p class="text-muted small mb-2">Halaman ini digunakan untuk mengelola <strong>Master Kategori Utama Aktivitas</strong> yang menjadi acuan pengelompokan di halaman eksplorasi frontend (URL: <code>/community</code>):</p>
+                <div class="row">
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-chalkboard-teacher text-info mr-1"></i> 1. open-class (Komunitas & Mabar)</strong>
+                      <small class="text-muted">Kategori untuk kegiatan Main Bareng (Mabar), sparring, atau kelas latihan terbuka antar sesama pencinta olahraga.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-users text-warning mr-1"></i> 2. klub (VIP Membership)</strong>
+                      <small class="text-muted">Kategori untuk paket keanggotaan VIP Mitra Venue Lapangan & Klinik Kesehatan yang memberikan diskon sewa.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-calendar-alt text-danger mr-1"></i> 3. event (Event Olahraga)</strong>
+                      <small class="text-muted">Kategori untuk turnamen, kompetisi, marathon, atau acara kegiatan olahraga resmi.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="row">

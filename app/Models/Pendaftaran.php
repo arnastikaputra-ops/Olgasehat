@@ -15,6 +15,8 @@ class Pendaftaran extends Model
         'kategori' => 'array',
         'fasilitas' => 'array',
         'jam_operasional' => 'array',
+        'is_membership_discount' => 'boolean',
+        'membership_discount_percent' => 'float',
     ];
 
     public function galleries()

@@ -85,7 +85,17 @@
         <div class="md:w-80 mt-8 md:mt-0">
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-lg">
                 <p class="text-3xl font-extrabold text-blue-800 mb-1">Rp. 245,000</p>
-                <p class="text-sm text-gray-600 mb-4">Wajib DP · Rp. 150,000</p>
+                <p class="text-sm text-gray-600 mb-4">Per Bulan / Paket</p>
+
+                <!-- Banner Informasi Transparansi Membership Venue -->
+                <div class="mb-5 p-3.5 bg-amber-50 border-l-4 border-amber-500 text-amber-900 rounded-lg text-xs shadow-sm">
+                    <div class="font-bold flex items-center mb-1 text-amber-800 text-sm">
+                        <i class="fas fa-id-card mr-1.5 text-amber-600"></i> Membership Khusus Venue
+                    </div>
+                    <p class="leading-relaxed text-slate-700">
+                        Membership ini diterbitkan & dikelola langsung oleh pihak pemilik venue. Benefit diskon & fasilitas berlaku penuh khusus untuk booking di venue ini.
+                    </p>
+                </div>
                 
                 <button class="w-full bg-red-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-red-700 transition mb-6 shadow-md">
                     JOIN SEKARANG

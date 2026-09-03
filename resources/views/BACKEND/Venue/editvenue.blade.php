@@ -73,12 +73,12 @@
 
             <div class="card p-3 bg-light border mb-3">
               <h6 class="font-weight-bold text-primary mb-3">
-                <i class="fas fa-percentage mr-1"></i> Pengaturan Bagi Hasil / Komisi Platform (OlgaSehat)
+                <i class="fas fa-percentage mr-1"></i> Pengaturan Bagi Hasil / Komisi Platform (Booking Lapangan)
               </h6>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group mb-0">
-                    <label class="font-weight-bold">Tipe Bagi Hasil / Komisi</label>
+                    <label class="font-weight-bold">Tipe Bagi Hasil / Komisi Booking</label>
                     <select name="komisi_tipe" class="form-control">
                       <option value="none" {{ old('komisi_tipe', $venue->komisi_tipe ?? 'none') == 'none' ? 'selected' : '' }}>Tanpa Bagi Hasil (0%)</option>
                       <option value="percentage" {{ old('komisi_tipe', $venue->komisi_tipe ?? '') == 'percentage' ? 'selected' : '' }}>Bagi Hasil Persentase (%)</option>
@@ -88,8 +88,36 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-0">
-                    <label class="font-weight-bold">Nilai Komisi Platform</label>
+                    <label class="font-weight-bold">Nilai Komisi Booking Platform</label>
                     <input type="number" step="0.01" min="0" name="komisi_nilai" class="form-control" value="{{ old('komisi_nilai', (float)($venue->komisi_nilai ?? 0)) }}" placeholder="Contoh: 5 untuk 5% atau 5000 untuk Rp 5.000">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-3 bg-warning text-dark border mb-3 shadow-sm">
+              <h6 class="font-weight-bold mb-2">
+                <i class="fas fa-id-card mr-1"></i> Pengaturan Komisi Penjualan Membership Venue (Opsi 1)
+              </h6>
+              <p class="small text-muted mb-3">
+                Atur komisi platform dari penjualan paket membership venue ini. Jika diisi <strong>0%</strong>, maka <strong>100% hasil penjualan membership milik Pemilik Venue</strong> tanpa potongan platform.
+              </p>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-0">
+                    <label class="font-weight-bold">Tipe Komisi Membership</label>
+                    <select name="membership_komisi_tipe" class="form-control font-weight-bold">
+                      <option value="percentage" {{ old('membership_komisi_tipe', $venue->membership_komisi_tipe ?? 'percentage') == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                      <option value="fixed" {{ old('membership_komisi_tipe', $venue->membership_komisi_tipe ?? '') == 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rp)</option>
+                      <option value="none" {{ old('membership_komisi_tipe', $venue->membership_komisi_tipe ?? '') == 'none' ? 'selected' : '' }}>Bebas Komisi (0%)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-0">
+                    <label class="font-weight-bold">Nilai Komisi Membership Platform</label>
+                    <input type="number" step="0.01" min="0" name="membership_komisi_nilai" class="form-control font-weight-bold" value="{{ old('membership_komisi_nilai', (float)($venue->membership_komisi_nilai ?? 0)) }}" placeholder="0 untuk 0% (Pemilik Venue dapat 100%)">
+                    <small class="form-text text-muted">Isi <strong>0</strong> jika Pemilik Venue mendapatkan 100% penghasilan membership.</small>
                   </div>
                 </div>
               </div>

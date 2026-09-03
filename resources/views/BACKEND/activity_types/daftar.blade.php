@@ -307,7 +307,7 @@
         @if($activities->hasPages())
         <div class="card-footer">
           <div class="d-flex justify-content-center">
-            {{ $activities->appends(request()->query())->links() }}
+            {{ $activities->appends(request()->query())->links('pagination::bootstrap-4') }}
           </div>
         </div>
         @endif

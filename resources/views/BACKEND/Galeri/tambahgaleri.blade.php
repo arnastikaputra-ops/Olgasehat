@@ -79,8 +79,14 @@
                         <option value="lapangan_banner" {{ old('kategori', isset($kategori) && $kategori == 'lapangan_banner' ? 'lapangan_banner' : '') == 'lapangan_banner' ? 'selected' : '' }}>Lapangan Banner</option>
                         <option value="kesehatan_banner" {{ old('kategori', isset($kategori) && $kategori == 'kesehatan_banner' ? 'kesehatan_banner' : '') == 'kesehatan_banner' ? 'selected' : '' }}>Kesehatan Banner</option>
                         <option value="venue_banner" {{ old('kategori', isset($kategori) && $kategori == 'venue_banner' ? 'venue_banner' : '') == 'venue_banner' ? 'selected' : '' }}>Venue Banner</option>
-                    </select>
-                    <small class="form-text text-muted">Home Banner: 4 gambar yang akan ditampilkan secara bergantian di halaman home<br>Venue Banner: Banner yang akan ditampilkan di halaman /venue dan /venueuser</small>
+                    <small class="form-text text-info font-weight-bold mt-2">
+                        <i class="fas fa-info-circle mr-1"></i> Penjelasan Penempatan Gambar di Frontend:
+                        <ul class="pl-3 mb-0 text-muted font-weight-normal mt-1">
+                            <li><strong>Home Banner:</strong> Gambar slider / carousel di <strong>Halaman Utama / Beranda Frontend</strong> (1920x600 px).</li>
+                            <li><strong>Lapangan Banner / Venue Banner:</strong> Banner header di <strong>Halaman Cari & Sewa Lapangan (/venue)</strong> (1920x400 px).</li>
+                            <li><strong>Kesehatan Banner:</strong> Banner header di <strong>Halaman Layanan Kesehatan & Klinik (/health)</strong> (1920x400 px).</li>
+                        </ul>
+                    </small>
                 </div>
 
                   <div class="mb-3">

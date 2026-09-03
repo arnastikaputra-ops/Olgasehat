@@ -27,6 +27,11 @@
     
     <section class="content">
         <div class="container-fluid">
+            <!-- Info Callout -->
+            <div class="alert alert-info border shadow-sm mb-3">
+              <i class="fas fa-info-circle mr-2"></i> <strong>Fungsi Halaman Contact Us (Kontak Kami):</strong> Halaman ini digunakan untuk mengelola alamat kantor, nomor telepon customer service, WhatsApp, dan email resmi OlgaSehat yang ditampilkan pada footer dan halaman kontak di Frontend.
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="row">

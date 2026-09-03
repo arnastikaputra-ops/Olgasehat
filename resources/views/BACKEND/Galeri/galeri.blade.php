@@ -20,6 +20,35 @@
     </div>    
   <section class="content">
         <div class="container-fluid">
+            <!-- Info Banner Guide Callout -->
+            <div class="card card-outline card-info shadow-sm mb-3">
+              <div class="card-header font-weight-bold text-info py-2">
+                <i class="fas fa-info-circle mr-2"></i>Panduan Lokasi Penampilan Gambar Banner di Website Frontend OlgaSehat
+              </div>
+              <div class="card-body py-2">
+                <div class="row">
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-home text-primary mr-1"></i> 1. Home Banner (home_banner)</strong>
+                      <small class="text-muted">Mengubah gambar banner slider di <strong>Halaman Utama / Beranda Frontend</strong>. Ukuran rekomendasi: 1920x600 px.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-running text-success mr-1"></i> 2. Lapangan Banner (lapangan_banner)</strong>
+                      <small class="text-muted">Mengubah banner header di <strong>Halaman Cari & Sewa Lapangan Venue (/venue)</strong>. Ukuran rekomendasi: 1920x400 px.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-user-md text-danger mr-1"></i> 3. Kesehatan Banner (kesehatan_banner)</strong>
+                      <small class="text-muted">Mengubah banner header di <strong>Halaman Layanan Kesehatan & Klinik (/health)</strong>. Ukuran rekomendasi: 1920x400 px.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="row">

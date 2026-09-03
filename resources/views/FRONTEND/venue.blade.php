@@ -137,16 +137,31 @@
                     <p class="text-xs text-gray-500 font-medium mb-2">Jadwal Tersedia</p>
                     <div class="flex flex-wrap gap-2">
                         @php
+                            $todayStr = \Carbon\Carbon::now()->toDateString();
+                            $nowTime = \Carbon\Carbon::now()->format('H:i:s');
+                            
                             $displaySlots = isset($venue->preview_slots) && $venue->preview_slots->count() > 0 
                                 ? $venue->preview_slots 
-                                : $venue->lapangans->flatMap(function($lapangan) {
-                                    return $lapangan->slots->where('status', 'available');
-                                })->take(4);
+                                : $venue->lapangans->flatMap(function($lapangan) use ($todayStr, $nowTime) {
+                                    return $lapangan->slots->filter(function($s) use ($todayStr, $nowTime) {
+                                        if ($s->status !== 'available') return false;
+                                        $sDate = \Carbon\Carbon::parse($s->tanggal)->toDateString();
+                                        if ($sDate > $todayStr) return true;
+                                        if ($sDate === $todayStr) return \Carbon\Carbon::parse($s->jam_selesai)->format('H:i:s') >= $nowTime;
+                                        return false;
+                                    });
+                                })->sortBy('tanggal')->sortBy('jam_mulai')->take(4);
                         @endphp
                         @if($displaySlots->count() > 0)
                             @foreach($displaySlots->take(4) as $slot)
-                                <button class="bg-green-100 text-green-700 text-xs rounded-lg px-3 py-1 font-medium hover:bg-green-600 hover:text-white transition">
-                                    {{ \Carbon\Carbon::parse($slot->jam_mulai)->format('H:i') }}
+                                @php
+                                    $slotDate = \Carbon\Carbon::parse($slot->tanggal);
+                                    $isToday = $slotDate->isToday();
+                                    $isTomorrow = $slotDate->isTomorrow();
+                                    $dateBadge = $isToday ? '' : ($isTomorrow ? 'Besok ' : $slotDate->format('d/m') . ' ');
+                                @endphp
+                                <button class="bg-green-100 text-green-700 text-xs rounded-lg px-2.5 py-1 font-medium hover:bg-green-600 hover:text-white transition" title="{{ $dateBadge }}{{ \Carbon\Carbon::parse($slot->jam_mulai)->format('H:i') }}">
+                                    @if($dateBadge)<span class="text-[10px] opacity-75 font-normal mr-0.5">{{ $dateBadge }}</span>@endif{{ \Carbon\Carbon::parse($slot->jam_mulai)->format('H:i') }}
                                 </button>
                             @endforeach
                         @else
@@ -343,132 +358,57 @@
             class="md:w-3/4 flex space-x-6 overflow-x-auto pb-4 
             scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100"
         >
-            
-            <a href="/venue-detail" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block">
-                <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100">
-                    <div class="relative">
-                        <img 
-                            alt="Promo Special MU Sport Center" 
-                            class="w-full h-40 object-cover" 
-                            height="160" 
-                            src="{{ asset('assets/MU Sport Center.jpeg') }}" 
-                            width="300"
-                        />
-                        <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
-                            🔥 PROMO SPESIAL
-                        </span>
+            @if(isset($promoVenues) && $promoVenues->count() > 0)
+                @foreach($promoVenues as $p)
+                    <a href="{{ route('frontend.venue.detail', $p['venue_id']) }}" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block group">
+                        <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100 h-full flex flex-col justify-between">
+                            <div class="relative">
+                                <img 
+                                    alt="{{ $p['namavenue'] }}" 
+                                    class="w-full h-40 object-cover group-hover:scale-105 transition duration-300" 
+                                    src="{{ $p['image'] }}" 
+                                />
+                                @if($p['diskon_percent'] > 0)
+                                    <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
+                                        🔥 DISKON {{ $p['diskon_percent'] }}%
+                                    </span>
+                                @else
+                                    <span class="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
+                                        ⭐ PROMO SPESIAL
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition">{{ $p['judul'] }}</h4>
+                                    <p class="text-sm text-blue-700 mb-2 font-medium flex items-center">
+                                        <i class="fas fa-building mr-1.5 text-xs"></i>{{ $p['namavenue'] }}
+                                    </p>
+                                </div>
+                                <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
+                                    <div>
+                                        @if($p['harga_awal'] && $p['harga_awal'] > $p['harga'])
+                                            <p class="text-xs text-gray-400 line-through">Rp {{ number_format($p['harga_awal'], 0, ',', '.') }}</p>
+                                        @endif
+                                        <p class="text-base font-extrabold text-green-600">Rp {{ number_format($p['harga'], 0, ',', '.') }} <span class="text-xs font-normal text-gray-500">/sesi</span></p>
+                                    </div>
+                                    <span class="text-xs text-gray-500 font-medium">
+                                        <i class="far fa-clock mr-1"></i>{{ $p['tanggal_mulai'] }}
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    </a>
+                @endforeach
+            @else
+                <div class="w-full text-center py-10 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-inner">
+                    <div class="w-14 h-14 bg-white text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-2xl">
+                        <i class="fas fa-percentage"></i>
                     </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1">Promo Special MU Sport Center</h4>
-                        <p class="text-sm text-blue-700 mb-2 font-medium">MU Sport Center</p>
-                        <div class="flex items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <i class="far fa-calendar-alt mr-2"></i>
-                            <p>Periode 01 Jul - 31 Aug</p>
-                        </div>
-                    </div>
-                </article>
-            </a>
-            
-            <a href="/venue-detail" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block">
-                <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100">
-                    <div class="relative">
-                        <img 
-                            alt="PRICELIST 2025" 
-                            class="w-full h-40 object-cover" 
-                            height="160" 
-                            src="{{ asset('assets/Imbo Sport Center.webp') }}" 
-                            width="300"
-                        />
-                        <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
-                            🔥 PROMO SPESIAL
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1">PRICELIST 2025</h4>
-                        <p class="text-sm text-blue-700 mb-2 font-medium">Arena Sport</p>
-                        <div class="flex items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <i class="far fa-calendar-alt mr-2"></i>
-                            <p>Periode 01 Apr - 31 Dec</p>
-                        </div>
-                    </div>
-                </article>
-            </a>
-            
-            <a href="/venue-detail" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block">
-                <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100">
-                    <div class="relative">
-                        <img 
-                            alt="PRICELIST 20" 
-                            class="w-full h-40 object-cover" 
-                            height="160" 
-                            src="{{ asset('assets/DC Arena Bali.jpeg') }}" 
-                            width="300"
-                        />
-                        <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
-                            🔥 PROMO SPESIAL
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1">PRICELIST 20</h4>
-                        <p class="text-sm text-blue-700 mb-2 font-medium">111 Stadion Arena</p>
-                        <div class="flex items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <i class="far fa-calendar-alt mr-2"></i>
-                            <p>Periode 01 Apr - 31</p>
-                        </div>
-                    </div>
-                </article>
-            </a>
-            
-            <a href="/venue-detail" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block">
-                <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100">
-                    <div class="relative">
-                        <img 
-                            alt="Special Weekend Offer" 
-                            class="w-full h-40 object-cover" 
-                            height="160" 
-                            src="{{ asset('assets/Arena Sport.jpg') }}" 
-                            width="300"
-                        />
-                        <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
-                            🔥 PROMO SPESIAL
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1">Special Weekend Offer</h4>
-                        <p class="text-sm text-blue-700 mb-2 font-medium">Weekend Sports Arena</p>
-                        <div class="flex items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <i class="far fa-calendar-alt mr-2"></i>
-                            <p>Periode 01 Sep - 30 Sep</p>
-                        </div>
-                    </div>
-                </article>
-            </a>
-            
-            <a href="/venue-detail" class="flex-shrink-0 min-w-[280px] md:min-w-[300px] block">
-                <article class="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 border border-gray-100">
-                    <div class="relative">
-                        <img 
-                            alt="Early Bird Discount" 
-                            class="w-full h-40 object-cover" 
-                            height="160" 
-                            src="https://storage.googleapis.com/a1aa/image/2dc016db-2391-4056-8156-041f6d284417.jpg" 
-                            width="300"
-                        />
-                        <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold rounded-full px-3 py-1 shadow-md">
-                            🔥 PROMO SPESIAL
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-base text-gray-900 mb-1 line-clamp-1">Early Bird Discount</h4>
-                        <p class="text-sm text-blue-700 mb-2 font-medium">Morning Sports Complex</p>
-                        <div class="flex items-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <i class="far fa-calendar-alt mr-2"></i>
-                            <p>Periode 01 Oct - 31 Oct</p>
-                        </div>
-                    </div>
-                </article>
-            </a>
-            
+                    <h4 class="font-bold text-gray-800 text-base mb-1">Belum Ada Promo Venue Aktif</h4>
+                    <p class="text-gray-500 text-sm max-w-md mx-auto">Saat ini belum ada penawaran promo khusus di fasilitas venue. Silakan cek secara berkala untuk mendapatkan penawaran promo diskon terbaik!</p>
+                </div>
+            @endif
         </div>
     </div>
 </section>

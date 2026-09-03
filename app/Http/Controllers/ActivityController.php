@@ -74,6 +74,7 @@ class ActivityController extends Controller
             'link_kontak_2' => 'nullable|string|max:500',
             'tipe_aktivitas' => 'nullable|in:komunitas,event,membership',
             'jenis' => 'nullable|in:komunitas,event,membership',
+            'pendaftaran_id' => 'nullable|exists:pendaftarans,id',
         ]);
 
         $jenis = $request->tipe_aktivitas ?? $request->jenis ?? 'komunitas';
@@ -104,6 +105,7 @@ class ActivityController extends Controller
         $data->jenis = $jenis;
         $data->status = 'pending'; // Status pending untuk verifikasi
         $data->pemilik_id = Auth::id();
+        $data->pendaftaran_id = $request->pendaftaran_id;
         $data->activity_type_id = $activityType ? $activityType->id : null;
 
         // Handle upload banner
@@ -115,6 +117,14 @@ class ActivityController extends Controller
         }
 
         $data->save();
+
+        // Update persentase diskon membership pada Pendaftaran venue jika diisi
+        if ($request->filled('membership_discount_percent') && $data->pendaftaran_id) {
+            \App\Models\Pendaftaran::where('id', $data->pendaftaran_id)->update([
+                'is_membership_discount' => true,
+                'membership_discount_percent' => $request->membership_discount_percent,
+            ]);
+        }
 
         $message = $jenis === 'event' 
             ? 'Event berhasil dibuat dan sedang menunggu verifikasi admin.'
@@ -194,6 +204,7 @@ class ActivityController extends Controller
             'link' => 'nullable|string|max:500',
             'link_kontak_2' => 'nullable|string|max:500',
             'jenis' => 'required|in:komunitas,membership,event',
+            'clinic_id' => 'nullable|exists:clinics,id',
         ]);
 
         $activityTypeName = $request->jenis === 'komunitas' ? 'open-class' : ($request->jenis === 'membership' ? 'klub' : 'event');
@@ -219,6 +230,7 @@ class ActivityController extends Controller
         $data->jenis = $request->jenis;
         $data->status = 'pending'; // Pending verification by super admin
         $data->pemilik_id = Auth::id();
+        $data->clinic_id = $request->clinic_id;
         $data->activity_type_id = $activityType ? $activityType->id : null;
 
         if ($request->hasFile('banner')) {
@@ -229,6 +241,14 @@ class ActivityController extends Controller
         }
 
         $data->save();
+
+        // Update persentase diskon membership pada Clinic jika diisi
+        if ($request->filled('membership_discount_percent') && $data->clinic_id) {
+            \App\Models\Clinic::where('id', $data->clinic_id)->update([
+                'is_membership_discount' => true,
+                'membership_discount_percent' => $request->membership_discount_percent,
+            ]);
+        }
 
         $jenisTitle = ucfirst($request->jenis);
         return redirect()->back()->with('success', "{$jenisTitle} berhasil dibuat dan sedang menunggu verifikasi admin.");
@@ -697,31 +717,29 @@ class ActivityController extends Controller
     }
 
     /**
-     * Approve peserta event oleh pembuat event
+     * Approve peserta event / membership oleh pembuat event / pemilik venue
      */
     public function approveParticipant($id)
     {
         $participant = ActivityParticipant::with('activity')->findOrFail($id);
         $user = Auth::user();
         
-        // Pastikan user adalah pembuat event
-        if ($participant->activity->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menyetujui peserta ini.');
-        }
+        $isOwner = ($participant->activity->user_id === $user->id) || 
+                   ($participant->activity->pemilik_id === $user->id) || 
+                   in_array($user->role, ['superadmin', 'pemiliklapangan', 'pengelolakesehatan']);
 
-        // Pastikan event sudah approved
-        if ($participant->activity->status !== 'approved') {
-            return redirect()->back()->with('error', 'Event belum disetujui.');
+        if (!$isOwner) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menyetujui peserta ini.');
         }
 
         $participant->status = 'approved';
         $participant->save();
 
-        return redirect()->route('user.riwayat-komunitas')->with('success', 'Peserta berhasil disetujui.');
+        return redirect()->back()->with('success', 'Peserta membership / event berhasil disetujui.');
     }
 
     /**
-     * Reject peserta event oleh pembuat event
+     * Reject peserta event / membership oleh pembuat event / pemilik venue
      */
     public function rejectParticipant(Request $request, $id)
     {
@@ -732,14 +750,12 @@ class ActivityController extends Controller
         $participant = ActivityParticipant::with('activity')->findOrFail($id);
         $user = Auth::user();
         
-        // Pastikan user adalah pembuat event
-        if ($participant->activity->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menolak peserta ini.');
-        }
+        $isOwner = ($participant->activity->user_id === $user->id) || 
+                   ($participant->activity->pemilik_id === $user->id) || 
+                   in_array($user->role, ['superadmin', 'pemiliklapangan', 'pengelolakesehatan']);
 
-        // Pastikan event sudah approved
-        if ($participant->activity->status !== 'approved') {
-            return redirect()->back()->with('error', 'Event belum disetujui.');
+        if (!$isOwner) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menolak peserta ini.');
         }
 
         $participant->status = 'rejected';
@@ -748,6 +764,6 @@ class ActivityController extends Controller
         }
         $participant->save();
 
-        return redirect()->route('user.riwayat-komunitas')->with('success', 'Peserta ditolak.');
+        return redirect()->back()->with('success', 'Pendaftaran peserta ditolak.');
     }
 }

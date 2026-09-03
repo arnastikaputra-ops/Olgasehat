@@ -50,8 +50,9 @@ class MitraController extends Controller
     {
         $user = auth()->user();
         $mitra = Mitra::where('user_id', optional($user)->id)->first();
+        $venue = \App\Models\Pendaftaran::where('user_id', optional($user)->id)->first();
 
-        return view('pemiliklapangan.Pengaturan.index', compact('user', 'mitra'));
+        return view('pemiliklapangan.Pengaturan.index', compact('user', 'mitra', 'venue'));
     }
 
     public function updatePengaturan(Request $request)
@@ -59,6 +60,7 @@ class MitraController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $mitra = Mitra::where('user_id', $user->id)->first();
+        $venue = \App\Models\Pendaftaran::where('user_id', $user->id)->first();
 
         $request->validate([
             'name' => 'nullable|string|max:255',
@@ -68,6 +70,9 @@ class MitraController extends Controller
             'nama_bisnis' => 'nullable|string|max:255',
             'password_lama' => 'nullable|string',
             'password_baru' => 'nullable|string|min:8',
+            'nama_bank' => 'nullable|string|max:100',
+            'nomor_rekening' => 'nullable|string|max:100',
+            'nama_pemilik_rekening' => 'nullable|string|max:255',
         ]);
 
         // Update profile image if uploaded
@@ -120,7 +125,16 @@ class MitraController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Pengaturan dan foto profil berhasil diperbarui.');
+        // Update bank account on Pendaftaran (Venue) if filled
+        if ($venue) {
+            $venue->update([
+                'nama_bank' => $request->input('nama_bank', $venue->nama_bank),
+                'nomor_rekening' => $request->input('nomor_rekening', $venue->nomor_rekening),
+                'nama_pemilik_rekening' => $request->input('nama_pemilik_rekening', $venue->nama_pemilik_rekening),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pengaturan akun dan rekening bank berhasil diperbarui.');
     }
 
     public function index(Request $request)

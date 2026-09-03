@@ -330,12 +330,14 @@ class PendaftaranController extends Controller
         $skipDaysArray = $validated['skip_days'] ?? [];
         
         if (in_array('weekend', $skipDaysArray)) {
-            $skipDays = [0, 6]; // Sunday and Saturday
-        } else {
-            foreach ($skipDaysArray as $day) {
-                if ($day === '0' || $day === '6' || is_numeric($day)) {
-                    $skipDays[] = (int) $day;
-                }
+            $skipDays = array_merge($skipDays, [0, 6]); // Sunday (0) and Saturday (6)
+        }
+        if (in_array('weekday', $skipDaysArray)) {
+            $skipDays = array_merge($skipDays, [1, 2, 3, 4, 5]); // Monday (1) to Friday (5)
+        }
+        foreach ($skipDaysArray as $day) {
+            if ($day === '0' || is_numeric($day)) {
+                $skipDays[] = (int) $day;
             }
         }
         $skipDays = array_unique($skipDays);
@@ -919,13 +921,16 @@ class PendaftaranController extends Controller
             }
         }
 
-        // Update data detail
+        // Update data detail & membership settings
         $venue->video_review = $request->video_review;
         $venue->detail = $request->detail;
         $venue->aturan = $request->aturan;
         $venue->lokasi = $request->lokasi;
         $venue->fasilitas = !empty($allFasilitas) ? json_encode($allFasilitas) : null;
         $venue->jam_operasional = !empty($jamOperasional) ? $jamOperasional : null;
+        
+        $venue->is_membership_discount = $request->has('is_membership_discount');
+        $venue->membership_discount_percent = (float) $request->input('membership_discount_percent', 10);
         
         $venue->save();
 
@@ -963,6 +968,9 @@ class PendaftaranController extends Controller
             'custom_olahraga.*' => 'nullable|string|max:100',
             'nomor_telepon' => 'required|string|max:20',
             'email_venue' => 'required|email|max:255',
+            'nama_bank' => 'nullable|string|max:100',
+            'nomor_rekening' => 'nullable|string|max:100',
+            'nama_pemilik_rekening' => 'nullable|string|max:255',
         ]);
 
         // Handle kategori: gabungkan kategori[] dan custom_olahraga[]
@@ -998,6 +1006,9 @@ class PendaftaranController extends Controller
         $pendaftaran->kategori = $allKategori; // Array of kategori
         $pendaftaran->nomor_telepon = $validatedData['nomor_telepon'];
         $pendaftaran->email_venue = $validatedData['email_venue'];
+        $pendaftaran->nama_bank = $request->input('nama_bank');
+        $pendaftaran->nomor_rekening = $request->input('nomor_rekening');
+        $pendaftaran->nama_pemilik_rekening = $request->input('nama_pemilik_rekening');
         $pendaftaran->syarat_disetujui = false; // Default menunggu verifikasi admin
         $pendaftaran->save();
 

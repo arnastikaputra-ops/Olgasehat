@@ -161,6 +161,7 @@
                       <th>Total Bayar</th>
                       <th>Komisi Platform</th>
                       <th>Pendapatan Mitra</th>
+                      <th>Rincian Hitung-Hitungan</th>
                       <th>Status Pembayaran</th>
                       <th>Tanggal</th>
                     </tr>
@@ -176,6 +177,88 @@
                         <td class="text-primary font-weight-bold">Rp {{ number_format($b->komisi_platform, 0, ',', '.') }}</td>
                         <td class="text-success font-weight-bold">Rp {{ number_format($b->pendapatan_mitra, 0, ',', '.') }}</td>
                         <td>
+                          <button type="button" class="btn btn-xs btn-outline-info font-weight-bold" data-toggle="modal" data-target="#modalRincianVB{{ $b->id }}">
+                            <i class="fas fa-calculator mr-1"></i> Rincian Rumus
+                          </button>
+
+                          <!-- Modal Rincian Hitung-Hitungan Venue Booking -->
+                          <div class="modal fade" id="modalRincianVB{{ $b->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header bg-info text-white">
+                                  <h5 class="modal-title font-weight-bold"><i class="fas fa-calculator mr-2"></i>Rincian Hitung-Hitungan Pembagian Hasil</h5>
+                                  <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body text-left">
+                                  <div class="alert alert-light border mb-3">
+                                    <strong class="d-block text-dark">Venue: {{ $b->venue->namavenue ?? 'Venue' }}</strong>
+                                    <small class="text-muted">ID Booking: #VB-{{ $b->id }} | Pemesan: {{ $b->user->name ?? 'Guest' }}</small>
+                                  </div>
+
+                                  <h6 class="font-weight-bold text-dark mb-2">Formula Rumus Pembagian:</h6>
+                                  <table class="table table-sm table-bordered">
+                                    <tr>
+                                      <td>Total Bayar Bruto (User)</td>
+                                      <td class="text-right font-weight-bold">Rp {{ number_format($b->total_harga, 0, ',', '.') }}</td>
+                                    </tr>
+                                    <tr>
+                                      <td class="text-primary">(-) Komisi Platform OlgaSehat</td>
+                                      <td class="text-right text-primary font-weight-bold">- Rp {{ number_format($b->komisi_platform, 0, ',', '.') }}</td>
+                                    </tr>
+                                    <tr class="bg-light">
+                                      <td class="text-success font-weight-bold">(=) Pendapatan Bersih Mitra (Ditransfer)</td>
+                                      <td class="text-right text-success font-weight-bold">Rp {{ number_format($b->pendapatan_mitra, 0, ',', '.') }}</td>
+                                    </tr>
+                                  </table>
+
+                                  <hr>
+                                  <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-university text-primary mr-1"></i> Rekening Tujuan Transfer Mitra:</h6>
+                                  <div class="p-2 bg-light rounded border mb-3">
+                                    <small class="text-muted d-block">Nama Bank: <strong>{{ $b->venue->nama_bank ?? 'Belum Diisi' }}</strong></small>
+                                    <small class="text-muted d-block">Nomor Rekening: <strong class="font-mono text-primary">{{ $b->venue->nomor_rekening ?? 'Belum Diisi' }}</strong></small>
+                                    <small class="text-muted d-block">Atas Nama: <strong>{{ $b->venue->nama_pemilik_rekening ?? ($b->venue->user->name ?? '-') }}</strong></small>
+                                  </div>
+
+                                  @php
+                                    $bPath = $b->bukti_pembayaran;
+                                    $bImgUrl = null;
+                                    if ($bPath) {
+                                        if (\Illuminate\Support\Str::startsWith($bPath, 'http')) {
+                                            $bImgUrl = $bPath;
+                                        } elseif (\Illuminate\Support\Str::startsWith($bPath, 'bukti_pembayaran/')) {
+                                            $bImgUrl = asset($bPath);
+                                        } elseif (\Illuminate\Support\Str::startsWith($bPath, 'storage/')) {
+                                            $bImgUrl = asset($bPath);
+                                        } else {
+                                            $bImgUrl = asset('bukti_pembayaran/' . $bPath);
+                                        }
+                                    }
+                                  @endphp
+
+                                  <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-file-invoice-dollar text-success mr-1"></i> Bukti Pembayaran User:</h6>
+                                  @if($bImgUrl)
+                                    <div class="text-center bg-light p-2 rounded border">
+                                      <a href="{{ $bImgUrl }}" target="_blank" title="Klik untuk memperbesar gambar">
+                                        <img src="{{ $bImgUrl }}" class="img-fluid rounded border shadow-sm" style="max-height: 250px; cursor: pointer;" alt="Bukti Bayar">
+                                      </a>
+                                      <small class="text-muted d-block mt-1"><i class="fas fa-search-plus mr-1"></i>Klik gambar di atas untuk melihat foto ukuran penuh</small>
+                                    </div>
+                                  @else
+                                    <div class="alert alert-secondary text-center small py-2 mb-0">
+                                      <i class="fas fa-info-circle mr-1"></i> Belum ada foto bukti pembayaran yang diunggah.
+                                    </div>
+                                  @endif
+                                </div>
+                                <div class="modal-footer bg-light">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
                           @if($b->status_pembayaran == 'paid')
                             <span class="badge badge-success">Lunas</span>
                           @elseif($b->status_pembayaran == 'pending')
@@ -188,7 +271,7 @@
                       </tr>
                     @empty
                       <tr>
-                        <td colspan="9" class="text-center text-muted py-4">Belum ada transaksi booking venue.</td>
+                        <td colspan="10" class="text-center text-muted py-4">Belum ada transaksi booking venue.</td>
                       </tr>
                     @endforelse
                   </tbody>

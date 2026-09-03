@@ -98,10 +98,76 @@
                     <small>(0% - 100% Mitra)</small>
                   @endif
                 </td>
-                <td class="text-success font-weight-bold">Rp {{ number_format($b->pendapatan_mitra, 0, ',', '.') }}</td>
+                <td class="text-success font-weight-bold">
+                  Rp {{ number_format($b->pendapatan_mitra, 0, ',', '.') }}
+                  <button type="button" class="btn btn-xs btn-outline-info font-weight-bold d-block mt-1" data-toggle="modal" data-target="#modalRumusVB{{ $b->id }}">
+                    <i class="fas fa-calculator mr-1"></i> Rincian Rumus
+                  </button>
+
+                  <!-- Modal Rincian Rumus Booking Venue -->
+                  <div class="modal fade" id="modalRumusVB{{ $b->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                          <h5 class="modal-title font-weight-bold"><i class="fas fa-calculator mr-2"></i>Rincian Bagi Hasil Transaksi</h5>
+                          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body text-left text-dark">
+                          <div class="alert alert-light border mb-3">
+                            <strong class="d-block text-dark">Kode Booking: {{ $b->kode_booking }}</strong>
+                            <small class="text-muted">Pemesan: {{ $b->nama_pemesan }} ({{ $b->nomor_telepon }})</small>
+                          </div>
+
+                          <h6 class="font-weight-bold mb-2">Formula Rumus Pembagian:</h6>
+                          <table class="table table-sm table-bordered">
+                            <tr>
+                              <td>Total Bayar Bruto (User)</td>
+                              <td class="text-right font-weight-bold">Rp {{ number_format($b->total_harga, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                              <td class="text-primary">
+                                (-) Komisi Platform OlgaSehat 
+                                @if($b->komisi_tipe == 'percentage')
+                                  <span class="badge badge-warning">({{ (float)$b->komisi_nilai }}%)</span>
+                                @elseif($b->komisi_tipe == 'fixed')
+                                  <span class="badge badge-warning">(Fixed)</span>
+                                @else
+                                  <span class="badge badge-success">(0% Utuh)</span>
+                                @endif
+                              </td>
+                              <td class="text-right text-primary font-weight-bold">- Rp {{ number_format($b->komisi_platform, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr class="bg-light">
+                              <td class="text-success font-weight-bold">(=) Pendapatan Bersih Mitra (Ditransfer)</td>
+                              <td class="text-right text-success font-weight-bold">Rp {{ number_format($b->pendapatan_mitra, 0, ',', '.') }}</td>
+                            </tr>
+                          </table>
+                          <small class="text-muted"><i class="fas fa-shield-alt text-success mr-1"></i>Dihitung secara otomatis & akurat oleh sistem OlgaSehat.</small>
+                        </div>
+                        <div class="modal-footer bg-light">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
                 <td>
                   @if($b->bukti_pembayaran)
-                    <a href="{{ asset('bukti_pembayaran/' . $b->bukti_pembayaran) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                    @php
+                      $bPath = $b->bukti_pembayaran;
+                      if (\Illuminate\Support\Str::startsWith($bPath, 'http')) {
+                          $bImgUrl = $bPath;
+                      } elseif (\Illuminate\Support\Str::startsWith($bPath, 'bukti_pembayaran/')) {
+                          $bImgUrl = asset($bPath);
+                      } elseif (\Illuminate\Support\Str::startsWith($bPath, 'storage/')) {
+                          $bImgUrl = asset($bPath);
+                      } else {
+                          $bImgUrl = asset('bukti_pembayaran/' . $bPath);
+                      }
+                    @endphp
+                    <a href="{{ $bImgUrl }}" target="_blank" class="btn btn-sm btn-outline-info font-weight-bold">
                       <i class="fas fa-file-image mr-1"></i> Lihat Foto
                     </a>
                   @else

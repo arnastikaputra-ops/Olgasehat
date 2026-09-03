@@ -721,9 +721,49 @@ function resetBMI() {
         @forelse($featuredClinics as $clinic)
             @php
                 $primaryService = $clinic->services->first();
-                $clinicImage = $clinic->logo
-                    ? asset('fotoklinik/' . $clinic->logo)
-                    : asset('assets/klnk.png');
+                $clinicImage = asset('assets/klnk.png');
+                if (!empty($clinic->logo)) {
+                    $fPath = is_array($clinic->logo) ? ($clinic->logo[0] ?? '') : (string)$clinic->logo;
+                    if (!empty($fPath)) {
+                        if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                            $clinicImage = $fPath;
+                        } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                            $clinicImage = asset($fPath);
+                        } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                            $clinicImage = asset($fPath);
+                        } else {
+                            $clinicImage = asset('fotoklinik/' . $fPath);
+                        }
+                    }
+                } elseif (!empty($clinic->foto_utama)) {
+                    $fPath = is_array($clinic->foto_utama) ? ($clinic->foto_utama[0] ?? '') : (string)$clinic->foto_utama;
+                    if (!empty($fPath)) {
+                        if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                            $clinicImage = $fPath;
+                        } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                            $clinicImage = asset($fPath);
+                        } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                            $clinicImage = asset($fPath);
+                        } else {
+                            $clinicImage = asset('fotoklinik/' . $fPath);
+                        }
+                    }
+                } elseif ($clinic->galleries && $clinic->galleries->count() > 0) {
+                    $firstGal = $clinic->galleries->first()->foto;
+                    if (!empty($firstGal)) {
+                        if (\Illuminate\Support\Str::startsWith($firstGal, 'http')) {
+                            $clinicImage = $firstGal;
+                        } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'storage/')) {
+                            $clinicImage = asset($firstGal);
+                        } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'clinic_galleries/')) {
+                            $clinicImage = asset('storage/' . $firstGal);
+                        } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'fotoklinik/')) {
+                            $clinicImage = asset($firstGal);
+                        } else {
+                            $clinicImage = asset('fotoklinik/' . $firstGal);
+                        }
+                    }
+                }
                 $priceLabel = $primaryService
                     ? ($primaryService->tipe_harga === 'gratis'
                         ? 'Gratis'
@@ -737,6 +777,7 @@ function resetBMI() {
                             <div class="relative">
                                 <img
                                     src="{{ $clinicImage }}"
+                                    onerror="this.onerror=null;this.src='{{ asset('assets/klnk.png') }}';"
                                     alt="{{ $clinic->nama }}"
                                     class="w-full h-48 object-cover"
                                 />

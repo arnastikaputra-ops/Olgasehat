@@ -50,6 +50,37 @@
     }
 </style>
 
+@php
+    $rawLokasi = $activity->lokasi ?? '';
+    $isMapsUrl = filter_var($rawLokasi, FILTER_VALIDATE_URL) || Str::contains($rawLokasi, ['http://', 'https://', 'maps.app.goo.gl', 'google.com/maps', 'goo.gl']);
+    
+    $embedUrl = null;
+    $cleanLocationText = $rawLokasi;
+
+    if ($rawLokasi) {
+        if (preg_match('/src=["\']([^"\']+)["\']/', $rawLokasi, $matches)) {
+            $embedUrl = $matches[1];
+            $cleanLocationText = 'Google Maps Embedded';
+        } elseif (Str::contains($rawLokasi, ['google.com/maps', 'maps.app.goo.gl', 'goo.gl/maps'])) {
+            if (preg_match('/@(-?\d+\.?\d*),(-?\d+\.?\d*),?(\d+\.?\d*)?z?/', $rawLokasi, $matches)) {
+                $lat = $matches[1];
+                $lng = $matches[2];
+                $embedUrl = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d0!2d' . $lng . '!3d' . $lat . '!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z' . $lat . '!' . $lng . '!5e0!3m2!1sen!2sid!4v' . time() . '!5m2!1sen!2sid';
+            } elseif (preg_match('/place\/([^\/\?]+)/', $rawLokasi, $matches)) {
+                $placeName = urldecode($matches[1]);
+                $cleanLocationText = str_replace('+', ' ', $placeName);
+                $embedUrl = 'https://www.google.com/maps?q=' . urlencode($cleanLocationText) . '&output=embed';
+            } else {
+                $cleanLocationText = 'Lihat Peta Google Maps';
+            }
+        } elseif ($isMapsUrl) {
+            $cleanLocationText = 'Lihat Peta Google Maps';
+        } else {
+            $embedUrl = 'https://www.google.com/maps?q=' . urlencode($rawLokasi) . '&output=embed';
+        }
+    }
+@endphp
+
 <main class="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-gray-600">
@@ -106,25 +137,31 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div class="info-card bg-white rounded-xl p-4 shadow-md border border-gray-100">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-trophy text-blue-600 text-xl"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0 flex-1">
                             <p class="text-xs text-gray-500">Kategori</p>
-                            <p class="font-semibold text-gray-800">{{ $activity->kategori }}</p>
+                            <p class="font-semibold text-gray-800 truncate" title="{{ $activity->kategori }}">{{ $activity->kategori }}</p>
                         </div>
                     </div>
                 </div>
                 
-                @if($activity->lokasi)
+                @if($rawLokasi)
                 <div class="info-card bg-white rounded-xl p-4 shadow-md border border-gray-100">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-map-marker-alt text-green-600 text-xl"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0 flex-1">
                             <p class="text-xs text-gray-500">Lokasi</p>
-                            <p class="font-semibold text-gray-800">{{ $activity->lokasi }}</p>
+                            @if($isMapsUrl)
+                                <a href="#section-peta-lokasi" class="font-semibold text-blue-600 hover:underline truncate block text-sm" title="{{ $cleanLocationText }}">
+                                    <i class="fas fa-map-pin text-red-500 mr-1"></i>{{ $cleanLocationText }}
+                                </a>
+                            @else
+                                <p class="font-semibold text-gray-800 truncate text-sm" title="{{ $rawLokasi }}">{{ $rawLokasi }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -132,7 +169,7 @@
                 
                 <div class="info-card bg-white rounded-xl p-4 shadow-md border border-gray-100">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-wallet text-purple-600 text-xl"></i>
                         </div>
                         <div>
@@ -161,6 +198,113 @@
                     {{ $activity->deskripsi }}
                 </div>
             </div>
+
+            <!-- Map & Location Section -->
+            @if($rawLokasi)
+            <div id="section-peta-lokasi" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 border border-gray-100 overflow-hidden">
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 flex-wrap gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-map-marked-alt text-green-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Lokasi & Peta Kegiatan</h2>
+                            @if(!$isMapsUrl)
+                                <p class="text-xs sm:text-sm text-gray-600 flex items-center mt-0.5">
+                                    <i class="fas fa-location-dot text-red-500 mr-1.5"></i>
+                                    <span>{{ $rawLokasi }}</span>
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                    @if($isMapsUrl)
+                        <a href="{{ $rawLokasi }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl shadow transition">
+                            <i class="fab fa-google"></i>
+                            <span>Buka di Google Maps</span>
+                            <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+                    @else
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($rawLokasi) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl shadow transition">
+                            <i class="fab fa-google"></i>
+                            <span>Buka di Google Maps</span>
+                            <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+                    @endif
+                </div>
+
+                @if($embedUrl)
+                    <div class="relative w-full h-72 sm:h-80 md:h-96 rounded-xl overflow-hidden shadow-md border border-gray-200">
+                        <iframe 
+                            src="{{ $embedUrl }}" 
+                            class="w-full h-full border-0" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                @elseif($isMapsUrl)
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 bg-blue-500/10 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-map-location-dot text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-700 mb-3">Klik tombol di bawah untuk melihat rute dan lokasi persis kegiatan di Google Maps:</p>
+                        <a href="{{ $rawLokasi }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+                            <i class="fas fa-map-pin mr-1"></i>
+                            <span>Petunjuk Arah Google Maps</span>
+                            <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                        </a>
+                    </div>
+                @endif
+            </div>
+            @endif
+
+            <!-- Benefit Box for Membership -->
+            @php
+                $isMembershipAct = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
+            @endphp
+            @if($isMembershipAct)
+            <div class="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-yellow-500/10 border-2 border-amber-400/40 rounded-2xl p-6 mb-6 shadow-md">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center font-black text-xl shadow-md">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-gray-900">Keuntungan VIP Member OlgaSehat</h3>
+                        <p class="text-xs text-gray-600">Benefit eksklusif saat keanggotaan Anda aktif</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div class="flex items-start space-x-2 bg-white/80 p-3 rounded-xl border border-amber-200 shadow-sm">
+                        <i class="fas fa-check-circle text-amber-500 text-base mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="font-bold text-gray-900 text-xs">Diskon Booking Venue 10%+</p>
+                            <p class="text-[11px] text-gray-500">Otomatis terpotong saat sewa lapangan</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2 bg-white/80 p-3 rounded-xl border border-amber-200 shadow-sm">
+                        <i class="fas fa-check-circle text-amber-500 text-base mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="font-bold text-gray-900 text-xs">Akses Komunitas & Sparing</p>
+                            <p class="text-[11px] text-gray-500">Ikuti jadwal mabar & sparring rutin</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2 bg-white/80 p-3 rounded-xl border border-amber-200 shadow-sm">
+                        <i class="fas fa-check-circle text-amber-500 text-base mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="font-bold text-gray-900 text-xs">Kartu E-Card VIP Digital</p>
+                            <p class="text-[11px] text-gray-500">Tercatat resmi di akun OlgaSehat</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2 bg-white/80 p-3 rounded-xl border border-amber-200 shadow-sm">
+                        <i class="fas fa-check-circle text-amber-500 text-base mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="font-bold text-gray-900 text-xs">Diskon Klinik & Kesehatan</p>
+                            <p class="text-[11px] text-gray-500">Potongan biaya booking klinik mitra</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Contact Section -->
             @if($activity->link_kontak_2 ?? null)
@@ -219,9 +363,9 @@
                             <p class="text-sm opacity-90">Bergabung tanpa biaya</p>
                         </div>
                     @else
-                        <div class="inline-block bg-yellow-500 text-white px-6 py-3 rounded-full mb-3">
-                            <p class="text-3xl font-extrabold mb-1">Berbayar</p>
-                            <p class="text-sm opacity-90">
+                        <div class="inline-block bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 px-6 py-3 rounded-full mb-3 shadow-lg">
+                            <p class="text-3xl font-black mb-1">Berbayar</p>
+                            <p class="text-sm font-bold opacity-90">
                                 @if($activity->harga)
                                     Rp {{ number_format($activity->harga, 0, ',', '.') }}
                                 @else
@@ -239,38 +383,33 @@
                             ->first();
                     @endphp
                     @if($isJoined)
-                        <div class="w-full bg-green-500 text-white py-4 rounded-xl font-bold text-lg mb-6 text-center">
+                        <div class="w-full bg-green-500 text-white py-4 rounded-xl font-bold text-lg mb-6 text-center shadow-lg">
                             <i class="fas fa-check-circle mr-2"></i> ANDA SUDAH TERDAFTAR
                         </div>
-                        @if($isJoined)
-                            <div class="bg-white rounded-lg p-4 mb-6 border border-gray-200">
-                                <p class="text-sm text-gray-600 mb-2">Status Pendaftaran:</p>
-                                @if($isJoined->status === 'approved')
-                                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                                        <i class="fas fa-check-circle"></i> Disetujui
-                                    </span>
-                                @elseif($isJoined->status === 'pending')
-                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
-                                        <i class="fas fa-clock"></i> Menunggu Verifikasi
-                                    </span>
-                                @else
-                                    <span class="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">
-                                        <i class="fas fa-times-circle"></i> Ditolak
-                                    </span>
-                                @endif
-                                <p class="text-sm text-gray-700 mt-3">Nama Peserta: <strong>{{ $isJoined->nama_peserta }}</strong></p>
-                            </div>
-                        @endif
+                        <div class="bg-white rounded-xl p-4 mb-6 border border-gray-200 shadow-sm">
+                            <p class="text-xs text-gray-500 mb-2 uppercase font-bold tracking-wider">Status Pendaftaran:</p>
+                            @if($isJoined->status === 'approved')
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-full border border-emerald-300 inline-flex items-center">
+                                    <i class="fas fa-check-circle mr-1"></i> Membership Disetujui (Aktif)
+                                </span>
+                            @elseif($isJoined->status === 'pending')
+                                <span class="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1.5 rounded-full border border-amber-300 inline-flex items-center">
+                                    <i class="fas fa-clock mr-1"></i> Menunggu Verifikasi Admin
+                                </span>
+                            @else
+                                <span class="bg-red-100 text-red-800 text-xs font-black px-3 py-1.5 rounded-full border border-red-300 inline-flex items-center">
+                                    <i class="fas fa-times-circle mr-1"></i> Pendaftaran Ditolak
+                                </span>
+                            @endif
+                            <p class="text-sm text-gray-800 mt-3 font-medium">Nama Peserta: <strong>{{ $isJoined->nama_peserta }}</strong></p>
+                        </div>
                     @else
-                        @php
-                            $isMembershipAct = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
-                        @endphp
                         @if($isMembershipAct)
-                            <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition transform hover:scale-105 mb-6">
-                                <i class="fas fa-crown text-slate-900 mr-2"></i> BELI MEMBERSHIP SEKARANG
+                            <button onclick="openJoinModal()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition transform hover:scale-105 mb-6 flex items-center justify-center">
+                                <i class="fas fa-crown text-slate-900 mr-2 text-xl"></i> BELI MEMBERSHIP SEKARANG
                             </button>
                         @else
-                            <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-6">
+                            <button onclick="openJoinModal()" class="w-full bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-6">
                                 <i class="fas fa-user-plus mr-2"></i> BERGABUNG SEKARANG
                             </button>
                         @endif
@@ -294,12 +433,19 @@
                                 <p class="font-semibold text-gray-800">{{ $activity->kategori }}</p>
                             </div>
                         </div>
-                        @if($activity->lokasi)
+                        @if($rawLokasi)
                         <div class="flex items-start space-x-3 bg-white rounded-lg p-3 shadow-sm">
-                            <i class="fas fa-map-marker-alt text-green-600 mt-1"></i>
-                            <div>
+                            <i class="fas fa-map-marker-alt text-green-600 mt-1 flex-shrink-0"></i>
+                            <div class="min-w-0 flex-1">
                                 <p class="text-xs text-gray-500">Lokasi Kegiatan</p>
-                                <p class="font-semibold text-gray-800">{{ $activity->lokasi }}</p>
+                                @if($isMapsUrl)
+                                    <a href="#section-peta-lokasi" class="font-semibold text-blue-600 hover:underline inline-flex items-center text-xs sm:text-sm mt-0.5" title="{{ $cleanLocationText }}">
+                                        <i class="fas fa-map-pin text-red-500 mr-1 flex-shrink-0"></i>
+                                        <span class="truncate max-w-[200px]">{{ $cleanLocationText }}</span>
+                                    </a>
+                                @else
+                                    <p class="font-semibold text-gray-800 text-sm mt-0.5 truncate">{{ $rawLokasi }}</p>
+                                @endif
                             </div>
                         </div>
                         @endif
@@ -377,51 +523,63 @@
     @endif
 </main>
 
-{{-- Modal Form Bergabung Aktivitas --}}
 @auth
 @php
-    $isJoined = \App\Models\ActivityParticipant::where('activity_id', $activity->id)
-        ->where('user_id', auth()->id())
-        ->first();
+    $isMembershipActModal = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
 @endphp
-@if(!$isJoined)
-<div id="joinModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-        <button onclick="document.getElementById('joinModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times text-xl"></i>
-        </button>
+<!-- Modal Bergabung / Beli Membership -->
+<div id="joinModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 overflow-hidden border border-gray-100">
+        
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <div class="flex items-center space-x-3">
+                @if($isMembershipActModal)
+                    <div class="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center text-lg font-black shadow">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900">Beli VIP Membership</h3>
+                        <p class="text-xs text-amber-700 font-semibold">{{ $activity->nama }}</p>
+                    </div>
+                @else
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg font-bold shadow">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Bergabung Aktivitas</h3>
+                        <p class="text-xs text-gray-500 font-medium">{{ $activity->nama }}</p>
+                    </div>
+                @endif
+            </div>
+            <button onclick="closeJoinModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
 
-        @php
-            $isMembershipActModal = ($activity->jenis === 'membership') || ($activity->activityType && ($activity->activityType->name === 'klub' || $activity->activityType->name === 'membership'));
-        @endphp
-        <h3 class="text-2xl font-bold text-gray-900 mb-1">
-            @if($isMembershipActModal)
-                <i class="fas fa-crown text-amber-500 mr-2"></i>Beli Membership
-            @else
-                Bergabung Aktivitas
-            @endif
-        </h3>
-        <p class="text-sm text-gray-500 mb-4 font-medium">{{ $activity->nama }}</p>
+        <!-- Visual Step Wizard -->
+        @if($activity->biaya_bergabung === 'berbayar')
+        <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold mb-5 bg-gray-50 p-2 rounded-xl border border-gray-200">
+            <div class="text-blue-600 flex items-center justify-center">
+                <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] mr-1">1</span> Data
+            </div>
+            <div class="text-blue-600 flex items-center justify-center">
+                <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] mr-1">2</span> Bank
+            </div>
+            <div class="text-blue-600 flex items-center justify-center">
+                <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] mr-1">3</span> Bukti Bayar
+            </div>
+        </div>
+        @endif
 
         @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
                 {{ session('success') }}
             </div>
         @endif
 
         @if(session('error'))
-            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
                 {{ session('error') }}
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                <ul class="list-disc list-inside">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
             </div>
         @endif
 
@@ -429,19 +587,19 @@
             @csrf
 
             <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Peserta <span class="text-red-500">*</span></label>
-                <input type="text" name="nama_peserta" class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nama lengkap" required value="{{ old('nama_peserta', Auth::user()->name ?? '') }}">
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Peserta Membership <span class="text-red-500">*</span></label>
+                <input type="text" name="nama_peserta" class="w-full rounded-xl border border-gray-300 p-3 text-sm focus:border-blue-500 focus:ring-blue-500 font-semibold" placeholder="Masukkan nama lengkap" required value="{{ old('nama_peserta', Auth::user()->name ?? '') }}">
             </div>
 
             @if($activity->biaya_bergabung === 'berbayar')
             <!-- Total Pembayaran -->
             @if($activity->harga)
-            <div class="mb-4 p-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl text-slate-950 flex items-center justify-between shadow-md">
+            <div class="mb-4 p-4 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl text-slate-950 flex items-center justify-between shadow-md">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider opacity-80">Total Pembayaran</p>
-                    <p class="text-xl font-black">Rp {{ number_format($activity->harga, 0, ',', '.') }}</p>
+                    <p class="text-[11px] font-black uppercase tracking-wider opacity-80">Total Tagihan Membership</p>
+                    <p class="text-2xl font-black">Rp {{ number_format($activity->harga, 0, ',', '.') }}</p>
                 </div>
-                <i class="fas fa-crown text-3xl opacity-30"></i>
+                <i class="fas fa-crown text-4xl opacity-30"></i>
             </div>
             @endif
 
@@ -451,68 +609,108 @@
                     ? $paymentSettings 
                     : \App\Models\PaymentSetting::where('is_active', true)->get();
                 $firstSetting = $activeSettings->first();
+
+                $ownerBank = null;
+                if (isset($activity->pendaftaran) && $activity->pendaftaran && $activity->pendaftaran->nomor_rekening) {
+                    $ownerBank = [
+                        'bank_name' => $activity->pendaftaran->nama_bank ?? 'Bank Pemilik Venue',
+                        'account_number' => $activity->pendaftaran->nomor_rekening,
+                        'account_holder' => $activity->pendaftaran->nama_pemilik_rekening ?? $activity->pendaftaran->nama_venue,
+                    ];
+                } elseif (isset($activity->clinic) && $activity->clinic && $activity->clinic->nomor_rekening) {
+                    $ownerBank = [
+                        'bank_name' => $activity->clinic->nama_bank ?? 'Bank Klinik',
+                        'account_number' => $activity->clinic->nomor_rekening,
+                        'account_holder' => $activity->clinic->nama_pemilik_rekening ?? $activity->clinic->nama,
+                    ];
+                }
             @endphp
+
+            @if($ownerBank)
+            <!-- Opsi Transfer Langsung Rekening Pemilik Venue/Klinik -->
+            <div class="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-2">
+                <div class="flex items-center justify-between text-xs font-bold text-amber-400">
+                    <span><i class="fas fa-university mr-1"></i> Rekening Langsung Pemilik Venue / Klinik:</span>
+                    <span class="bg-amber-400 text-slate-950 text-[10px] px-2 py-0.5 rounded font-black uppercase">REKENING MITRA</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                        <span>Bank: <strong class="text-amber-400">{{ $ownerBank['bank_name'] }}</strong></span>
+                        <span>Atas Nama: <strong class="text-slate-200">{{ $ownerBank['account_holder'] }}</strong></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono font-bold text-lg text-amber-300 tracking-wider">{{ $ownerBank['account_number'] }}</span>
+                        <button type="button" onclick="navigator.clipboard.writeText('{{ $ownerBank['account_number'] }}'); alert('Nomor rekening pemilik disalin: {{ $ownerBank['account_number'] }}');" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded-lg transition">
+                            <i class="fas fa-copy mr-1"></i>Salin
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-gray-500">Transfer langsung ke rekening pemilik venue di atas atau pilih Virtual Account Platform di bawah:</p>
+            </div>
+            @endif
+
             <div class="mb-4 space-y-2.5">
                 <label class="block text-sm font-semibold text-gray-700">
-                    Pilih Bank / E-Wallet Transfer <span class="text-red-500">*</span>
+                    Pilih Bank Virtual Account Transfer <span class="text-red-500">*</span>
                 </label>
                 
                 <div class="grid grid-cols-3 gap-2" id="memberBankOptions">
                     @foreach($activeSettings as $idx => $ps)
-                    <label class="member-bank-card border-2 {{ $idx == 0 ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200' }} rounded-xl p-2 text-center cursor-pointer flex flex-col items-center justify-center transition hover:border-blue-600">
+                    <label class="member-bank-card border-2 {{ $idx == 0 ? 'border-amber-500 bg-amber-50/50' : 'border-gray-200' }} rounded-xl p-2 text-center cursor-pointer flex flex-col items-center justify-center transition hover:border-amber-500">
                         <input type="radio" name="bank_code" value="{{ $ps->bank_code }}" class="hidden" {{ $idx == 0 ? 'checked' : '' }} onchange="updateMemberVA('{{ addslashes($ps->bank_name) }}', '{{ addslashes($ps->account_number) }}', '{{ addslashes($ps->account_holder) }}')" />
-                        <i class="{{ $ps->category == 'bank' ? 'fas fa-university text-blue-600' : 'fas fa-wallet text-green-500' }} text-lg mb-1"></i>
+                        <i class="{{ $ps->category == 'bank' ? 'fas fa-university text-amber-600' : 'fas fa-wallet text-green-500' }} text-lg mb-1"></i>
                         <span class="text-xs font-bold text-gray-800">{{ $ps->bank_code }}</span>
                     </label>
                     @endforeach
                 </div>
 
                 <!-- Info No. Virtual Account Transfer -->
-                <div class="bg-slate-900 text-white rounded-xl p-3 border border-slate-700 space-y-1">
+                <div class="bg-slate-900 text-white rounded-xl p-4 border border-slate-700 space-y-1.5 shadow-inner">
                     <div class="flex items-center justify-between text-xs text-slate-400">
-                        <span>No. Virtual Account / Rekening:</span>
+                        <span>Nomor Rekening / Virtual Account Platform:</span>
                         <span id="memberBankLabel" class="font-bold text-amber-400">{{ $firstSetting ? $firstSetting->bank_name : 'BCA' }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span id="memberVaDisplay" class="font-mono font-bold text-base text-amber-300 tracking-wider">{{ $firstSetting ? $firstSetting->account_number : '88008819203847' }}</span>
-                        <button type="button" onclick="copyMemberVA()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded border border-slate-600 transition">
+                        <span id="memberVaDisplay" class="font-mono font-bold text-lg text-amber-300 tracking-wider">{{ $firstSetting ? $firstSetting->account_number : '88008819203847' }}</span>
+                        <button type="button" onclick="copyMemberVA()" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded-lg transition">
                             <i class="fas fa-copy mr-1"></i>Salin
                         </button>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-1">a.n. <strong id="memberHolderDisplay">{{ $firstSetting ? $firstSetting->account_holder : 'PT OlgaSehat Indonesia' }}</strong></p>
+                    <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-800">Atas Nama: <strong id="memberHolderDisplay" class="text-slate-200">{{ $firstSetting ? $firstSetting->account_holder : 'PT OlgaSehat Indonesia' }}</strong></p>
                 </div>
             </div>
 
             <!-- Upload Bukti Pembayaran -->
-            <div class="mb-4">
+            <div class="mb-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Upload Bukti Transfer <span class="text-red-500">*</span>
+                    Upload Bukti Transfer Pembayaran <span class="text-red-500">*</span>
                 </label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                <div class="border-2 border-dashed border-amber-300 rounded-xl p-4 text-center bg-amber-50/40 hover:bg-amber-50 transition">
                     <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="hidden" accept="image/*" required>
                     <label for="bukti_pembayaran" class="cursor-pointer block">
-                        <i class="fas fa-cloud-upload-alt text-2xl text-blue-500 mb-1"></i>
-                        <p class="text-xs font-semibold text-gray-700">Klik untuk upload bukti transfer (Foto/Resi)</p>
-                        <p class="text-[11px] text-gray-500">Format: JPG, PNG, GIF. Maksimal 2MB</p>
+                        <i class="fas fa-cloud-upload-alt text-3xl text-amber-500 mb-1"></i>
+                        <p class="text-xs font-bold text-gray-800">Klik di sini untuk upload bukti transfer</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Format: JPG, PNG, GIF (Maksimal 2MB)</p>
                     </label>
                 </div>
-                <div id="preview-container" class="mt-2 hidden text-center">
-                    <img id="preview-image" src="" alt="Preview" class="max-w-full h-28 object-contain rounded-lg border mx-auto">
+                <div id="preview-container" class="mt-3 hidden text-center">
+                    <p class="text-xs text-gray-500 font-semibold mb-1">Preview Bukti Transfer:</p>
+                    <img id="preview-image" src="" alt="Preview" class="max-w-full h-32 object-contain rounded-xl border border-gray-300 mx-auto shadow-md">
                 </div>
             </div>
             @endif
 
-            <div class="flex gap-3">
-                <button type="button" onclick="document.getElementById('joinModal').classList.add('hidden')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition text-sm">
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeJoinModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 transition text-sm">
                     Batal
                 </button>
                 @if($isMembershipActModal)
-                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl shadow-md transition text-sm">
-                        <i class="fas fa-crown mr-1.5"></i> Beli Membership
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-3 rounded-xl shadow-lg transition text-sm flex items-center justify-center">
+                        <i class="fas fa-crown mr-1.5 text-base"></i> Beli Membership
                     </button>
                 @else
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition text-sm">
-                        <i class="fas fa-check mr-1.5"></i> Daftar
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm flex items-center justify-center">
+                        <i class="fas fa-check mr-1.5"></i> Konfirmasi Daftar
                     </button>
                 @endif
             </div>
@@ -521,6 +719,22 @@
 </div>
 
 <script>
+    function openJoinModal() {
+        const modal = document.getElementById('joinModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeJoinModal() {
+        const modal = document.getElementById('joinModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
     // Preview image
     document.getElementById('bukti_pembayaran')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -570,7 +784,6 @@
         }
     }
 </script>
-@endif
 @endauth
 
 @endsection

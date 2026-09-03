@@ -22,7 +22,19 @@
                     <p class="mb-0 text-muted">
                       Ikuti pelatihan tata cara menggunakan sistem Olga secara gratis untuk memudahkan Anda menguasai produk dan
                       servis pada sistem. Apabila Anda membutuhkan informasi atau pertanyaan, segera hubungi Whatsapp Customer
-                      Service Olga <a href="https://wa.me/628123456789" target="_blank" rel="noopener" class="text-primary font-weight-bold">di sini</a>.
+                      @php
+                        $waContact = \App\Models\ContactUs::where('type', 'whatsapp')
+                            ->orWhere('title', 'like', '%whatsapp%')
+                            ->orWhere('title', 'like', '%wa%')
+                            ->first();
+                        $rawWa = $waContact->kontak ?? '0812-3456-7890';
+                        $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
+                        if (\Illuminate\Support\Str::startsWith($cleanWa, '0')) {
+                            $cleanWa = '62' . substr($cleanWa, 1);
+                        }
+                        $waLink = "https://wa.me/{$cleanWa}?text=" . urlencode("Halo CS OlgaSehat, saya butuh informasi seputar cara membuat venue");
+                      @endphp
+                      Service Olga <a href="{{ $waLink }}" target="_blank" rel="noopener" class="text-primary font-weight-bold">di sini</a>.
                     </p>
                   </div>
                 </div>

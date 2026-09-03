@@ -20,6 +20,36 @@
 
     <section class="content">
         <div class="container-fluid">
+            <!-- Card Penjelasan Komunitas untuk Pemilik Venue -->
+            <div class="card card-outline card-info shadow-sm mb-3">
+              <div class="card-header font-weight-bold text-info py-2">
+                <i class="fas fa-lightbulb mr-2"></i>Panduan & Manfaat Komunitas Bagi Pemilik Venue Lapangan
+              </div>
+              <div class="card-body py-2">
+                <p class="text-muted small mb-2">Sebagai Pemilik Venue, membuat kegiatan <strong>Komunitas / Sesi Mabar (Open Class)</strong> memiliki berbagai keuntungan untuk usaha lapangan Anda:</p>
+                <div class="row">
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-calendar-check text-success mr-1"></i> 1. Meramaikan Jam Sepi</strong>
+                      <small class="text-muted">Manfaatkan jam lapangan yang kosong (misal siang hari) dengan membuka sesi Mabar terbuka per-pemain.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-coins text-warning mr-1"></i> 2. Patungan Biaya Sewa</strong>
+                      <small class="text-muted">Setiap pemain membayar tiket masuk Mabar, sehingga biaya sewa slot lapangan terpenuhi secara otomatis.</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <div class="p-2 border rounded bg-light">
+                      <strong class="text-dark d-block mb-1"><i class="fas fa-user-friends text-info mr-1"></i> 3. Komunitas Pelanggan Loyal</strong>
+                      <small class="text-muted">Pemain Mabar yang merasa nyaman akan rutin bermain dan merekomendasikan venue Anda ke komunitasnya.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <div class="card card-primary">

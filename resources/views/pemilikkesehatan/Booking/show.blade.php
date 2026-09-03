@@ -207,7 +207,51 @@
                                 <i class="fas fa-save mr-1"></i> Update Status & Catatan
                             </button>
                         </div>
-                    </form>
+                <!-- CARD RINCIAN RUMUS BAGI HASIL KLINIK -->
+                @php
+                    $totalBruto = (float)($booking->harga ?? $booking->total_harga ?? 0);
+                    $clinic = $booking->clinic;
+                    $rate = (float)($clinic->komisi_nilai ?? 0);
+                    $tipe = $clinic->komisi_tipe ?? 'none';
+                    if ($tipe === 'percentage' && $rate > 0) {
+                        $komisi = ($totalBruto * $rate) / 100;
+                    } elseif ($tipe === 'fixed' && $rate > 0) {
+                        $komisi = min($rate, $totalBruto);
+                    } else {
+                        $komisi = 0;
+                    }
+                    $pendapatanMitra = max(0, $totalBruto - $komisi);
+                @endphp
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+                    <div class="card-header bg-info text-white font-weight-bold" style="border-radius: 20px 20px 0 0;">
+                        <i class="fas fa-calculator mr-2"></i> Rincian Rumus Pembagian Hasil Klinik
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-bordered mb-2">
+                            <tr>
+                                <td>Total Pembayaran Pasien (Bruto)</td>
+                                <td class="text-right font-weight-bold">Rp {{ number_format($totalBruto, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-primary">
+                                    (-) Komisi Platform OlgaSehat
+                                    @if($tipe === 'percentage')
+                                        <span class="badge badge-warning">({{ $rate }}%)</span>
+                                    @elseif($tipe === 'fixed')
+                                        <span class="badge badge-warning">(Fixed)</span>
+                                    @else
+                                        <span class="badge badge-success">(0% Utuh)</span>
+                                    @endif
+                                </td>
+                                <td class="text-right text-primary font-weight-bold">- Rp {{ number_format($komisi, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td class="text-success font-weight-bold">(=) Pendapatan Bersih Klinik (Ditransfer)</td>
+                                <td class="text-right text-success font-weight-bold">Rp {{ number_format($pendapatanMitra, 0, ',', '.') }}</td>
+                            </tr>
+                        </table>
+                        <small class="text-muted"><i class="fas fa-shield-alt text-success mr-1"></i>Kalkulasi otomatis transparan & akurat oleh sistem OlgaSehat.</small>
+                    </div>
                 </div>
 
                 <!-- CARD BUKTI TRANSFER PEMBAYARAN PASIEN -->

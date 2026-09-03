@@ -4,6 +4,7 @@
 
 @php
     $user = Auth::user();
+    $membershipDiscountPercent = (float) \App\Services\AppSetting::get('membership_discount_percent', 10);
     $isMember = false;
     if ($user) {
         $isMember = \App\Models\ActivityParticipant::where('user_id', $user->id)
@@ -27,10 +28,10 @@
             </div>
             <div>
                 <h4 class="font-bold text-sm">Status VIP Member Aktif!</h4>
-                <p class="text-xs text-amber-100">Diskon khusus member 10% akan otomatis diterapkan pada saat checkout.</p>
+                <p class="text-xs text-amber-100">Diskon khusus member dari mitra venue/klinik akan otomatis dipotongkan pada saat pembayaran akhir.</p>
             </div>
         </div>
-        <span class="bg-white text-amber-800 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow">DISKON 10%</span>
+        <span class="bg-white text-amber-800 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow">VIP MEMBER</span>
     </div>
     @endif
 
@@ -274,10 +275,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }).format(number);
     }
 
-    let totalVal = 0;
+    const isMember = @json($isMember);
+    const membershipDiscountPercent = @json($membershipDiscountPercent);
+    let subtotalVal = 0;
     cart.forEach(item => {
-        totalVal += parseInt(item.price);
+        subtotalVal += parseInt(item.price);
     });
+
+    let diskonVal = isMember ? Math.round(subtotalVal * (membershipDiscountPercent / 100)) : 0;
+    let finalTotal = Math.max(0, subtotalVal - diskonVal);
 
     // Render summary container
     summaryContainer.innerHTML = cart.map(item => `
@@ -288,15 +294,26 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <span class="font-bold text-gray-800">${formatRupiah(item.price)}</span>
         </div>
-    `).join('') + `
+    `).join('') + (isMember ? `
+        <div class="py-2 border-b border-gray-100 space-y-1 mt-2">
+            <div class="flex justify-between text-xs text-gray-600">
+                <span>Subtotal</span>
+                <span>${formatRupiah(subtotalVal)}</span>
+            </div>
+            <div class="flex justify-between text-xs font-bold text-amber-600">
+                <span><i class="fas fa-crown text-amber-500 mr-1"></i>Diskon VIP Member (${membershipDiscountPercent}%)</span>
+                <span>-${formatRupiah(diskonVal)}</span>
+            </div>
+        </div>
+    ` : '') + `
         <div class="pt-3 flex justify-between items-center font-bold text-gray-900">
             <span>Total Bayar</span>
-            <span class="text-2xl text-blue-700">${formatRupiah(totalVal)}</span>
+            <span class="text-2xl text-blue-700">${formatRupiah(finalTotal)}</span>
         </div>
         <p class="text-xs text-right text-blue-600 font-semibold mt-1">Pembayaran Penuh (Full Payment)</p>
     `;
 
-    payButton.innerHTML = `<i class="fas fa-credit-card mr-2"></i> BAYAR SEKARANG (${formatRupiah(totalVal)})`;
+    payButton.innerHTML = `<i class="fas fa-credit-card mr-2"></i> BAYAR SEKARANG (${formatRupiah(finalTotal)})`;
 
     if (payButton && loadingOverlay) {
         payButton.addEventListener('click', function(e) {

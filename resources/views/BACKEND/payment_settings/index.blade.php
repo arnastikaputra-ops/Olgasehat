@@ -47,9 +47,9 @@
       @endif
 
       <!-- Info Boxes -->
-      <div class="row">
-        <div class="col-md-4 col-sm-6 col-12">
-          <div class="info-box shadow-sm">
+      <div class="row mb-4">
+        <div class="col-md-4 col-sm-6 col-12 mb-3 mb-md-0">
+          <div class="info-box shadow-sm mb-0">
             <span class="info-box-icon bg-primary"><i class="fas fa-university"></i></span>
             <div class="info-box-content">
               <span class="info-box-text font-weight-bold">Transfer Bank</span>
@@ -58,8 +58,8 @@
           </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 col-12">
-          <div class="info-box shadow-sm">
+        <div class="col-md-4 col-sm-6 col-12 mb-3 mb-md-0">
+          <div class="info-box shadow-sm mb-0">
             <span class="info-box-icon bg-success"><i class="fas fa-wallet"></i></span>
             <div class="info-box-content">
               <span class="info-box-text font-weight-bold">E-Wallet</span>
@@ -69,7 +69,7 @@
         </div>
 
         <div class="col-md-4 col-sm-6 col-12">
-          <div class="info-box shadow-sm">
+          <div class="info-box shadow-sm mb-0">
             <span class="info-box-icon bg-warning text-white"><i class="fas fa-check-circle"></i></span>
             <div class="info-box-content">
               <span class="info-box-text font-weight-bold">Metode Aktif</span>

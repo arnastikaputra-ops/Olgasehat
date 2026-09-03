@@ -27,6 +27,11 @@
     
     <section class="content">
         <div class="container-fluid">
+            <!-- Info Callout -->
+            <div class="alert alert-info border shadow-sm mb-3">
+              <i class="fas fa-info-circle mr-2"></i> <strong>Fungsi Halaman Social Media (Sosial Media):</strong> Halaman ini digunakan untuk mengelola link akun media sosial resmi OlgaSehat (Instagram, Facebook, Twitter/X, Youtube, TikTok) yang ditampilkan pada bagian footer website Frontend.
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="row">

@@ -201,7 +201,12 @@ class HealthFrontendController extends Controller
                 ->exists();
 
             $subtotal = (float) ($service->harga ?? 0);
-            $diskonMember = $isMember ? round($subtotal * 0.10) : 0;
+            $defaultPlatformDiscount = (float) \App\Services\AppSetting::get('membership_discount_percent', 10);
+            $clinicDiscountPercent = ($clinic && isset($clinic->is_membership_discount) && $clinic->is_membership_discount)
+                ? (float) ($clinic->membership_discount_percent ?? $defaultPlatformDiscount)
+                : 0;
+
+            $diskonMember = ($isMember && $clinicDiscountPercent > 0) ? round($subtotal * ($clinicDiscountPercent / 100)) : 0;
             $totalHarga = max(0, $subtotal - $diskonMember);
 
             $komisiTipe = $clinic->komisi_tipe ?? 'none';

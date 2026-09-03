@@ -22,6 +22,8 @@ class Activity extends Model
         'jenis',
         'user_id',
         'pemilik_id',
+        'pendaftaran_id',
+        'clinic_id',
         'activity_type_id',
         'alasan_reject',
         'verified_at',
@@ -41,6 +43,18 @@ class Activity extends Model
     public function pemilik()
     {
         return $this->belongsTo(User::class, 'pemilik_id');
+    }
+
+    // Relasi ke Pendaftaran (Venue)
+    public function pendaftaran()
+    {
+        return $this->belongsTo(Pendaftaran::class, 'pendaftaran_id');
+    }
+
+    // Relasi ke Clinic
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class, 'clinic_id');
     }
 
     // Relasi ke ActivityType

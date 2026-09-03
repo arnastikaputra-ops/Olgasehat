@@ -240,11 +240,22 @@ a<section class="bg-gray-50 py-12 md:py-16" data-aos="fade-up">
                 <p class="text-gray-700 text-base md:text-lg mb-6 leading-relaxed" data-translate>
                     Kami siap menjawab setiap pertanyaan yang kamu ajukan mengenai kolaborasi bersama OlgaSehat. Jangan ragu untuk menghubungi kami!
                 </p>
-                <a href="https://wa.me/6287861834425?text=Halo%2C%20saya%20ingin%20bertanya%20mengenai%20layanan%20Anda" target="_blank"class="inline-flex items-center text-blue-700 font-bold hover:text-blue-900 text-lg transition-colors group"data-translate>
+                @php
+                    $waContact = \App\Models\ContactUs::where('type', 'whatsapp')
+                        ->orWhere('title', 'like', '%whatsapp%')
+                        ->orWhere('title', 'like', '%wa%')
+                        ->first();
+                    $rawWa = $waContact->kontak ?? '0812-3456-7890';
+                    $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
+                    if (\Illuminate\Support\Str::startsWith($cleanWa, '0')) {
+                        $cleanWa = '62' . substr($cleanWa, 1);
+                    }
+                    $waLink = "https://wa.me/{$cleanWa}?text=" . urlencode("Halo, saya ingin bertanya mengenai layanan Anda");
+                @endphp
+                <a href="{{ $waLink }}" target="_blank" class="inline-flex items-center text-blue-700 font-bold hover:text-blue-900 text-lg transition-colors group" data-translate>
                  Hubungi Kami Sekarang!
                 <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                 </a>
-
             </div>
         </div>
     </div>

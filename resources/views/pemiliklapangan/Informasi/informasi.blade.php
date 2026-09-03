@@ -241,6 +241,29 @@
                                 <small class="text-muted">Email untuk kontak venue</small>
                             </div>
 
+                            {{-- Pengaturan Rekening Bank Pemilik Venue --}}
+                            <div class="p-3 mb-3 border rounded bg-light">
+                                <h6 class="font-weight-bold text-dark mb-2">
+                                    <i class="fas fa-university text-primary mr-1"></i> Rekening Bank Pencairan Mitra (Opsional / Dapat Diisi Nanti)
+                                </h6>
+                                <p class="text-muted small mb-3">Nomor rekening ini akan digunakan Admin Backoffice untuk mentransfer pendapatan sewa & membership ke rekening Anda.</p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="nama_bank" class="form-label small font-weight-bold">Nama Bank</label>
+                                        <input type="text" id="nama_bank" name="nama_bank" class="form-control form-control-sm" placeholder="Contoh: BCA / Mandiri / BRI" value="{{ old('nama_bank') }}">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="nomor_rekening" class="form-label small font-weight-bold">No. Rekening</label>
+                                        <input type="text" id="nomor_rekening" name="nomor_rekening" class="form-control form-control-sm" placeholder="Contoh: 1234567890" value="{{ old('nomor_rekening') }}">
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="nama_pemilik_rekening" class="form-label small font-weight-bold">Atas Nama Pemilik Rekening</label>
+                                        <input type="text" id="nama_pemilik_rekening" name="nama_pemilik_rekening" class="form-control form-control-sm" placeholder="Nama sesuai buku tabungan" value="{{ old('nama_pemilik_rekening') }}">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                                 <a href="/pemiliklapangan/dashboard" class="btn btn-outline-secondary">
                                     <i class="fas fa-arrow-left mr-2"></i>Kembali

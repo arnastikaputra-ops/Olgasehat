@@ -27,6 +27,11 @@
     
     <section class="content">
         <div class="container-fluid">
+            <!-- Info Callout -->
+            <div class="alert alert-info border shadow-sm mb-3">
+              <i class="fas fa-info-circle mr-2"></i> <strong>Fungsi Halaman Data About Us (Tentang Kami):</strong> Halaman ini digunakan untuk mengelola teks profil, sejarah, visi-misi, serta gambaran platform yang akan ditampilkan pada footer dan halaman tentang kami di Frontend OlgaSehat.
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="row">

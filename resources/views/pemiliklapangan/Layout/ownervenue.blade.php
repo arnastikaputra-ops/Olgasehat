@@ -292,7 +292,7 @@
               <i class="nav-icon fas fa-wallet"></i>
               <p>
                 Keuangan
-                <i class="right fas fa-angle-left"></i>
+                
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -301,7 +301,7 @@
                   <i class="far fa-circle nav-icon"></i>
                   <p>
                     Riwayat Transaksi
-                    <i class="right fas fa-angle-left"></i>
+                    
                   </p>
                 </a>
                 <ul class="nav nav-treeview">

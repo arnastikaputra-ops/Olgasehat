@@ -252,31 +252,21 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <h6 class="font-weight-bold mb-3">Rekening Bank</h6>
+                                    <h6 class="font-weight-bold mb-3"><i class="fas fa-university text-primary mr-2"></i>Rekening Bank Pemilik Venue (Untuk Penerimaan Pembayaran Membership)</h6>
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label>Nama Pemilik Rekening <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" placeholder="Nama sesuai buku tabungan">
+                                            <input type="text" name="nama_pemilik_rekening" class="form-control" placeholder="Nama sesuai buku tabungan" value="{{ old('nama_pemilik_rekening', $venue->nama_pemilik_rekening ?? '') }}">
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label>Email Pemilik Rekening <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" placeholder="nama@email.com">
+                                            <label>Nama Bank <span class="text-danger">*</span></label>
+                                            <input type="text" name="nama_bank" class="form-control" placeholder="Contoh: BCA / Mandiri / BRI" value="{{ old('nama_bank', $venue->nama_bank ?? '') }}">
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <label>Nama Bank <span class="text-danger">*</span></label>
-                                            <select class="form-control">
-                                                <option value="">Pilih bank</option>
-                                                <option value="bca">BCA</option>
-                                                <option value="bri">BRI</option>
-                                                <option value="bni">BNI</option>
-                                                <option value="mandiri">Mandiri</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-12">
                                             <label>No. Rekening <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" placeholder="1234567890">
+                                            <input type="text" name="nomor_rekening" class="form-control" placeholder="Contoh: 1234567890" value="{{ old('nomor_rekening', $venue->nomor_rekening ?? '') }}">
                                         </div>
                                     </div>
                                 </div>

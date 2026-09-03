@@ -176,23 +176,73 @@
                     @enderror
                   </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="small font-weight-semibold text-muted">Skip Hari Tertentu</label>
-                  <div class="d-flex flex-wrap gap-2">
-                    <div class="form-check">
-                      <input type="checkbox" name="skip_days[]" value="0" class="form-check-input" id="skipSunday">
-                      <label class="form-check-label" for="skipSunday">Minggu</label>
+                <div class="col-md-12 mb-3">
+                  <label class="small font-weight-semibold text-muted mb-2 d-block">Skip Hari Tertentu (Opsional)</label>
+                  <div class="p-3 bg-white border rounded-lg shadow-sm">
+                    <div class="row mb-2 pb-2 border-bottom">
+                      <div class="col-md-6 col-6">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="weekday" class="custom-control-input" id="skipWeekday">
+                          <label class="custom-control-label font-weight-bold text-primary" for="skipWeekday">
+                            <i class="fas fa-briefcase mr-1"></i>Hari Kerja (Senin - Jumat)
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-md-6 col-6">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="weekend" class="custom-control-input" id="skipWeekend">
+                          <label class="custom-control-label font-weight-bold text-danger" for="skipWeekend">
+                            <i class="fas fa-umbrella-beach mr-1"></i>Weekend (Sabtu & Minggu)
+                          </label>
+                        </div>
+                      </div>
                     </div>
-                    <div class="form-check">
-                      <input type="checkbox" name="skip_days[]" value="6" class="form-check-input" id="skipSaturday">
-                      <label class="form-check-label" for="skipSaturday">Sabtu</label>
-                    </div>
-                    <div class="form-check">
-                      <input type="checkbox" name="skip_days[]" value="weekend" class="form-check-input" id="skipWeekend">
-                      <label class="form-check-label" for="skipWeekend">Weekend (Sabtu & Minggu)</label>
+                    <div class="row">
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="1" class="custom-control-input skip-day-item" id="skipMonday">
+                          <label class="custom-control-label" for="skipMonday">Senin</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="2" class="custom-control-input skip-day-item" id="skipTuesday">
+                          <label class="custom-control-label" for="skipTuesday">Selasa</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="3" class="custom-control-input skip-day-item" id="skipWednesday">
+                          <label class="custom-control-label" for="skipWednesday">Rabu</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="4" class="custom-control-input skip-day-item" id="skipThursday">
+                          <label class="custom-control-label" for="skipThursday">Kamis</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="5" class="custom-control-input skip-day-item" id="skipFriday">
+                          <label class="custom-control-label" for="skipFriday">Jumat</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="6" class="custom-control-input skip-day-item" id="skipSaturday">
+                          <label class="custom-control-label text-danger font-weight-semibold" for="skipSaturday">Sabtu</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3 col-6 mb-2">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="skip_days[]" value="0" class="custom-control-input skip-day-item" id="skipSunday">
+                          <label class="custom-control-label text-danger font-weight-semibold" for="skipSunday">Minggu</label>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <small class="form-text text-muted">Pilih hari yang ingin di-skip dari jadwal</small>
+                  <small class="form-text text-muted mt-1">Centang hari tertentu atau shortcut yang ingin di-skip dari jadwal.</small>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="small font-weight-semibold text-muted">Status Default</label>
@@ -1393,16 +1443,34 @@
 
       // Get skip days
       var skipDays = [];
+      var skipWeekday = document.getElementById('skipWeekday');
       var skipWeekend = document.getElementById('skipWeekend');
-      var skipSaturday = document.getElementById('skipSaturday');
-      var skipSunday = document.getElementById('skipSunday');
       
+      if (skipWeekday && skipWeekday.checked) {
+        skipDays.push(1, 2, 3, 4, 5); // Monday to Friday
+      }
       if (skipWeekend && skipWeekend.checked) {
         skipDays.push(0, 6); // Sunday and Saturday
-      } else {
-        if (skipSaturday && skipSaturday.checked) skipDays.push(6);
-        if (skipSunday && skipSunday.checked) skipDays.push(0);
       }
+      
+      var dayIds = [
+        { id: 'skipSunday', num: 0 },
+        { id: 'skipMonday', num: 1 },
+        { id: 'skipTuesday', num: 2 },
+        { id: 'skipWednesday', num: 3 },
+        { id: 'skipThursday', num: 4 },
+        { id: 'skipFriday', num: 5 },
+        { id: 'skipSaturday', num: 6 }
+      ];
+      
+      dayIds.forEach(function(item) {
+        var el = document.getElementById(item.id);
+        if (el && el.checked) {
+          skipDays.push(item.num);
+        }
+      });
+
+      skipDays = Array.from(new Set(skipDays));
 
       // Calculate slots per day (1 hour intervals)
       var slotsPerDay = Math.floor((endTime - startTime) / 60);
@@ -1519,15 +1587,22 @@
     var skipCheckboxes = document.querySelectorAll('input[name="skip_days[]"]');
     skipCheckboxes.forEach(function(checkbox) {
       checkbox.addEventListener('change', function() {
-        // Handle weekend checkbox
-        if (this.value === 'weekend' && this.checked) {
+        if (this.value === 'weekday' && this.checked) {
+          ['skipMonday', 'skipTuesday', 'skipWednesday', 'skipThursday', 'skipFriday'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.checked = false;
+          });
+        } else if (this.value === 'weekend' && this.checked) {
           var skipSat = document.getElementById('skipSaturday');
           var skipSun = document.getElementById('skipSunday');
           if (skipSat) skipSat.checked = false;
           if (skipSun) skipSun.checked = false;
-        } else if ((this.value === '0' || this.value === '6') && this.checked) {
-          var skipWeekend = document.getElementById('skipWeekend');
-          if (skipWeekend) skipWeekend.checked = false;
+        } else if (['1', '2', '3', '4', '5'].includes(this.value) && this.checked) {
+          var skipWkday = document.getElementById('skipWeekday');
+          if (skipWkday) skipWkday.checked = false;
+        } else if (['0', '6'].includes(this.value) && this.checked) {
+          var skipWkend = document.getElementById('skipWeekend');
+          if (skipWkend) skipWkend.checked = false;
         }
         calculateBulkPreview();
       });

@@ -38,15 +38,83 @@
         <div class="lg:col-span-2 space-y-6">
             
             {{-- Header Konten --}}
-            <div class="bg-white rounded-xl shadow-xl p-6 border-l-4 border-orange-500 flex justify-between items-center">
+            <div class="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-950 rounded-2xl shadow-xl p-6 text-white flex flex-wrap justify-between items-center gap-4 border border-blue-500/30">
                 <div>
-                    <h2 class="font-extrabold text-2xl text-gray-900">Membership Aktif Kamu</h2>
-                    <p class="text-gray-500 mt-1">Kelola dan cek manfaat keanggotaanmu di berbagai venue.</p>
+                    <span class="inline-flex items-center bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-black px-3 py-1 rounded-full mb-2">
+                        <i class="fas fa-crown mr-1.5 text-amber-400"></i> KEANGGOTAAN OLGASEHAT
+                    </span>
+                    <h2 class="font-black text-2xl md:text-3xl text-white">Membership Saya</h2>
+                    <p class="text-blue-100/90 text-sm mt-1">Status keanggotaan aktif memberikan Anda potongan harga khusus saat booking venue & layanan kesehatan.</p>
                 </div>
                 {{-- Tombol CTA --}}
-                <a href="/community?type=klub" class="bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-orange-600 transition duration-150 flex items-center text-sm md:text-base whitespace-nowrap">
-                    <i class="fas fa-shopping-cart mr-2"></i> Beli Baru
+                <a href="/community?type=klub" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black px-5 py-3 rounded-xl shadow-lg hover:from-amber-600 hover:to-yellow-600 transition flex items-center text-sm md:text-base whitespace-nowrap">
+                    <i class="fas fa-plus-circle mr-2 text-base"></i> Beli Paket Membership
                 </a>
+            </div>
+
+            <!-- Card Keuntungan VIP Membership -->
+            <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-md">
+                <h3 class="font-extrabold text-slate-900 text-lg md:text-xl mb-1 flex items-center">
+                    <i class="fas fa-gift text-amber-500 mr-2 text-2xl"></i> Keuntungan Memiliki Membership Lapangan & Klinik
+                </h3>
+                <p class="text-xs md:text-sm text-gray-600 mb-5">Dapatkan penawaran istimewa dan proteksi hemat bertransaksi di platform OlgaSehat:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm mb-0.5">Diskon VIP Otomatis (10%+ - 20%)</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">Potongan harga langsung otomatis terpotong saat Anda melakukan booking lapangan & layanan klinik.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm mb-0.5">Prioritas Booking & Sparing</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">Akses memesan jam favorit lebih awal serta kesempatan mengikuti event sparing khusus member venue.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm mb-0.5">Grup WA Eksklusif Venue / Klinik</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">Terhubung langsung ke grup WhatsApp internal pengelola untuk koordinasi main, promo, dan info klinik.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-purple-50/70 border border-purple-200/80 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm mb-0.5">Bebas Biaya Admin & Terintegrasi</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">Penghematan biaya transaksi tanpa biaya tersembunyi dengan histori keanggotaan transparan di dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guide Alert: Cara Menggunakan Diskon Member -->
+            <div class="bg-amber-50 border-2 border-amber-300/80 rounded-2xl p-5 shadow-sm flex items-start space-x-4">
+                <div class="w-10 h-10 bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0 mt-0.5">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="text-sm">
+                    <h4 class="font-extrabold text-amber-900 text-base mb-1">Cara Menggunakan Diskon VIP Member:</h4>
+                    <ol class="list-decimal list-inside text-amber-950 space-y-1 text-xs md:text-sm font-medium">
+                        <li>Pastikan status membership Anda sudah <strong>Approved / Member Aktif</strong> (telah diverifikasi pemilik venue/admin).</li>
+                        <li>Buka menu <a href="/venue" class="font-bold underline text-blue-700">Booking Venue / Lapangan</a> atau Klinik.</li>
+                        <li>Pilih jadwal & venue yang Anda inginkan, sistem akan <strong>otomatis memotong harga total dengan Diskon Member</strong>!</li>
+                    </ol>
+                </div>
             </div>
             
             <!-- Membership Section -->
@@ -60,8 +128,8 @@
                 @endphp
                 <div class="rounded-2xl shadow-xl bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-950 text-white p-6 md:p-8 relative overflow-hidden border border-blue-400/30 transition hover:shadow-2xl">
                     {{-- Decorative Card Background Glow --}}
-                    <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -left-12 -top-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-12 -top-12 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
                     
                     <div class="relative z-10">
                         {{-- Top Header --}}
@@ -71,22 +139,22 @@
                                     <i class="fas fa-crown"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-semibold tracking-widest text-amber-300 uppercase">KARTU MEMBER VIP OLGASEHAT</span>
+                                    <span class="text-xs font-black tracking-widest text-amber-300 uppercase">KARTU VIP MEMBER EKSKLUSIF</span>
                                     <h3 class="text-xl md:text-2xl font-black text-white">{{ $membership->activity->nama ?? 'Membership Venue' }}</h3>
                                 </div>
                             </div>
                             <div>
                                 @if($isApproved)
-                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg animate-pulse">
-                                        <i class="fas fa-check-circle mr-1.5"></i> MEMBER AKTIF
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg">
+                                        <i class="fas fa-check-circle mr-1.5 text-emerald-400"></i> MEMBER VIP AKTIF
                                     </span>
                                 @elseif($membership->status === 'pending')
-                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                                        <i class="fas fa-clock mr-1.5"></i> MENUNGGU VERIFIKASI
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                        <i class="fas fa-clock mr-1.5 text-amber-400"></i> MENUNGGU VERIFIKASI ADMIN
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40">
-                                        <i class="fas fa-times-circle mr-1.5"></i> DITOLAK
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-red-500/20 text-red-300 border border-red-500/40">
+                                        <i class="fas fa-times-circle mr-1.5 text-red-400"></i> DITOLAK
                                     </span>
                                 @endif
                             </div>
@@ -95,7 +163,7 @@
                         {{-- Card Body Details --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
                             <div>
-                                <p class="text-xs text-blue-200 font-medium uppercase tracking-wider mb-1">ID Anggota</p>
+                                <p class="text-xs text-blue-200 font-medium uppercase tracking-wider mb-1">ID Anggota VIP</p>
                                 <p class="text-lg font-mono font-bold text-white tracking-widest">#MEM-OLG-{{ sprintf('%04d', $membership->id) }}</p>
                             </div>
                             <div>
@@ -106,27 +174,27 @@
                                 </p>
                             </div>
                             <div>
-                                <p class="text-xs text-blue-200 font-medium uppercase tracking-wider mb-1">Masa Berlaku</p>
+                                <p class="text-xs text-blue-200 font-medium uppercase tracking-wider mb-1">Masa Berlaku Keanggotaan</p>
                                 <p class="text-base font-bold text-white">{{ $startDate->format('d M Y') }} - {{ $endDate->format('d M Y') }}</p>
                                 @if($isApproved)
-                                    <p class="text-xs text-emerald-400 font-medium mt-0.5"><i class="fas fa-hourglass-half mr-1"></i>Sisa {{ max(0, $daysRemaining) }} Hari</p>
+                                    <p class="text-xs text-emerald-400 font-medium mt-0.5"><i class="fas fa-hourglass-half mr-1"></i>Sisa Masa Aktif: {{ max(0, $daysRemaining) }} Hari</p>
                                 @endif
                             </div>
                         </div>
 
                         {{-- Benefit Highlight Box --}}
                         <div class="p-4 rounded-xl bg-white/5 border border-white/10 mb-6 backdrop-blur-sm">
-                            <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center">
-                                <i class="fas fa-star mr-2"></i> Benefit Status Keanggotaan:
+                            <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider mb-2 flex items-center">
+                                <i class="fas fa-star mr-2 text-amber-400"></i> Benefit Keanggotaan VIP Anda:
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-blue-100">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs md:text-sm text-blue-100 font-medium">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-check text-emerald-400 text-xs"></i>
-                                    <span>Diskon Khusus Member 10% Otomatis saat Booking</span>
+                                    <span>Diskon Khusus Member 10%+ Otomatis Saat Booking</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-check text-emerald-400 text-xs"></i>
-                                    <span>Prioritas Booking Jadwal Lapangan & Klinik</span>
+                                    <span>Prioritas Akses Jadwal Sparing & Latihan Lapangan</span>
                                 </div>
                             </div>
                         </div>
@@ -134,16 +202,22 @@
                         {{-- Footer Action Buttons --}}
                         <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10">
                             <div>
-                                <span class="text-xs text-gray-400 block">Biaya Membership</span>
-                                <span class="text-xl font-bold text-amber-400">Rp {{ number_format($membership->activity->harga ?? 0, 0, ',', '.') }}</span>
+                                <span class="text-xs text-gray-400 block">Biaya Langganan</span>
+                                <span class="text-xl font-black text-amber-400">Rp {{ number_format($membership->activity->harga ?? 0, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                <a href="/venue" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 shadow-lg hover:shadow-amber-500/25 transition">
-                                    <i class="fas fa-futbol mr-2"></i> Gunakan Diskon (Booking Venue)
+                                @if($isApproved)
+                                <a href="/venue" class="inline-flex items-center px-5 py-2.5 rounded-xl font-black text-sm bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 shadow-lg hover:shadow-amber-500/25 transition">
+                                    <i class="fas fa-futbol mr-2"></i> Booking Lapangan (Pakai Diskon)
                                 </a>
                                 <a href="/healthy" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 transition">
                                     <i class="fas fa-hospital-user mr-2"></i> Booking Klinik
                                 </a>
+                                @else
+                                <span class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                    <i class="fas fa-info-circle mr-1.5"></i> Bukti bayar Anda sedang diverifikasi admin
+                                </span>
+                                @endif
                             </div>
                         </div>
                     </div>

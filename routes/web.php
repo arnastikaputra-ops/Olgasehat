@@ -147,14 +147,48 @@ Route::get('/isidata', [App\Http\Controllers\MitraController::class, 'create'])-
 Route::post('/isidata', [App\Http\Controllers\MitraController::class, 'store'])->name('mitra.store');
 
 Route::middleware(['auth', 'role:pemiliklapangan'])->group(function () {
-    Route::get('/pemiliklapangan/dashboard', fn() => view('pemiliklapangan.Dashboard.dashboard'));
+    Route::get('/pemiliklapangan/dashboard', function() {
+        $user = Auth::user();
+        $venues = \App\Models\Pendaftaran::where('user_id', $user->id)
+            ->with(['lapangans'])
+            ->get();
+        
+        $activities = \App\Models\Activity::where('pemilik_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $memberships = $activities->where('jenis', 'membership');
+        $communities = $activities->where('jenis', '!=', 'membership');
+
+        $totalVenues = $venues->count();
+        $totalLapangan = $venues->sum(fn($v) => $v->lapangans->count());
+        $venuesWithHours = $venues->filter(fn($v) => !empty($v->jam_buka) && !empty($v->jam_tutup))->count();
+        $venuesWithMembership = $venues->filter(fn($v) => $v->is_membership_discount || $memberships->where('pendaftaran_id', $v->id)->count() > 0)->count();
+
+        return view('pemiliklapangan.Dashboard.dashboard', compact(
+            'venues', 'activities', 'memberships', 'communities', 
+            'totalVenues', 'totalLapangan', 'venuesWithHours', 'venuesWithMembership'
+        ));
+    })->name('pemilik.dashboard');
     Route::get('/pemiliklapangan/analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('pemilik.analytics');
     Route::get('/analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('pemilik.analytics.short');
     Route::post('/pemiliklapangan/analytics/send-email', [App\Http\Controllers\AnalyticsController::class, 'sendEmail'])->name('pemilik.analytics.send_email');
     Route::get('/pemiliklapangan/analytics/export-csv', [App\Http\Controllers\AnalyticsController::class, 'exportCsv'])->name('pemilik.analytics.export_csv');
     Route::get('/pemiliklapangan/komunitas', fn() => view('pemiliklapangan.pemilik_buat_komunitas'))->name('pemilik.komunitas');
     Route::post('/pemiliklapangan/komunitas', [App\Http\Controllers\ActivityController::class, 'storeFromPemilik'])->name('activities.store.pemilik');
-    Route::get('/pemiliklapangan/membership', fn() => view('pemiliklapangan.pemilik_buat_membership'))->name('pemilik.membership');
+    Route::get('/pemiliklapangan/membership', function() {
+        $user = Auth::user();
+        $venues = \App\Models\Pendaftaran::where('user_id', $user->id)->get();
+        $myMemberships = \App\Models\Activity::where('pemilik_id', $user->id)
+            ->where('jenis', 'membership')
+            ->with('pendaftaran')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return view('pemiliklapangan.pemilik_buat_membership', compact('venues', 'myMemberships'));
+    })->name('pemilik.membership');
+    Route::delete('/pemiliklapangan/membership/{id}', [App\Http\Controllers\ActivityController::class, 'destroy'])->name('pemilik.membership.delete');
+    Route::post('/pemiliklapangan/membership/participant/{id}/approve', [App\Http\Controllers\ActivityController::class, 'approveParticipant'])->name('pemilik.membership.participant.approve');
+    Route::post('/pemiliklapangan/membership/participant/{id}/reject', [App\Http\Controllers\ActivityController::class, 'rejectParticipant'])->name('pemilik.membership.participant.reject');
     Route::get('/pemiliklapangan/event', fn() => view('pemiliklapangan.pemilik_buat_event'))->name('pemilik.event');
     Route::post('/pemiliklapangan/event', [App\Http\Controllers\ActivityController::class, 'storeFromPemilik'])->name('activities.store.pemilik.event');
     // Route untuk proses pendaftaran venue
@@ -318,7 +352,17 @@ Route::middleware(['auth', 'role:pengelolakesehatan'])->group(function () {
         // Community & Membership
         Route::get('/pengelolakesehatan/komunitas', fn() => view('pemilikkesehatan.pemilikkesehatan_buat_komunitas'))->name('pengelola.komunitas');
         Route::post('/pengelolakesehatan/komunitas', [App\Http\Controllers\ActivityController::class, 'storeFromPengelola'])->name('activities.store.pengelola');
-        Route::get('/pengelolakesehatan/membership', fn() => view('pemilikkesehatan.pemilikkesehatan_buat_membership'))->name('pengelola.membership');
+        Route::get('/pengelolakesehatan/membership', function() {
+            $user = Auth::user();
+            $clinics = \App\Models\Clinic::where('user_id', $user->id)->get();
+            $myMemberships = \App\Models\Activity::where('pemilik_id', $user->id)
+                ->where('jenis', 'membership')
+                ->with('clinic')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            return view('pemilikkesehatan.pemilikkesehatan_buat_membership', compact('clinics', 'myMemberships'));
+        })->name('pengelola.membership');
+        Route::delete('/pengelolakesehatan/membership/{id}', [App\Http\Controllers\ActivityController::class, 'destroy'])->name('pengelola.membership.delete');
     });
 });
 
@@ -336,6 +380,7 @@ Route::middleware(['auth'])->group(function () {
         // PENGATURAN REKENING & PAYMENT SETTINGS (SUPERADMIN)
         Route::get('/admin/payment-settings', [App\Http\Controllers\Admin\PaymentSettingController::class, 'index'])->name('admin.payment-settings.index');
         Route::post('/admin/payment-settings', [App\Http\Controllers\Admin\PaymentSettingController::class, 'store'])->name('admin.payment-settings.store');
+        Route::post('/admin/payment-settings/membership-discount', [App\Http\Controllers\Admin\PaymentSettingController::class, 'updateMembershipDiscount'])->name('admin.payment-settings.update-discount');
         Route::put('/admin/payment-settings/{id}', [App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('admin.payment-settings.update');
         Route::patch('/admin/payment-settings/{id}/toggle', [App\Http\Controllers\Admin\PaymentSettingController::class, 'toggleStatus'])->name('admin.payment-settings.toggle');
         Route::delete('/admin/payment-settings/{id}', [App\Http\Controllers\Admin\PaymentSettingController::class, 'destroy'])->name('admin.payment-settings.destroy');

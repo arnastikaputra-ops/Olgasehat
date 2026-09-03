@@ -4,9 +4,49 @@
 
 @php
     $clinic = $clinic ?? $service->clinic;
-    $primaryImage = $clinic->logo
-        ? asset('fotoklinik/' . $clinic->logo)
-        : asset('assets/klnk.png');
+    $primaryImage = asset('assets/klnk.png');
+    if ($clinic && !empty($clinic->logo)) {
+        $fPath = is_array($clinic->logo) ? ($clinic->logo[0] ?? '') : (string)$clinic->logo;
+        if (!empty($fPath)) {
+            if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                $primaryImage = $fPath;
+            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                $primaryImage = asset($fPath);
+            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                $primaryImage = asset($fPath);
+            } else {
+                $primaryImage = asset('fotoklinik/' . $fPath);
+            }
+        }
+    } elseif ($clinic && !empty($clinic->foto_utama)) {
+        $fPath = is_array($clinic->foto_utama) ? ($clinic->foto_utama[0] ?? '') : (string)$clinic->foto_utama;
+        if (!empty($fPath)) {
+            if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                $primaryImage = $fPath;
+            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                $primaryImage = asset($fPath);
+            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                $primaryImage = asset($fPath);
+            } else {
+                $primaryImage = asset('fotoklinik/' . $fPath);
+            }
+        }
+    } elseif ($clinic && $clinic->galleries && $clinic->galleries->count() > 0) {
+        $firstGal = $clinic->galleries->first()->foto;
+        if (!empty($firstGal)) {
+            if (\Illuminate\Support\Str::startsWith($firstGal, 'http')) {
+                $primaryImage = $firstGal;
+            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'storage/')) {
+                $primaryImage = asset($firstGal);
+            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'clinic_galleries/')) {
+                $primaryImage = asset('storage/' . $firstGal);
+            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'fotoklinik/')) {
+                $primaryImage = asset($firstGal);
+            } else {
+                $primaryImage = asset('fotoklinik/' . $firstGal);
+            }
+        }
+    }
     $galleryImages = ($clinic->galleries ?? collect())->map(function ($item) {
         return strpos($item->foto ?? '', 'clinic_galleries') !== false
             ? asset('storage/' . $item->foto)

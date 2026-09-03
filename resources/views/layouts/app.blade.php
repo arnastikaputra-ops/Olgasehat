@@ -500,8 +500,8 @@
       <h3 class="font-semibold text-lg mb-4 text-gray-800" data-translate>Perusahaan</h3>
       <ul class="space-y-3 text-base">
         <li><a href="{{ route('tentang') }}" class="hover:text-blue-700" data-translate>Tentang</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Kebijakan &amp; Privasi</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Syarat &amp; Ketentuan</a></li>
+        <li><a href="javascript:void(0)" onclick="openPrivacyModal()" class="hover:text-blue-700" data-translate>Kebijakan &amp; Privasi</a></li>
+        <li><a href="javascript:void(0)" onclick="openTermsModal()" class="hover:text-blue-700" data-translate>Syarat &amp; Ketentuan</a></li>
       </ul>
     </div>
     <div>
@@ -516,9 +516,9 @@
     <div>
       <h3 class="font-semibold text-lg mb-4 text-gray-800" data-translate>Support</h3>
       <ul class="space-y-3 text-base">
-        <li><a href="#" class="hover:text-blue-700" data-translate>FAQs</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Support Center</a></li>
-        <li><a href="#" class="hover:text-blue-700" data-translate>Contact Us</a></li>
+        <li><a href="javascript:void(0)" onclick="openFaqModal()" class="hover:text-blue-700" data-translate>FAQs</a></li>
+        <li><a href="javascript:void(0)" onclick="openSupportModal()" class="hover:text-blue-700" data-translate>Support Center</a></li>
+        <li><a href="javascript:void(0)" onclick="openContactUsModal()" class="hover:text-blue-700 font-semibold text-blue-700" data-translate>Contact Us</a></li>
       </ul>
       <div class="flex space-x-4 mt-6">
         @php
@@ -535,17 +535,20 @@
           ></a>
         @empty
           <a
-            href="#"
+            href="https://facebook.com"
+            target="_blank"
             class="w-10 h-10 flex items-center justify-center bg-blue-700 text-white rounded-full hover:bg-blue-800 transition text-lg"
             ><i class="fab fa-facebook-f"></i
           ></a>
           <a
-            href="#"
+            href="https://youtube.com"
+            target="_blank"
             class="w-10 h-10 flex items-center justify-center bg-blue-700 text-white rounded-full hover:bg-blue-800 transition text-lg"
             ><i class="fab fa-youtube"></i
           ></a>
           <a
-            href="#"
+            href="https://instagram.com"
+            target="_blank"
             class="w-10 h-10 flex items-center justify-center bg-blue-700 text-white rounded-full hover:bg-blue-800 transition text-lg"
             ><i class="fab fa-instagram"></i
           ></a>
@@ -557,6 +560,142 @@
     &copy; 2024 Olga Sehat. All rights reserved.
   </div>
 </footer>
+
+<!-- MODAL CONTACT US -->
+<div id="contactUsModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+    <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-5 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white text-lg"><i class="fas fa-headset"></i></div>
+        <div>
+          <h3 class="text-lg font-bold">Contact Us - OlgaSehat</h3>
+          <p class="text-xs text-blue-100">Bantuan & Layanan Pelanggan</p>
+        </div>
+      </div>
+      <button onclick="closeContactUsModal()" class="text-white hover:text-gray-200 text-2xl font-bold focus:outline-none">&times;</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <p class="text-gray-600 text-sm leading-relaxed">
+        Memiliki pertanyaan, kendala pemesanan, atau ingin bermitra? Silakan hubungi tim kami melalui kontak resmi yang dikelola via Backoffice Admin:
+      </p>
+      @php
+        $contacts = \App\Models\ContactUs::all();
+      @endphp
+      <div class="space-y-3">
+        @forelse($contacts as $c)
+          <div class="p-3.5 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-between hover:bg-blue-50 transition">
+            <div class="flex items-center space-x-3">
+              @if(str_contains(strtolower($c->type ?? ''), 'wa') || str_contains(strtolower($c->type ?? ''), 'phone') || str_contains(strtolower($c->title ?? ''), 'whatsapp'))
+                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold"><i class="fab fa-whatsapp"></i></div>
+              @elseif(str_contains(strtolower($c->type ?? ''), 'email') || str_contains(strtolower($c->title ?? ''), 'email'))
+                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold"><i class="fas fa-envelope"></i></div>
+              @else
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg font-bold"><i class="fas fa-map-marker-alt"></i></div>
+              @endif
+              <div>
+                <h4 class="font-bold text-gray-800 text-sm">{{ $c->title }}</h4>
+                <p class="text-xs text-gray-600 font-medium">{{ $c->kontak }}</p>
+              </div>
+            </div>
+            @if(str_contains(strtolower($c->type ?? ''), 'wa') || str_contains(strtolower($c->type ?? ''), 'phone') || str_contains(strtolower($c->title ?? ''), 'whatsapp'))
+              <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $c->kontak) }}" target="_blank" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm">Hubungi</a>
+            @elseif(str_contains(strtolower($c->type ?? ''), 'email') || str_contains(strtolower($c->title ?? ''), 'email'))
+              <a href="mailto:{{ $c->kontak }}" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm">Email</a>
+            @endif
+          </div>
+        @empty
+          <div class="p-4 bg-gray-50 text-center text-gray-500 text-sm rounded-xl">
+            <i class="fas fa-info-circle mr-1"></i> Informasi kontak belum ditambahkan dari Backoffice.
+          </div>
+        @endforelse
+      </div>
+    </div>
+    <div class="bg-gray-50 px-6 py-3 border-t text-right">
+      <button onclick="closeContactUsModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm rounded-lg transition">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRIVACY POLICY -->
+<div id="privacyModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all">
+    <div class="bg-blue-800 text-white p-5 flex justify-between items-center">
+      <h3 class="text-lg font-bold"><i class="fas fa-user-shield mr-2"></i>Kebijakan & Privasi</h3>
+      <button onclick="closePrivacyModal()" class="text-white hover:text-gray-200 text-2xl font-bold focus:outline-none">&times;</button>
+    </div>
+    <div class="p-6 max-h-96 overflow-y-auto space-y-3 text-sm text-gray-600 leading-relaxed">
+      <p class="font-semibold text-gray-800">Privasi Anda Sangat Penting Bagi Kami</p>
+      <p>OlgaSehat menghargai privasi pengguna dan berkomitmen melindungi informasi pribadi yang Anda bagikan saat mengakses platform kami.</p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>Data transaksi dan kontak disimpan dengan enkripsi aman.</li>
+        <li>Informasi hanya digunakan untuk keperluan verifikasi reservasi dan pemesanan layanan kesehatan/olahraga.</li>
+        <li>OlgaSehat tidak menjual atau membagikan data pengguna ke pihak ketiga tanpa persetujuan Anda.</li>
+      </ul>
+    </div>
+    <div class="bg-gray-50 px-6 py-3 border-t text-right">
+      <button onclick="closePrivacyModal()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg transition">Mengerti</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TERMS & CONDITIONS -->
+<div id="termsModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all">
+    <div class="bg-blue-800 text-white p-5 flex justify-between items-center">
+      <h3 class="text-lg font-bold"><i class="fas fa-file-contract mr-2"></i>Syarat & Ketentuan</h3>
+      <button onclick="closeTermsModal()" class="text-white hover:text-gray-200 text-2xl font-bold focus:outline-none">&times;</button>
+    </div>
+    <div class="p-6 max-h-96 overflow-y-auto space-y-3 text-sm text-gray-600 leading-relaxed">
+      <p class="font-semibold text-gray-800">Syarat Penggunaan Platform OlgaSehat</p>
+      <ul class="list-disc pl-5 space-y-1.5">
+        <li>Pengguna wajib memberikan informasi yang akurat saat pendaftaran dan reservasi.</li>
+        <li>Setiap reservasi lapangan atau janji temu klinik tunduk pada kebijakan pembatalan dan komitmen mitra.</li>
+        <li>Segala aktivitas ilegal, kecurangan, atau perusakan fasilitas venue dilarang keras.</li>
+      </ul>
+    </div>
+    <div class="bg-gray-50 px-6 py-3 border-t text-right">
+      <button onclick="closeTermsModal()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg transition">Saya Setuju</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FAQ & SUPPORT -->
+<div id="faqModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all">
+    <div class="bg-blue-800 text-white p-5 flex justify-between items-center">
+      <h3 class="text-lg font-bold"><i class="fas fa-question-circle mr-2"></i>Pertanyaan Umum (FAQs)</h3>
+      <button onclick="closeFaqModal()" class="text-white hover:text-gray-200 text-2xl font-bold focus:outline-none">&times;</button>
+    </div>
+    <div class="p-6 max-h-96 overflow-y-auto space-y-3 text-sm text-gray-600 leading-relaxed">
+      <div class="border-b pb-2">
+        <h4 class="font-bold text-gray-800">Bagaimana cara booking lapangan atau layanan klinik?</h4>
+        <p class="text-xs text-gray-500 mt-1">Pilih menu Fasilitas Olahraga atau Layanan Kesehatan, tentukan tanggal & jam, lalu selesaikan pembayaran online.</p>
+      </div>
+      <div class="border-b pb-2">
+        <h4 class="font-bold text-gray-800">Bagaimana jika ingin mendaftar sebagai Pengelola Venue / Kesehatan?</h4>
+        <p class="text-xs text-gray-500 mt-1">Klik tombol Register di bagian kanan atas lalu pilih Register Pengelola Venue atau Pengelola Kesehatan.</p>
+      </div>
+    </div>
+    <div class="bg-gray-50 px-6 py-3 border-t text-right">
+      <button onclick="closeFaqModal()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg transition">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openContactUsModal() { document.getElementById('contactUsModal').classList.remove('hidden'); }
+function closeContactUsModal() { document.getElementById('contactUsModal').classList.add('hidden'); }
+
+function openPrivacyModal() { document.getElementById('privacyModal').classList.remove('hidden'); }
+function closePrivacyModal() { document.getElementById('privacyModal').classList.add('hidden'); }
+
+function openTermsModal() { document.getElementById('termsModal').classList.remove('hidden'); }
+function closeTermsModal() { document.getElementById('termsModal').classList.add('hidden'); }
+
+function openFaqModal() { document.getElementById('faqModal').classList.remove('hidden'); }
+function closeFaqModal() { document.getElementById('faqModal').classList.add('hidden'); }
+function openSupportModal() { openContactUsModal(); }
+</script>
 
   <!-- Overlay for Cart -->
   <div id="cartOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>

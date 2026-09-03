@@ -223,6 +223,8 @@ class AdminController extends Controller
             'syarat_disetujui' => 'nullable|boolean',
             'komisi_tipe' => 'nullable|in:none,percentage,fixed',
             'komisi_nilai' => 'nullable|numeric|min:0',
+            'membership_komisi_tipe' => 'nullable|in:none,percentage,fixed',
+            'membership_komisi_nilai' => 'nullable|numeric|min:0',
         ]);
 
         $venue->update($validated);
@@ -264,6 +266,10 @@ class AdminController extends Controller
         if ($request->has('komisi_tipe')) {
             $data['komisi_tipe'] = $request->input('komisi_tipe', 'none');
             $data['komisi_nilai'] = $request->input('komisi_nilai', 0);
+        }
+        if ($request->has('membership_komisi_tipe')) {
+            $data['membership_komisi_tipe'] = $request->input('membership_komisi_tipe', 'percentage');
+            $data['membership_komisi_nilai'] = $request->input('membership_komisi_nilai', 0);
         }
 
         $venue->update($data);

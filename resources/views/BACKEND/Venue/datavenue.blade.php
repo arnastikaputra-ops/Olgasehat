@@ -226,6 +226,25 @@
                               <label class="font-weight-bold">Nilai Komisi Platform (% atau Rp)</label>
                               <input type="number" step="0.01" min="0" name="komisi_nilai" class="form-control" value="{{ (float)($venue->komisi_nilai ?? 0) }}" placeholder="Contoh: 10 untuk 10%, atau 10000">
                               <small class="text-muted">Jika memilih persentase %, isikan angka persennya saja (misal: 10).</small>
+                            <div class="form-group text-left border-top pt-3 mt-3">
+                              <label class="font-weight-bold text-dark">
+                                <i class="fas fa-id-card text-warning mr-1"></i> Skema Komisi Membership Venue (Opsi 1)
+                              </label>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <label class="small font-weight-bold">Tipe Komisi Membership</label>
+                                  <select name="membership_komisi_tipe" class="form-control form-control-sm">
+                                    <option value="percentage" {{ ($venue->membership_komisi_tipe ?? 'percentage') == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                                    <option value="fixed" {{ ($venue->membership_komisi_tipe ?? '') == 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rp)</option>
+                                    <option value="none" {{ ($venue->membership_komisi_tipe ?? '') == 'none' ? 'selected' : '' }}>Bebas Komisi (0%)</option>
+                                  </select>
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="small font-weight-bold">Nilai Komisi Membership (% / Rp)</label>
+                                  <input type="number" step="0.01" min="0" name="membership_komisi_nilai" class="form-control form-control-sm" value="{{ (float)($venue->membership_komisi_nilai ?? 0) }}" placeholder="0 untuk 0% (Pemilik Venue 100%)">
+                                </div>
+                              </div>
+                              <small class="text-muted d-block mt-1">Isi <strong>0</strong> jika Pemilik Venue mendapatkan 100% penghasilan penjualan membership.</small>
                             </div>
                           </div>
                           <div class="modal-footer">

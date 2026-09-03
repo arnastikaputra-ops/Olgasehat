@@ -96,7 +96,9 @@
                         </table>
 
                         {{-- Pagination --}}
-                        {{ $data->links() }}
+                        <div class="d-flex justify-content-center mt-3">
+                            {{ $data->links('pagination::bootstrap-4') }}
+                        </div>
                     </div>
                 </div>
             </div>

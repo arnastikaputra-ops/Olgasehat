@@ -390,6 +390,61 @@
                                 <small class="text-muted">Pilih multiple gambar untuk menambah galeri (maksimal 10 gambar total, format: JPG, PNG, maksimal 2MB per gambar)</small>
                                 <div id="galeriPreview" class="mt-3 row"></div>
                             </div>
+
+                            <!-- PENGATURAN DISKON VIP MEMBERSHIP KLINIK -->
+                            <div class="card p-3 border-0 rounded-lg mb-3" style="background: #fff8e6; border: 1.5px solid #ffe0b2 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="font-weight-bold mb-0 d-flex align-items-center" style="color: #b78103; font-size: 1.05rem;">
+                                        <i class="fas fa-crown mr-2"></i> Pengaturan Diskon VIP Membership Klinik
+                                    </label>
+                                    <a href="{{ route('pengelola.membership') }}" class="btn btn-sm btn-warning font-weight-bold shadow-sm">
+                                        <i class="fas fa-plus-circle mr-1"></i> Buat Paket Membership Klinik
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mb-3">Tentukan apakah klinik/faskes Anda menerima diskon khusus untuk pasien berstatus VIP Member Aktif.</small>
+
+                                <div class="custom-control custom-switch mb-3">
+                                    <input type="checkbox" class="custom-control-input" id="isMembershipDiscountClinic" name="is_membership_discount" value="1" {{ old('is_membership_discount', $clinic->is_membership_discount ?? true) ? 'checked' : '' }}>
+                                    <label class="custom-control-label font-weight-bold text-dark" for="isMembershipDiscountClinic">
+                                        Terima Diskon VIP Member OlgaSehat
+                                    </label>
+                                </div>
+
+                                <div class="form-group mb-0">
+                                    <label class="font-weight-bold text-muted small">Persentase Diskon Member (%)</label>
+                                    <div class="input-group" style="max-width: 250px;">
+                                        <input type="number" step="0.1" min="0" max="100" name="membership_discount_percent" class="form-control font-weight-bold text-success" value="{{ old('membership_discount_percent', $clinic->membership_discount_percent ?? 10) }}" placeholder="Contoh: 10">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text font-weight-bold">%</span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Tentukan persentase potongan harga untuk pemesanan layanan kesehatan klinik ini bagi VIP Member.</small>
+                                </div>
+                            </div>
+
+                            <!-- REKENING BANK KLINIK -->
+                            <div class="card p-3 border-0 rounded-lg mb-3" style="background: #f0f7ff; border: 1.5px solid #bae6fd !important;">
+                                <label class="font-weight-bold mb-1 d-flex align-items-center text-primary">
+                                    <i class="fas fa-university mr-2"></i> Rekening Bank Klinik (Untuk Pembayaran Member)
+                                </label>
+                                <small class="text-muted d-block mb-3">Isi rekening bank klinik Anda agar pendaftar paket membership dapat mentransfer langsung ke rekening Anda.</small>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-2">
+                                        <label class="font-weight-bold small">Nama Pemilik Rekening</label>
+                                        <input type="text" name="nama_pemilik_rekening" class="form-control form-control-sm" placeholder="Nama sesuai buku tabungan" value="{{ old('nama_pemilik_rekening', $clinic->nama_pemilik_rekening ?? '') }}">
+                                    </div>
+                                    <div class="form-group col-md-6 mb-2">
+                                        <label class="font-weight-bold small">Nama Bank</label>
+                                        <input type="text" name="nama_bank" class="form-control form-control-sm" placeholder="Contoh: BCA / Mandiri / BNI" value="{{ old('nama_bank', $clinic->nama_bank ?? '') }}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="font-weight-bold small">No. Rekening</label>
+                                    <input type="text" name="nomor_rekening" class="form-control form-control-sm" placeholder="Contoh: 1234567890" value="{{ old('nomor_rekening', $clinic->nomor_rekening ?? '') }}">
+                                </div>
+                            </div>
+
                         </div>
                         <div class="card-footer" style="background: white; border-radius: 0 0 20px 20px;">
                             <div class="d-flex justify-content-end">

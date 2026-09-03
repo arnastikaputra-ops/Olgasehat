@@ -306,7 +306,7 @@
         @if($participants->hasPages())
         <div class="card-footer">
           <div class="d-flex justify-content-center">
-            {{ $participants->appends(request()->query())->links() }}
+            {{ $participants->appends(request()->query())->links('pagination::bootstrap-4') }}
           </div>
         </div>
         @endif

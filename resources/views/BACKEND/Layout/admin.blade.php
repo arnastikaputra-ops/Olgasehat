@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free/css/all.min.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bootstrap 4 -->
@@ -26,6 +27,24 @@
   <link rel="stylesheet" href="{{ asset('template/plugins/daterangepicker/daterangepicker.css') }}">
   <!-- summernote -->
   <link rel="stylesheet" href="{{ asset('template/plugins/summernote/summernote-bs4.min.css') }}">
+  
+  <style>
+    /* Hapus simbol < dan > pada menu sidebar */
+    .nav-sidebar .right,
+    .nav-sidebar .nav-link > p > .right,
+    .nav-sidebar .nav-link > .right {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    /* Hapus tombol panah < dan > pada scrollbar tabel */
+    ::-webkit-scrollbar-button,
+    .table-responsive::-webkit-scrollbar-button {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -98,7 +117,7 @@
               <i class="nav-icon fas fa-building"></i>
               <p>
                 Verifikasi Mitra
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -123,7 +142,7 @@
               <i class="nav-icon fas fa-heartbeat"></i>
               <p>
                 Layanan Kesehatan
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -158,7 +177,7 @@
               <i class="nav-icon fas fa-newspaper"></i>
               <p>
                 Aktivitas
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -203,7 +222,7 @@
               <i class="nav-icon fas fa-newspaper"></i>
               <p>
                 Blog & News
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -228,7 +247,7 @@
               <i class="nav-icon fas fa-images"></i>
               <p>
                 Galeri & Banner
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">
@@ -287,7 +306,7 @@
               <i class="nav-icon fas fa-plus"></i>
               <p>
                 Extra
-                <i class="right fas fa-angle-left"></i>
+
               </p>
             </a>
             <ul class="nav nav-treeview">

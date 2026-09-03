@@ -79,11 +79,27 @@ class VenueFrontendController extends Controller
         // Append query parameters untuk pagination
         $venues->appends($request->query());
         
-        // Hitung harga minimum & siapkan preview slots per venue
+        // Hitung harga minimum & siapkan preview slots per venue (hanya jadwal yang masih berlaku)
         foreach ($venues as $venue) {
+            $today = now()->startOfDay();
+            $nowTime = now()->format('H:i:s');
+
             $allAvailableSlots = $venue->lapangans->flatMap(function($lapangan) {
                 return $lapangan->slots;
-            })->where('status', 'available');
+            })
+            ->where('status', 'available')
+            ->filter(function($slot) use ($today, $nowTime) {
+                $slotDate = \Carbon\Carbon::parse($slot->tanggal)->startOfDay();
+                if ($slotDate->greaterThan($today)) {
+                    return true;
+                } elseif ($slotDate->equalTo($today)) {
+                    $slotEndTime = \Carbon\Carbon::parse($slot->jam_selesai)->format('H:i:s');
+                    return $slotEndTime >= $nowTime;
+                }
+                return false;
+            })
+            ->sortBy('tanggal')
+            ->sortBy('jam_mulai');
 
             $filteredSlots = $allAvailableSlots;
 
@@ -102,7 +118,7 @@ class VenueFrontendController extends Controller
 
             $minPrice = $allAvailableSlots->min('harga');
             $venue->min_price = ($minPrice && $minPrice > 0) ? $minPrice : 120000;
-            $venue->preview_slots = $filteredSlots->take(4);
+            $venue->preview_slots = $filteredSlots->values()->take(4);
         }
         
         // Ambil venue banner untuk ditampilkan
@@ -111,9 +127,90 @@ class VenueFrontendController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
+        // Ambil promo venue dinamis dari database
+        $promoVenues = $this->getPromoVenues();
+
         // Return view sesuai route
         $viewName = $isUserView ? 'user.venueuser' : 'FRONTEND.venue';
-        return view($viewName, compact('venues', 'venueBanners'));
+        return view($viewName, compact('venues', 'venueBanners', 'promoVenues'));
+    }
+
+    /**
+     * Ambil daftar promo venue dari data venue yang ada di database
+     */
+    private function getPromoVenues()
+    {
+        $today = now()->startOfDay();
+        $nowTime = now()->format('H:i:s');
+        $promoVenues = collect();
+
+        // 1. Ambil venue yang memiliki slot promo aktif
+        $venuesWithPromo = Pendaftaran::whereHas('lapangans.slots', function($q) use ($today, $nowTime) {
+            $q->where(function($sub) {
+                $sub->where('is_promo', true)
+                   ->orWhere(function($sub2) {
+                       $sub2->whereNotNull('harga_awal')
+                            ->whereColumn('harga_awal', '>', 'harga');
+                   });
+            })
+            ->where('status', 'available')
+            ->where(function($dateQ) use ($today, $nowTime) {
+                $dateQ->whereDate('tanggal', '>', $today)
+                      ->orWhere(function($subDate) use ($today, $nowTime) {
+                          $subDate->whereDate('tanggal', '=', $today)
+                                  ->whereTime('jam_selesai', '>=', $nowTime);
+                      });
+            });
+        })
+        ->with(['lapangans.slots' => function($q) use ($today, $nowTime) {
+            $q->where('status', 'available')
+              ->where(function($dateQ) use ($today, $nowTime) {
+                  $dateQ->whereDate('tanggal', '>', $today)
+                        ->orWhere(function($subDate) use ($today, $nowTime) {
+                            $subDate->whereDate('tanggal', '=', $today)
+                                    ->whereTime('jam_selesai', '>=', $nowTime);
+                        });
+              });
+        }, 'galleries'])
+        ->get();
+
+        foreach ($venuesWithPromo as $v) {
+            $promoSlot = $v->lapangans->flatMap(function($lap) {
+                return $lap->slots->filter(function($s) {
+                    return $s->is_promo || ($s->harga_awal && $s->harga_awal > $s->harga);
+                });
+            })->sortBy('harga')->first();
+
+            if ($promoSlot) {
+                $diskonPercent = 0;
+                if ($promoSlot->harga_awal && $promoSlot->harga_awal > $promoSlot->harga) {
+                    $diskonPercent = round((($promoSlot->harga_awal - $promoSlot->harga) / $promoSlot->harga_awal) * 100);
+                }
+
+                $image = $v->logo ? asset('storage/' . $v->logo) : null;
+                if (!$image && $v->galleries->isNotEmpty()) {
+                    $image = asset('fotogaleri/' . $v->galleries->first()->foto);
+                }
+                if (!$image) {
+                    $image = asset('assets/olgasehat-icon.png');
+                }
+
+                $promoVenues->push([
+                    'venue_id' => $v->id,
+                    'namavenue' => $v->namavenue,
+                    'judul' => $promoSlot->catatan ? $promoSlot->catatan : ($diskonPercent > 0 ? "Diskon {$diskonPercent}% Spesial" : "Promo Special " . $v->namavenue),
+                    'harga' => $promoSlot->harga,
+                    'harga_awal' => $promoSlot->harga_awal,
+                    'diskon_percent' => $diskonPercent,
+                    'image' => $image,
+                    'kota' => $v->kota,
+                    'tanggal_mulai' => $promoSlot->tanggal ? \Carbon\Carbon::parse($promoSlot->tanggal)->format('d M') : 'Hari Ini',
+                ]);
+            }
+        }
+
+        // Single source of truth: Only return venues with actual active promo slots
+        return $promoVenues;
     }
     
     /**
@@ -189,6 +286,25 @@ class VenueFrontendController extends Controller
                     ->valid() // Hanya tampilkan jadwal yang masih berlaku
                     ->orderBy('jam_mulai')
                     ->get();
+
+                // Jika hari ini tidak ada jadwal tersedia, otomatis pilih tanggal mendatang pertama yang memiliki jadwal tersedia
+                if ($timeslots->count() == 0) {
+                    $nextAvailableSlot = $defaultLapangan->slots()
+                        ->valid()
+                        ->where('status', 'available')
+                        ->orderBy('tanggal', 'asc')
+                        ->orderBy('jam_mulai', 'asc')
+                        ->first();
+
+                    if ($nextAvailableSlot) {
+                        $defaultDate = \Carbon\Carbon::parse($nextAvailableSlot->tanggal);
+                        $timeslots = $defaultLapangan->slots()
+                            ->whereDate('tanggal', $defaultDate->toDateString())
+                            ->valid()
+                            ->orderBy('jam_mulai')
+                            ->get();
+                    }
+                }
             }
             
             // Return view sesuai route
@@ -409,11 +525,27 @@ class VenueFrontendController extends Controller
         // Append query parameters untuk pagination
         $venues->appends($request->query());
         
-        // Hitung harga minimum per venue
+        // Hitung harga minimum per venue (hanya jadwal yang masih berlaku)
         foreach ($venues as $venue) {
+            $today = now()->startOfDay();
+            $nowTime = now()->format('H:i:s');
+
             $allAvailableSlots = $venue->lapangans->flatMap(function($lapangan) {
                 return $lapangan->slots;
-            })->where('status', 'available');
+            })
+            ->where('status', 'available')
+            ->filter(function($slot) use ($today, $nowTime) {
+                $slotDate = \Carbon\Carbon::parse($slot->tanggal)->startOfDay();
+                if ($slotDate->greaterThan($today)) {
+                    return true;
+                } elseif ($slotDate->equalTo($today)) {
+                    $slotEndTime = \Carbon\Carbon::parse($slot->jam_selesai)->format('H:i:s');
+                    return $slotEndTime >= $nowTime;
+                }
+                return false;
+            })
+            ->sortBy('tanggal')
+            ->sortBy('jam_mulai');
 
             $filteredSlots = $allAvailableSlots;
 
@@ -431,7 +563,7 @@ class VenueFrontendController extends Controller
             }
 
             $venue->min_price = $allAvailableSlots->min('harga') ?? 0;
-            $venue->preview_slots = $filteredSlots->take(4);
+            $venue->preview_slots = $filteredSlots->values()->take(4);
         }
         
         // Deteksi apakah request dari /venue atau /venueuser
@@ -521,8 +653,13 @@ class VenueFrontendController extends Controller
             })
             ->exists();
 
-        // Member discount 10% if user is an active member
-        $diskonMember = $isMember ? round($subtotal * 0.10) : 0;
+        // Member discount if user is an active member and venue accepts membership discount
+        $defaultPlatformDiscount = (float) \App\Services\AppSetting::get('membership_discount_percent', 10);
+        $venueDiscountPercent = ($venue && isset($venue->is_membership_discount) && $venue->is_membership_discount)
+            ? (float) ($venue->membership_discount_percent ?? $defaultPlatformDiscount)
+            : 0;
+
+        $diskonMember = ($isMember && $venueDiscountPercent > 0) ? round($subtotal * ($venueDiscountPercent / 100)) : 0;
         $totalHarga = max(0, $subtotal - $diskonMember);
 
         // Calculate platform commission and net venue payout

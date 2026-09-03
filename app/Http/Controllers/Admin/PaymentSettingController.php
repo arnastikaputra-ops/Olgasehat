@@ -115,4 +115,19 @@ class PaymentSettingController extends Controller
 
         return redirect()->route('admin.payment-settings.index')->with('success', 'Rekening pembayaran berhasil dihapus.');
     }
+
+    /**
+     * Update persentase diskon membership platform
+     */
+    public function updateMembershipDiscount(Request $request)
+    {
+        $request->validate([
+            'membership_discount_percent' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $percent = (float) $request->input('membership_discount_percent');
+        \App\Services\AppSetting::set('membership_discount_percent', $percent);
+
+        return redirect()->back()->with('success', "Persentase diskon VIP Membership berhasil diperbarui menjadi {$percent}%.");
+    }
 }

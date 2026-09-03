@@ -38,6 +38,13 @@ class Clinic extends Model
         'user_id',
         'komisi_tipe',
         'komisi_nilai',
+        'membership_komisi_tipe',
+        'membership_komisi_nilai',
+        'is_membership_discount',
+        'membership_discount_percent',
+        'nama_bank',
+        'nomor_rekening',
+        'nama_pemilik_rekening',
     ];
 
     protected $casts = [
@@ -46,6 +53,9 @@ class Clinic extends Model
         'layanan_tersedia' => 'array',
         'fasilitas' => 'array',
         'verified_at' => 'datetime',
+        'is_membership_discount' => 'boolean',
+        'membership_discount_percent' => 'float',
+        'membership_komisi_nilai' => 'float',
     ];
 
     // Auto generate slug

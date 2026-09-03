@@ -23,14 +23,54 @@
             @forelse($clinics as $clinic)
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card h-100 border-0 shadow-sm" style="border-radius: 20px;">
-                    <div class="card-body text-center">
-                        @if($clinic->logo)
-                        <img src="{{ asset('fotoklinik/' . $clinic->logo) }}" alt="{{ $clinic->nama }}" class="img-fluid rounded mb-3" style="max-height: 150px;">
-                        @else
-                        <div class="bg-light rounded mb-3 d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-hospital fa-3x text-muted"></i>
+                        @php
+                            $cFoto = asset('assets/klnk.png');
+                            if (!empty($clinic->logo)) {
+                                $fPath = is_array($clinic->logo) ? ($clinic->logo[0] ?? '') : (string)$clinic->logo;
+                                if (!empty($fPath)) {
+                                    if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                                        $cFoto = $fPath;
+                                    } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                                        $cFoto = asset($fPath);
+                                    } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                                        $cFoto = asset($fPath);
+                                    } else {
+                                        $cFoto = asset('fotoklinik/' . $fPath);
+                                    }
+                                }
+                            } elseif (!empty($clinic->foto_utama)) {
+                                $fPath = is_array($clinic->foto_utama) ? ($clinic->foto_utama[0] ?? '') : (string)$clinic->foto_utama;
+                                if (!empty($fPath)) {
+                                    if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                                        $cFoto = $fPath;
+                                    } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                                        $cFoto = asset($fPath);
+                                    } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                                        $cFoto = asset($fPath);
+                                    } else {
+                                        $cFoto = asset('fotoklinik/' . $fPath);
+                                    }
+                                }
+                            } elseif ($clinic->galleries && $clinic->galleries->count() > 0) {
+                                $firstGal = $clinic->galleries->first()->foto;
+                                if (!empty($firstGal)) {
+                                    if (\Illuminate\Support\Str::startsWith($firstGal, 'http')) {
+                                        $cFoto = $firstGal;
+                                    } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'storage/')) {
+                                        $cFoto = asset($firstGal);
+                                    } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'clinic_galleries/')) {
+                                        $cFoto = asset('storage/' . $firstGal);
+                                    } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'fotoklinik/')) {
+                                        $cFoto = asset($firstGal);
+                                    } else {
+                                        $cFoto = asset('fotoklinik/' . $firstGal);
+                                    }
+                                }
+                            }
+                        @endphp
+                        <div class="mb-3 overflow-hidden rounded" style="height: 150px;">
+                            <img src="{{ $cFoto }}" onerror="this.onerror=null;this.src='{{ asset('assets/klnk.png') }}';" alt="{{ $clinic->nama }}" class="w-100 h-100" style="object-fit: cover;">
                         </div>
-                        @endif
                         <h5 class="font-weight-bold">{{ $clinic->nama }}</h5>
                         <p class="text-muted small mb-2">
                             @if($clinic->category)

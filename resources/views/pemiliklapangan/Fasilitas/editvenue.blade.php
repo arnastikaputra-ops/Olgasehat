@@ -427,6 +427,37 @@
               @endif
 
               <div id="galeriPreview" class="mt-3 row"></div>
+        <!-- Card Pengaturan VIP Membership -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header bg-white border-0 pb-0 d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="font-weight-bold mb-0 text-dark">
+                <i class="fas fa-crown text-warning mr-2"></i>Pengaturan Diskon VIP Membership Venue
+              </h5>
+              <p class="text-muted small mb-0">Tentukan apakah venue Anda memberikan diskon khusus bagi pengguna berstatus VIP Member Aktif.</p>
+            </div>
+            <a href="{{ route('pemilik.membership') }}" class="btn btn-sm btn-warning font-weight-bold shadow-sm">
+              <i class="fas fa-plus-circle mr-1"></i> Buat Paket Membership Venue
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="custom-control custom-switch mb-3">
+              <input type="checkbox" class="custom-control-input" id="isMembershipDiscount" name="is_membership_discount" value="1" {{ old('is_membership_discount', $venue->is_membership_discount ?? true) ? 'checked' : '' }}>
+              <label class="custom-control-label font-weight-bold text-dark" for="isMembershipDiscount">
+                Terima Diskon VIP Member OlgaSehat
+              </label>
+              <small class="form-text text-muted d-block">Aktifkan jika Anda berkenan memberikan potongan harga khusus untuk pengguna VIP Member saat menyewa venue ini.</small>
+            </div>
+
+            <div class="form-group mb-0" id="membershipPercentWrapper">
+              <label class="form-label font-weight-semibold text-muted">Persentase Diskon Member (%)</label>
+              <div class="input-group" style="max-width: 250px;">
+                <input type="number" step="0.1" min="0" max="100" name="membership_discount_percent" class="form-control font-weight-bold text-success" value="{{ old('membership_discount_percent', $venue->membership_discount_percent ?? 10) }}" placeholder="Contoh: 10">
+                <div class="input-group-append">
+                  <span class="input-group-text font-weight-bold">%</span>
+                </div>
+              </div>
+              <small class="form-text text-muted">Tentukan besaran persentase potongan harga (contoh: 10% atau 15%).</small>
             </div>
           </div>
         </div>

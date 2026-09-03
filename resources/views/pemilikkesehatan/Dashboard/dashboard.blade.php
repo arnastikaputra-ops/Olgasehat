@@ -81,6 +81,200 @@
             </div>
         </div>
 
+        <!-- FILTER & SEARCH CONTROL PANEL UNTUK PENGELOLA KLINIK -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-3 bg-white" style="border-radius: 15px;">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 col-md-12 mb-2 mb-lg-0">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                            </div>
+                            <input type="text" id="inputSearchClinic" class="form-control bg-light border-left-0" placeholder="Cari Nama Klinik, Spesialisasi, atau Alamat...">
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-4 mb-2 mb-lg-0">
+                        <select id="selectFilterClinicHours" class="form-control bg-light">
+                            <option value="all">🔍 Semua Jam Operasional</option>
+                            <option value="set">🟢 Ada Jam Operasional</option>
+                            <option value="unset">🔴 Belum Diatur</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4 mb-2 mb-lg-0">
+                        <select id="selectFilterClinicMembership" class="form-control bg-light">
+                            <option value="all">👑 Semua VIP Membership</option>
+                            <option value="yes">👑 Ada VIP Membership</option>
+                            <option value="no">⚪ Tanpa Membership</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-4">
+                        <select id="selectFilterClinicDoctors" class="form-control bg-light">
+                            <option value="all">👨‍⚕️ Semua Dokter</option>
+                            <option value="yes">👨‍⚕️ Ada Dokter</option>
+                            <option value="no">⚪ Belum Ada Dokter</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAFTAR KLINIK & STATUS TERDRAFT -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="font-weight-bold mb-0" style="color: #1b2b5a;"><i class="fas fa-hospital mr-2 text-info"></i>Daftar Klinik Kesehatan Anda</h5>
+            <a href="{{ route('pengelola.clinics.create') }}" class="btn btn-sm btn-info font-weight-bold shadow-xs">
+                <i class="fas fa-plus mr-1"></i> Tambah Klinik Baru
+            </a>
+        </div>
+
+        <div class="row mb-4" id="clinicCardContainer">
+            @forelse($clinics as $c)
+                @php
+                    $bukaLabel = is_array($c->jam_buka) ? implode(':', $c->jam_buka) : (string)($c->jam_buka ?? '');
+                    $tutupLabel = is_array($c->jam_tutup) ? implode(':', $c->jam_tutup) : (string)($c->jam_tutup ?? '');
+                    $hasHours = !empty($bukaLabel) && !empty($tutupLabel);
+
+                    $cMemberships = isset($clinicMemberships) ? $clinicMemberships->where('clinic_id', $c->id) : collect();
+                    $hasMembership = $c->is_membership_discount || $cMemberships->count() > 0;
+                    $docCount = $c->doctors ? $c->doctors->count() : 0;
+                    $hasDoctors = $docCount > 0;
+
+                    $cFoto = asset('assets/klnk.png');
+                    if (!empty($c->logo)) {
+                        $rawFoto = $c->logo;
+                        $fPath = is_array($rawFoto) ? ($rawFoto[0] ?? '') : (string)$rawFoto;
+                        if (!empty($fPath) && is_string($fPath)) {
+                            if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                                $cFoto = $fPath;
+                            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                                $cFoto = asset($fPath);
+                            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                                $cFoto = asset($fPath);
+                            } else {
+                                $cFoto = asset('fotoklinik/' . $fPath);
+                            }
+                        }
+                    } elseif (!empty($c->foto_utama)) {
+                        $rawFoto = $c->foto_utama;
+                        $fPath = is_array($rawFoto) ? ($rawFoto[0] ?? '') : (string)$rawFoto;
+                        if (!empty($fPath) && is_string($fPath)) {
+                            if (\Illuminate\Support\Str::startsWith($fPath, 'http')) {
+                                $cFoto = $fPath;
+                            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'storage/')) {
+                                $cFoto = asset($fPath);
+                            } elseif (\Illuminate\Support\Str::startsWith($fPath, 'fotoklinik/')) {
+                                $cFoto = asset($fPath);
+                            } else {
+                                $cFoto = asset('fotoklinik/' . $fPath);
+                            }
+                        }
+                    } elseif ($c->galleries && $c->galleries->count() > 0) {
+                        $firstGal = $c->galleries->first()->foto;
+                        if (!empty($firstGal) && is_string($firstGal)) {
+                            if (\Illuminate\Support\Str::startsWith($firstGal, 'http')) {
+                                $cFoto = $firstGal;
+                            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'storage/')) {
+                                $cFoto = asset($firstGal);
+                            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'clinic_galleries/')) {
+                                $cFoto = asset('storage/' . $firstGal);
+                            } elseif (\Illuminate\Support\Str::startsWith($firstGal, 'fotoklinik/')) {
+                                $cFoto = asset($firstGal);
+                            } else {
+                                $cFoto = asset('fotoklinik/' . $firstGal);
+                            }
+                        }
+                    }
+
+                    $namaLabel = is_array($c->nama) ? implode(' ', $c->nama) : (string)($c->nama ?? 'Klinik Kesehatan');
+                    $alamatLabel = is_array($c->alamat) ? implode(', ', $c->alamat) : (string)($c->alamat ?? 'Alamat Klinik');
+                    $searchKey = strtolower($namaLabel . ' ' . $alamatLabel);
+                @endphp
+                <div class="col-lg-4 col-md-6 mb-3 clinic-card-item"
+                     data-name="{{ $searchKey }}"
+                     data-hours="{{ $hasHours ? 'set' : 'unset' }}"
+                     data-membership="{{ $hasMembership ? 'yes' : 'no' }}"
+                     data-doctors="{{ $hasDoctors ? 'yes' : 'no' }}">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
+                        <div class="position-relative bg-dark" style="height: 160px; overflow: hidden;">
+                            <img src="{{ $cFoto }}" 
+                                 onerror="this.onerror=null;this.src='{{ asset('assets/klnk.png') }}';" 
+                                 alt="{{ $namaLabel }}" 
+                                 class="w-100 h-100" 
+                                 style="object-fit: cover; opacity: 0.95;">
+                                 
+                            @if($hasMembership)
+                                <div class="position-absolute" style="top: 10px; right: 10px; z-index: 3;">
+                                    <span class="badge badge-warning text-dark font-weight-bold px-2.5 py-1.5 shadow-sm" style="font-size: 11px;">
+                                        <i class="fas fa-crown mr-1"></i>VIP Member
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="card-body d-flex flex-column p-3 bg-white">
+                            <h6 class="font-weight-bold text-dark mb-1 text-truncate" title="{{ $namaLabel }}">{{ $namaLabel }}</h6>
+                            <p class="text-muted small mb-2"><i class="fas fa-map-marker-alt text-danger mr-1"></i>{{ $alamatLabel }}</p>
+                            
+                            <hr class="my-2">
+
+                            <div class="space-y-1 mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small font-weight-semibold text-muted"><i class="fas fa-clock text-info mr-1"></i> Operasional:</span>
+                                    @if($hasHours)
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i>{{ $bukaLabel }} - {{ $tutupLabel }}</span>
+                                    @else
+                                        <span class="badge badge-danger px-2 py-1"><i class="fas fa-exclamation-triangle mr-1"></i>Belum Diatur</span>
+                                    @endif
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="small font-weight-semibold text-muted"><i class="fas fa-crown text-warning mr-1"></i> VIP Member:</span>
+                                    @if($hasMembership)
+                                        <span class="badge badge-warning text-dark px-2 py-1"><i class="fas fa-percentage mr-1"></i>Diskon {{ (float)($c->membership_discount_percent ?? 10) }}%</span>
+                                    @else
+                                        <span class="badge badge-light text-muted border px-2 py-1">Belum Ada</span>
+                                    @endif
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="small font-weight-semibold text-muted"><i class="fas fa-user-md text-success mr-1"></i> Dokter:</span>
+                                    <span class="badge badge-info px-2 py-1 font-weight-bold"><i class="fas fa-stethoscope mr-1"></i>{{ $docCount }} Dokter</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto pt-2 border-top">
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <a href="{{ route('pengelola.clinics.edit', $c->id) }}" class="btn btn-sm btn-outline-info btn-block font-weight-bold">
+                                            <i class="fas fa-edit mr-1"></i> Edit Klinik
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ route('pengelola.doctors.index') }}" class="btn btn-sm btn-info btn-block font-weight-bold">
+                                            <i class="fas fa-user-md mr-1"></i> Dokter
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-light text-center border py-4" style="border-radius: 15px;">
+                        <i class="fas fa-clinic-medical fa-2x text-muted mb-2"></i>
+                        <h6 class="font-weight-bold text-dark mb-1">Belum Ada Klinik Kesehatan</h6>
+                        <small class="text-muted d-block mb-3">Tambahkan klinik kesehatan Anda untuk mulai melayani pasien secara online.</small>
+                        <a href="{{ route('pengelola.clinics.create') }}" class="btn btn-info btn-sm font-weight-bold px-3">
+                            <i class="fas fa-plus mr-1"></i> Tambah Klinik Baru
+                        </a>
+                    </div>
+                </div>
+            @endforelse
+        </div>
+
         <div class="row">
             <!-- Booking Hari Ini -->
             <div class="col-12 col-lg-8 mb-3 mb-lg-0">
@@ -252,5 +446,47 @@
         padding-right: 7.5px;
     }
 </style>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputSearch = document.getElementById('inputSearchClinic');
+    const selectHours = document.getElementById('selectFilterClinicHours');
+    const selectMembership = document.getElementById('selectFilterClinicMembership');
+    const selectDoctors = document.getElementById('selectFilterClinicDoctors');
+    const cards = document.querySelectorAll('.clinic-card-item');
+
+    function filterClinics() {
+        const query = inputSearch.value.toLowerCase().trim();
+        const hoursVal = selectHours.value;
+        const membershipVal = selectMembership.value;
+        const doctorsVal = selectDoctors.value;
+
+        cards.forEach(card => {
+            const nameData = card.getAttribute('data-name');
+            const hoursData = card.getAttribute('data-hours');
+            const membershipData = card.getAttribute('data-membership');
+            const doctorsData = card.getAttribute('data-doctors');
+
+            const matchSearch = query === '' || nameData.includes(query);
+            const matchHours = hoursVal === 'all' || hoursData === hoursVal;
+            const matchMembership = membershipVal === 'all' || membershipData === membershipVal;
+            const matchDoctors = doctorsVal === 'all' || doctorsData === doctorsVal;
+
+            if (matchSearch && matchHours && matchMembership && matchDoctors) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    if (inputSearch) inputSearch.addEventListener('keyup', filterClinics);
+    if (selectHours) selectHours.addEventListener('change', filterClinics);
+    if (selectMembership) selectMembership.addEventListener('change', filterClinics);
+    if (selectDoctors) selectDoctors.addEventListener('change', filterClinics);
+});
+</script>
+@endpush
 @endsection
 
