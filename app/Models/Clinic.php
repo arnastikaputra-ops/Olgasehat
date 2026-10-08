@@ -105,5 +105,15 @@ class Clinic extends Model
     {
         return $this->hasMany(ClinicGallery::class)->orderBy('urutan');
     }
+
+    public function getLogoUrlAttribute()
+    {
+        return image_url($this->logo, asset('assets/olgasehat-icon.png'));
+    }
+
+    public function getFotoUtamaUrlAttribute()
+    {
+        return image_url($this->foto_utama, asset('assets/olgasehat-icon.png'));
+    }
 }
 

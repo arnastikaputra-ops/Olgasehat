@@ -204,7 +204,7 @@
                                     <i class="fas fa-star mr-2"></i>Beri Rating Venue
                                 </button>
                                 @if($booking->bukti_pembayaran)
-                                    <a href="{{ asset('bukti_pembayaran/' . $booking->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
+                                    <a href="{{ image_url($booking->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
                                         <i class="fas fa-file-image mr-2"></i>Bukti Transfer
                                     </a>
                                 @endif
@@ -296,7 +296,7 @@
                                     <i class="fas fa-star mr-2"></i>Beri Rating Klinik
                                 </button>
                                 @if($hb->bukti_pembayaran)
-                                    <a href="{{ asset('bukti_pembayaran/' . $hb->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
+                                    <a href="{{ image_url($hb->bukti_pembayaran) }}" target="_blank" class="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition text-sm">
                                         <i class="fas fa-file-image mr-2"></i>Bukti Transfer
                                     </a>
                                 @endif

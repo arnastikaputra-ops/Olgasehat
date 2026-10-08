@@ -28,7 +28,7 @@
             <div class="col-lg-10 d-flex align-items-center">
               <div class="venue-logo mr-4 flex-shrink-0">
                 <img
-                  src="{{ $venue->logo ? asset('storage/' . $venue->logo) : asset('assets/olgasehat-icon.png') }}"
+                  src="{{ image_url($venue->logo) }}"
                   alt="{{ $venue->namavenue }}"
                   class="img-fluid">
               </div>

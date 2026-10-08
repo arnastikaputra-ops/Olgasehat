@@ -361,7 +361,7 @@
                                 <label class="font-weight-bold" style="color: #1b2b5a;">Banner Klinik</label>
                                 @if($clinic->logo)
                                 <div class="mb-2">
-                                    <img src="{{ asset('fotoklinik/' . $clinic->logo) }}" alt="Banner" class="img-thumbnail" style="max-height: 150px; width: auto;">
+                                    <img src="{{ image_url($clinic->logo) }}" alt="Banner" class="img-thumbnail" style="max-height: 150px; width: auto;">
                                 </div>
                                 @endif
                                 <input type="file" name="banner" class="form-control-file" accept="image/*">
@@ -377,7 +377,7 @@
                                         @foreach($clinic->galleries as $gallery)
                                         <div class="col-md-3 col-sm-4 mb-2">
                                             <div class="position-relative">
-                                                <img src="{{ strpos($gallery->foto, 'clinic_galleries') !== false ? asset('storage/' . $gallery->foto) : asset('fotoklinik/' . $gallery->foto) }}" 
+                                                <img src="{{ image_url($gallery->foto) }}" 
                                                      alt="Gallery {{ $loop->iteration }}" 
                                                      class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                                             </div>

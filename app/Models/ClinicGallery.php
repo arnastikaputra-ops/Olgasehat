@@ -19,5 +19,10 @@ class ClinicGallery extends Model
     {
         return $this->belongsTo(Clinic::class);
     }
+
+    public function getFotoUrlAttribute()
+    {
+        return image_url($this->foto, asset('assets/olgasehat-icon.png'));
+    }
 }
 

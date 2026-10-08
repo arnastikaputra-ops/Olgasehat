@@ -168,7 +168,7 @@
         <button id="userMenuBtn" class="owner-avatar-toggle focus:outline-none" data-toggle="dropdown">
           <div class="owner-avatar-sm mr-2">
             @if(Auth::user()->image ?? false)
-              <img src="{{ asset('storage/' . Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
+              <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
             @else
               <span>{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
             @endif
@@ -181,7 +181,7 @@
           <div class="owner-profile-card text-center mb-3">
             <div class="owner-avatar-lg mx-auto mb-2">
               @if(Auth::user()->image ?? false)
-                <img src="{{ asset('storage/' . Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
+                <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
               @else
                 <span>{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
               @endif
@@ -248,7 +248,7 @@
       <div class="relative">
         <button id="mobileUserBtn" class="flex items-center space-x-2 focus:outline-none">
           @if(Auth::user()->image ?? false)
-              <img src="{{ asset('storage/' . Auth::user()->image) }}" alt="User Avatar" class="w-8 h-8 rounded-full border object-cover" />
+              <img src="{{ image_url(Auth::user()->image) }}" alt="User Avatar" class="w-8 h-8 rounded-full border object-cover" />
           @else
               <div class="w-8 h-8 rounded-full border bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm">
                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
@@ -261,7 +261,7 @@
           <div class="owner-profile-card text-center mb-3">
             <div class="owner-avatar-lg mx-auto mb-2" style="width: 56px; height: 56px; font-size: 1.1rem;">
               @if(Auth::user()->image ?? false)
-                <img src="{{ asset('storage/' . Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
+                <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
               @else
                 <span>{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
               @endif

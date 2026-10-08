@@ -43,4 +43,14 @@ class Pendaftaran extends Model
     {
         return $this->hasMany(VenueBooking::class, 'pendaftaran_id');
     }
+
+    public function getLogoUrlAttribute()
+    {
+        return image_url($this->logo, asset('assets/olgasehat-icon.png'));
+    }
+
+    public function getBannerUrlAttribute()
+    {
+        return image_url($this->banner ?? $this->foto_utama ?? null, asset('assets/olgasehat-icon.png'));
+    }
 }

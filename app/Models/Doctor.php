@@ -56,5 +56,10 @@ class Doctor extends Model
     {
         return ($this->gelar ? $this->gelar . ' ' : '') . $this->nama;
     }
+
+    public function getFotoUrlAttribute()
+    {
+        return image_url($this->foto, asset('assets/olgasehat-icon.png'));
+    }
 }
 

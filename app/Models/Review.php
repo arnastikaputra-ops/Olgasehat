@@ -38,4 +38,9 @@ class Review extends Model
     {
         return $this->belongsTo(Activity::class, 'target_id');
     }
+
+    public function getFotoUrlAttribute()
+    {
+        return image_url($this->foto, asset('assets/olgasehat-icon.png'));
+    }
 }

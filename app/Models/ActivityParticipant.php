@@ -29,4 +29,9 @@ class ActivityParticipant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getBuktiPembayaranUrlAttribute()
+    {
+        return image_url($this->bukti_pembayaran, null);
+    }
 }

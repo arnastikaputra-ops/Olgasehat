@@ -60,7 +60,7 @@
                 <small class="text-muted">Kosongkan jika tidak ingin mengubah gambar</small>
                 @if($venue->logo)
                   <div class="mt-2">
-                    <img src="{{ asset('storage/' . $venue->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-height: 150px;">
+                    <img src="{{ image_url($venue->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-height: 150px;">
                     <p class="text-muted small mb-0 mt-1">Gambar saat ini</p>
                   </div>
                 @endif
@@ -416,7 +416,7 @@
                     @foreach($venue->galleries as $gallery)
                       <div class="col-md-3 col-sm-4 mb-2">
                         <div class="position-relative">
-                          <img src="{{ asset('storage/' . $gallery->foto) }}" 
+                          <img src="{{ image_url($gallery->foto) }}" 
                                alt="Gallery {{ $loop->iteration }}" 
                                class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
                         </div>

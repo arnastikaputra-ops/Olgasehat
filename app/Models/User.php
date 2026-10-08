@@ -24,6 +24,8 @@ class User extends Authenticatable
         'role',
         'status',
         'image',
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -59,5 +61,10 @@ class User extends Authenticatable
     public function activityParticipants()
     {
         return $this->hasMany(ActivityParticipant::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return image_url($this->image, asset('assets/olgasehat-icon.png'));
     }
 }

@@ -116,5 +116,10 @@ class HealthBooking extends Model
 
         return $texts[$this->status] ?? $this->status;
     }
+
+    public function getBuktiPembayaranUrlAttribute()
+    {
+        return image_url($this->bukti_pembayaran, null);
+    }
 }
 

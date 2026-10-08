@@ -19,5 +19,10 @@ class VenueGallery extends Model
     {
         return $this->belongsTo(Pendaftaran::class);
     }
+
+    public function getFotoUrlAttribute()
+    {
+        return image_url($this->foto, asset('assets/olgasehat-icon.png'));
+    }
 }
 

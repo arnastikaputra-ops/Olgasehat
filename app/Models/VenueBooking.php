@@ -65,4 +65,9 @@ class VenueBooking extends Model
     {
         return $this->belongsTo(Pendaftaran::class, 'pendaftaran_id');
     }
+
+    public function getBuktiPembayaranUrlAttribute()
+    {
+        return image_url($this->bukti_pembayaran, null);
+    }
 }

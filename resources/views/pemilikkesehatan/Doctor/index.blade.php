@@ -49,7 +49,7 @@
                                 <tr>
                                     <td data-label="Foto">
                                         @if($doctor->foto)
-                                            <img src="{{ asset('fotodokter/' . $doctor->foto) }}" alt="{{ $doctor->nama }}" class="img-circle img-size-32">
+                                            <img src="{{ image_url($doctor->foto) }}" alt="{{ $doctor->nama }}" class="img-circle img-size-32">
                                         @else
                                             <div class="img-circle img-size-32 bg-secondary d-flex align-items-center justify-content-center">
                                                 <i class="fas fa-user-md text-white"></i>

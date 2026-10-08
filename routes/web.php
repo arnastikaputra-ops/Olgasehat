@@ -86,6 +86,10 @@ Route::get('/daftar-mitra-kesehatan', fn() => redirect('/health-management'))->n
 // AUTHENTICATION ROUTES
 // ======================================================
 Route::controller(LoginController::class)->group(function () {
+    // Google OAuth Routes
+    Route::get('/auth/google', 'redirectToGoogle')->name('auth.google');
+    Route::get('/auth/google/callback', 'handleGoogleCallback')->name('auth.google.callback');
+
     // Login & Logout
     Route::get('/login', 'login')->name('login');
     Route::post('/loginproses', 'loginproses')->name('loginproses');
@@ -567,4 +571,17 @@ Route::middleware(['auth'])->group(function () {
 
     });
 });
+
+// Fallback storage route for hosting environments where storage:link symlink is missing or disabled
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath) || is_dir($fullPath)) {
+        abort(404);
+    }
+    $mimeType = mime_content_type($fullPath) ?: 'application/octet-stream';
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.fallback');
 

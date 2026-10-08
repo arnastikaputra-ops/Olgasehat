@@ -370,7 +370,7 @@
         <a class="nav-link d-flex align-items-center owner-avatar-toggle" data-toggle="dropdown" href="#">
           <div class="owner-avatar-sm mr-2">
             @if(Auth::user()->image ?? false)
-              <img src="{{ asset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
+              <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
             @else
               <span>{{ strtoupper(substr(Auth::user()->name ?? 'PK', 0, 1)) }}</span>
             @endif
@@ -382,7 +382,7 @@
           <div class="owner-profile-card text-center mb-3">
             <div class="owner-avatar-lg mx-auto mb-2">
               @if(Auth::user()->image ?? false)
-                <img src="{{ asset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
+                <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}">
               @else
                 <span>{{ strtoupper(substr(Auth::user()->name ?? 'PK', 0, 1)) }}</span>
               @endif
@@ -428,7 +428,7 @@
       <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
         <div class="image mr-2" style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #0096ff;">
           @if(Auth::user()->image ?? false)
-            <img src="{{ asset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{{ image_url(Auth::user()->image) }}" alt="{{ Auth::user()->name }}" style="width: 100%; height: 100%; object-fit: cover;">
           @else
             <span style="color: white; font-weight: 700; font-size: 0.9rem;">{{ strtoupper(substr(Auth::user()->name ?? 'PK', 0, 1)) }}</span>
           @endif

@@ -27,8 +27,9 @@
       </div>
 
       <!-- Google Login Button -->
-      <button 
-        class="w-full mb-4 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg flex items-center justify-center space-x-3 border border-gray-300 transition-colors"
+      <a 
+        href="{{ route('auth.google') }}"
+        class="w-full mb-4 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg flex items-center justify-center space-x-3 border border-gray-300 transition-colors shadow-sm cursor-pointer"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21.805 10.023h-9.784v3.954h5.611a4.786 4.786 0 01-2.068 3.141v2.594h3.34c1.953-1.8 3.077-4.442 3.077-7.69 0-.676-.065-1.324-.176-1.999z" fill="#4285F4"/>
@@ -37,7 +38,7 @@
           <path d="M12.02 6.375c1.44 0 2.73.495 3.75 1.467l2.81-2.814A8.932 8.932 0 0012.02 3a9 9 0 00-7.493 4.9l2.596 2.68a5.202 5.202 0 014.898-3.204z" fill="#EA4335"/>
         </svg>
         <span>Masuk Dengan Google</span>
-      </button>
+      </a>
 
       <!-- Divider -->
       <div class="flex items-center my-4">

@@ -51,7 +51,7 @@
               <div class="card-body d-flex flex-column text-center">
                 <div class="venue-image mb-3 mx-auto">
                   <img
-                    src="{{ $venue->logo ? asset('storage/' . $venue->logo) : asset('assets/olgasehat-icon.png') }}"
+                    src="{{ image_url($venue->logo) }}"
                     alt="{{ $venue->namavenue }}"
                     class="img-fluid rounded">
                 </div>

@@ -117,7 +117,7 @@
                                 <label class="font-weight-bold" style="color: #1b2b5a;">Foto Dokter</label>
                                 @if($doctor->foto)
                                 <div class="mb-2">
-                                    <img src="{{ asset('fotodokter/' . $doctor->foto) }}" alt="Foto" class="img-thumbnail" style="max-height: 100px;">
+                                    <img src="{{ image_url($doctor->foto) }}" alt="Foto" class="img-thumbnail" style="max-height: 100px;">
                                 </div>
                                 @endif
                                 <input type="file" name="foto" class="form-control-file" accept="image/*">

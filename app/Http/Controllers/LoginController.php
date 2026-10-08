@@ -8,10 +8,62 @@ use App\Models\HealthBooking;
 use App\Models\ActivityParticipant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
+    /**
+     * Redirect to Google OAuth provider
+     */
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * Handle Google OAuth callback
+     */
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            $user = User::where('google_id', $googleUser->getId())
+                ->orWhere('email', $googleUser->getEmail())
+                ->first();
+
+            if ($user) {
+                // Update google_id and avatar if missing
+                $user->update([
+                    'google_id' => $googleUser->getId(),
+                    'avatar'    => $user->avatar ?? $googleUser->getAvatar(),
+                ]);
+            } else {
+                // Register new user with Google details
+                $user = User::create([
+                    'name'      => $googleUser->getName() ?: ($googleUser->getNickname() ?: 'Pengguna Google'),
+                    'email'     => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'avatar'    => $googleUser->getAvatar(),
+                    'password'  => Hash::make(Str::random(24)),
+                    'role'      => 'user',
+                    'status'    => 'approved',
+                ]);
+            }
+
+            Auth::login($user, true);
+            request()->session()->regenerate();
+
+            return redirect('/')->with('success', 'Berhasil masuk dengan akun Google!');
+        } catch (\Exception $e) {
+            return redirect('/loginuser')->withErrors([
+                'email' => 'Gagal login dengan Google: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     public function login()
     {
         return view('Backend.login');
