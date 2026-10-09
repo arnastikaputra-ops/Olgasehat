@@ -346,6 +346,17 @@
               <p>Data Akun System</p>
             </a>
           </li>
+
+          <!-- Logout -->
+          <li class="nav-item mt-2">
+            <form action="{{ route('logout') }}" method="POST" id="admin-sidebar-logout-form">
+              @csrf
+              <a href="#" class="nav-link text-danger" onclick="event.preventDefault(); document.getElementById('admin-sidebar-logout-form').submit();">
+                <i class="nav-icon fas fa-sign-out-alt"></i>
+                <p>Keluar (Logout)</p>
+              </a>
+            </form>
+          </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

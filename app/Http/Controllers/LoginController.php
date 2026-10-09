@@ -66,7 +66,7 @@ class LoginController extends Controller
 
     public function login()
     {
-        return view('Backend.login');
+        return view('BACKEND.login');
     }
 
     public function loginproses(Request $request)
@@ -363,12 +363,12 @@ class LoginController extends Controller
             $data = User::orderBy('created_at', 'desc')->paginate(5);
         }
 
-        return view('Backend.Account.akun', compact('data'));
+        return view('BACKEND.Account.akun', compact('data'));
     }
 
     public function add()
     {
-        return view('Backend.Account.add');
+        return view('BACKEND.Account.add');
     }
 
     // Simpan user baru
@@ -395,7 +395,7 @@ class LoginController extends Controller
     public function tampilkanacc($id)
     {
         $data = User::findOrFail($id);
-        return view('Backend.Account.edit', compact('data'));
+        return view('BACKEND.Account.edit', compact('data'));
     }
 
     // Update user

@@ -91,15 +91,16 @@
     </div>
 </section>
 
+@if(!empty($videoEmbedUrl))
 <!-- Video Section -->
 <section class="bg-white py-8 md:py-10" data-aos="fade-up">
     <div class="container mx-auto px-6 max-w-4xl">
         <div class="max-w-md">
-            <a href="{{ $about->link_youtube ?? 'https://youtu.be/EpXJbOcrp5A' }}" target="_blank">
+            <a href="{{ $about->link_youtube }}" target="_blank">
                 <div class="relative aspect-video rounded-xl shadow-xl overflow-hidden">
                     <iframe 
                         class="absolute top-0 left-0 w-full h-full" 
-                        src="{{ $videoEmbedUrl ?? 'https://www.youtube.com/embed/EpXJbOcrp5A' }}" 
+                        src="{{ $videoEmbedUrl }}" 
                         title="Olga Sehat Video" 
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -108,9 +109,9 @@
                 </div>
             </a>
         </div>
-
     </div>
 </section>
+@endif
 
 
 <!-- Help/Contact Section -->

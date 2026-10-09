@@ -13,7 +13,7 @@ class ActivityTypeController extends Controller
     public function index()
     {
         $activityTypes = ActivityType::all();
-        return view('backend.activity_types.index', compact('activityTypes'));
+        return view('BACKEND.activity_types.index', compact('activityTypes'));
     }
 
     /**
@@ -46,7 +46,7 @@ class ActivityTypeController extends Controller
     public function edit(string $id)
     {
         $activityType = ActivityType::findOrFail($id);
-        return view('backend.activity_types.edit', compact('activityType'));
+        return view('BACKEND.activity_types.edit', compact('activityType'));
     }
 
     /**
@@ -104,6 +104,6 @@ class ActivityTypeController extends Controller
             ],
         ];
 
-        return view('backend.activity_types.daftar', compact('activities'));
+        return view('BACKEND.activity_types.daftar', compact('activities'));
     }
 }

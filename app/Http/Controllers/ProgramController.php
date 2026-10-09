@@ -19,7 +19,7 @@ class ProgramController extends Controller
             $data = Program::orderBy('created_at', 'desc')->paginate(5); // dan ini
         }
     
-        return view('backend.program.dataprogram', compact('data'));
+        return view('BACKEND.Program.dataprogram', compact('data'));
     }
     
     // New method for frontend program page
@@ -29,7 +29,7 @@ class ProgramController extends Controller
     }
 
     public function tambahprogram(){
-        return view('backend.program.tambahprogram');
+        return view('BACKEND.Program.tambahprogram');
     }
     public function insertprogram(Request $request){
     
@@ -65,7 +65,7 @@ class ProgramController extends Controller
     public function tampilkanprogram($id){
 
     $data = Program::find($id);
-    return view('backend.program.editprogram', compact('data'));
+    return view('BACKEND.Program.editprogram', compact('data'));
 
 }
 public function updateprogram(Request $request, $id){

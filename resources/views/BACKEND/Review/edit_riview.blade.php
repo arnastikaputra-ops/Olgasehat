@@ -1,4 +1,4 @@
-@extends('Backend.Layout.admin')
+@extends('BACKEND.Layout.admin')
 
 @section('content')
 <div class="content-wrapper">

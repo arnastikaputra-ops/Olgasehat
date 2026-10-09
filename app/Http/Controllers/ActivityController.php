@@ -342,7 +342,7 @@ class ActivityController extends Controller
         $countRejected = Activity::where('status', 'rejected')->count();
         $countAll = Activity::count();
         
-        return view('backend.activity_types.daftar', compact('activities', 'status', 'countPending', 'countApproved', 'countRejected', 'countAll'));
+        return view('BACKEND.activity_types.daftar', compact('activities', 'status', 'countPending', 'countApproved', 'countRejected', 'countAll'));
     }
 
     /**
@@ -381,7 +381,7 @@ class ActivityController extends Controller
     public function show($id)
     {
         $activity = Activity::with(['user', 'pemilik', 'activityType'])->findOrFail($id);
-        return view('backend.activity_types.detail', compact('activity'));
+        return view('BACKEND.activity_types.detail', compact('activity'));
     }
 
     /**
@@ -672,7 +672,7 @@ class ActivityController extends Controller
             })
             ->count();
 
-        return view('backend.activity_types.verifikasi_pembayaran', compact('participants', 'status', 'countPending', 'countApproved', 'countRejected', 'countAll'));
+        return view('BACKEND.activity_types.verifikasi_pembayaran', compact('participants', 'status', 'countPending', 'countApproved', 'countRejected', 'countAll'));
     }
 
     /**

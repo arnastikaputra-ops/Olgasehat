@@ -1,4 +1,4 @@
-@extends('backend.layout.admin')
+@extends('BACKEND.Layout.admin')
 
 @push('css')
 <!-- Bootstrap CSS -->

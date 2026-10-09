@@ -28,7 +28,7 @@ class BeritaController extends Controller
 
     public function tambahdata(){
         $categories = Category::all();
-        return view('Backend.News.tambahdata', compact('categories'));
+        return view('BACKEND.News.tambahdata', compact('categories'));
     }
     public function insertdata(Request $request){
     
@@ -80,7 +80,7 @@ public function tampilkandata($id){
 
     $data = Berita::find($id);
     $categories = Category::all();
-    return view('Backend.News.editberita', compact('data', 'categories'));
+    return view('BACKEND.News.editberita', compact('data', 'categories'));
 
 }
 public function updatedata(Request $request, $id){

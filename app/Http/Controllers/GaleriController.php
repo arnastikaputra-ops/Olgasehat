@@ -29,7 +29,7 @@ class GaleriController extends Controller
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
     
-        return view('backend.galeri.galeri', compact('data'));
+        return view('BACKEND.Galeri.galeri', compact('data'));
     }
 
     public function homeBanner(Request $request) {
@@ -43,7 +43,7 @@ class GaleriController extends Controller
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
     
-        return view('backend.galeri.galeri', compact('data'))->with('kategori', 'home_banner')->with('kategoriLabel', 'Home Banner');
+        return view('BACKEND.Galeri.galeri', compact('data'))->with('kategori', 'home_banner')->with('kategoriLabel', 'Home Banner');
     }
 
     public function lapanganBanner(Request $request) {
@@ -57,7 +57,7 @@ class GaleriController extends Controller
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
     
-        return view('backend.galeri.galeri', compact('data'))->with('kategori', 'lapangan_banner')->with('kategoriLabel', 'Lapangan Banner');
+        return view('BACKEND.Galeri.galeri', compact('data'))->with('kategori', 'lapangan_banner')->with('kategoriLabel', 'Lapangan Banner');
     }
 
     public function kesehatanBanner(Request $request) {
@@ -71,7 +71,7 @@ class GaleriController extends Controller
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
     
-        return view('backend.galeri.galeri', compact('data'))->with('kategori', 'kesehatan_banner')->with('kategoriLabel', 'Kesehatan Banner');
+        return view('BACKEND.Galeri.galeri', compact('data'))->with('kategori', 'kesehatan_banner')->with('kategoriLabel', 'Kesehatan Banner');
     }
 
     public function venueBanner(Request $request) {
@@ -85,11 +85,11 @@ class GaleriController extends Controller
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
     
-        return view('backend.galeri.galeri', compact('data'))->with('kategori', 'venue_banner')->with('kategoriLabel', 'Venue Banner');
+        return view('BACKEND.Galeri.galeri', compact('data'))->with('kategori', 'venue_banner')->with('kategoriLabel', 'Venue Banner');
     }
 
     public function tambahgaleri($kategori = null){
-        return view('backend.galeri.tambahgaleri', compact('kategori'));
+        return view('BACKEND.Galeri.tambahgaleri', compact('kategori'));
     }
     public function insertgaleri(Request $request){
     
@@ -145,7 +145,7 @@ class GaleriController extends Controller
     public function tampilkangaleri($id){
 
     $data = Galeri::find($id);
-    return view('backend.galeri.editgaleri', compact('data'));
+    return view('BACKEND.Galeri.editgaleri', compact('data'));
 
     }
     public function updategaleri(Request $request, $id){

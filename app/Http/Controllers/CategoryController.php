@@ -14,12 +14,12 @@ class CategoryController extends Controller
         $categories = Category::latest()->get();
 
         // kirim ke view Backend.Category.index
-        return view('Backend.Category.category', compact('categories'));
+        return view('BACKEND.Category.category', compact('categories'));
     }
 
     public function create()
     {
-        return view('Backend.Category.tambah_category');
+        return view('BACKEND.Category.tambah_category');
     }
 
     public function store(Request $request)
@@ -38,7 +38,7 @@ class CategoryController extends Controller
   public function edit($id)
 {
     $category = Category::findOrFail($id);
-    return view('Backend.Category.edit_category', compact('category'));
+    return view('BACKEND.Category.edit_category', compact('category'));
 }
 
 
